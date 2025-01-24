@@ -1,0 +1,51 @@
+{
+  "common": {
+    "INVALID_HEADER_VALUE": "Incorrect value for the {prop} header, check",
+    "VALUES_NOT_CHANGED": "The sent values do not contain any changes",
+    "USER_LOGGED": "User logged successfully",
+    "USER_NOT_LOGGED": "User not logged",
+    "USER_NOT_FOUND": "User not found/registered",
+    "USER_FORBIDEN": "You do not have access to the requested resource",
+    "TOKEN_REFRESH_SUCESS": "Tokens successfully obtained",
+    "INVALID_TOKEN": "Invalid token",
+    "EMAIL_OTP_SENDED": "Email OTP send successful",
+    "SOMETHING_WRONG": "Something went wrong, please check{message}",
+    "SOMETHING_WRONG_RETRY": "An error has occurred, please try again. If the issue persists, contact technical support{message}",
+    "SERVICE_NOT_AVAILABLE_RETRY": "The requested service is not available at the moment, please try again. If it persists, contact technical support{message}",
+    "BAD_REQUEST_RETRY": "Something is not correct in your information, please check and try again. If it persists, contact technical support{message}",
+    "BAD_REQUEST": "Bad request",
+    "DATA_GET_SUCCESSFULLY": "Data successfully obtained",
+    "NO_DATA": "There is no data to show",
+    "DATA_UPDATED_SUCESSFULLY": "Data successfully updated",
+    "NOTIFICATION_SERVICE_NOT_AVAILABLE": "Notification service is not available at this time. Contact technical support",
+    "BAD_ROUTE": "Route not found, not defined or used incorrectly ({route}), please check",
+    "TESTING": "Just testing...",
+    "WORKING": "Still workin on it..."
+  },
+  "registry": {
+    "SEND_EMAIL_OTP_CODE_SUBJECT": "Registry OTP Code"
+  },
+  "profile": {
+    "SEND_EMAIL_OTP_CODE_SUBJECT": "Verification OTP Code",
+    "EMAIL_VERIFIED": "Email address, has been verified successfully"
+  },
+  "login": {
+    "LOGOUT_SUCCESS": "Logout successful",
+    "SEND_EMAIL_OTP_CODE": "<p>Your code is: <b>{code}</b></p>",
+    "SEND_EMAIL_OTP_CODE_SUBJECT": "OTP Code",
+    "DENNY_ACCESS_BY_ROL": "Denied access to the requested service",
+    "USER_IS_LOCKED": "Your user has been locked. For more information consult technical support"
+  },
+  "admin": {
+    "USER_UPDATED_SUCESSFULLY": "User {email}, has been updated successfully",
+    "USER_CREATED_SUCESSFULLY": "User {email}, has been created successfully",
+    "SERVICE_CONF_SAVED": "Configuration saved successfully",
+    "SERVICE_CONF_NOT_SAVED": "Configuration has not been saved, retry, and if it persists, contact specialized technical support",
+    "NOT_PROVIDE_SERVICE_TYPE": "Decorator ServiceIsAvailable: Service ID is needed to continue, please check",
+    "USER_SUCCESSFULLY_NOTIFIED": "User has been notified successfully",
+    "USER_ROLE_SUCCESSFULLY_SAVED": "New role added successfully",
+    "USER_ROLE_SUCCESSFULLY_REMOVED": "Successfully deleted role",
+    "NOTIFICATION_IN_PROCESS": "The notification has been created. Shipping process started",
+    "COULD_NOT_BE_NOTIFIED": "The notification could not be sent"
+  }
+}

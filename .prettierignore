@@ -1,0 +1,6 @@
+.husky
+.yarn
+.next
+.prettierrc
+dist
+node_modules

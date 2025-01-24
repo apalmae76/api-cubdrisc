@@ -1,0 +1,21 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "node": true,
+    "es2021": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "overrides": [],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "plugins": ["@typescript-eslint", "prettier", "import"],
+  "rules": {
+    "curly": "error",
+    "object-curly-spacing": ["error", "always"],
+    "prettier/prettier": "error",
+    "import/no-cycle": 2
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "operators_actions": {
+    "SYSTEM_CONFIG_UPD": "Modifica la configuración general del sistema",
+    "USER_ROLE_ADD": "Adiciona rol a un usuario",
+    "USER_ROLE_REMOVE": "Elimina rol a un usuario"
+  }
+}

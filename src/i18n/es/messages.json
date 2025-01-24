@@ -1,0 +1,51 @@
+{
+  "common": {
+    "INVALID_HEADER_VALUE": "Valor incorrecto para el header {prop}, verifique",
+    "VALUES_NOT_CHANGED": "Los valores enviados no contienen cambios",
+    "USER_LOGGED": "Usuario autenticado con éxito",
+    "USER_NOT_LOGGED": "Usuario no autenticado en el sistema",
+    "USER_NOT_FOUND": "Usuario no encontrado/registrado en el sistema",
+    "USER_FORBIDEN": "No tiene acceso al recurso solicitado",
+    "TOKEN_REFRESH_SUCESS": "Tokens obtenidos con éxito",
+    "INVALID_TOKEN": "Token inválido",
+    "EMAIL_OTP_SENDED": "Código OTP enviado a su dirección de correo con éxito",
+    "SOMETHING_WRONG": "Algo salió mal, por favor verifique{message}",
+    "SOMETHING_WRONG_RETRY": "Ha ocurrido un error, por favor reintente. Si persiste, contacte a soporte técnico{message}",
+    "SERVICE_NOT_AVAILABLE_RETRY": "El servicio solicitado no esta disponible en este momento, por favor reintente. Si persiste, contacte a soporte técnico{message}",
+    "BAD_REQUEST_RETRY": "Algo no es correcto en su información, por favor verifique y reintente. Si persiste, contacte a soporte técnico{message}",
+    "BAD_REQUEST": "Petición incorrecta",
+    "DATA_GET_SUCCESSFULLY": "Datos obtenidos con éxito",
+    "NO_DATA": "No hay datos que mostar",
+    "DATA_UPDATED_SUCESSFULLY": "Datos modificados con éxito",
+    "NOTIFICATION_SERVICE_NOT_AVAILABLE": "Servicio de notificaciones no está disponible en este momento. Comuníquese con soporte técnico",
+    "BAD_ROUTE": "Ruta no encontrada, no definida o usada incorrectamente ({route}), por favor verifique",
+    "TESTING": "Solo haciendo una prueba...",
+    "WORKING": "Todavía trabajando en ello..."
+  },
+  "registry": {
+    "SEND_EMAIL_OTP_CODE_SUBJECT": "Código OTP de registro"
+  },
+  "profile": {
+    "SEND_EMAIL_OTP_CODE_SUBJECT": "Código OTP de verificación",
+    "EMAIL_VERIFIED": "Correo verificado con éxito"
+  },
+  "login": {
+    "LOGOUT_SUCCESS": "Sesión cerrada correctamente",
+    "SEND_EMAIL_OTP_CODE": "<p>Su código es: <b>{code}</b></p>",
+    "SEND_EMAIL_OTP_CODE_SUBJECT": "Código OTP",
+    "DENNY_ACCESS_BY_ROL": "Acceso denegado al servicio solicitado",
+    "USER_IS_LOCKED": "Su usuario ha sido bloqueado. Para más información consulte a soporte técnico"
+  },
+  "admin": {
+    "USER_UPDATED_SUCESSFULLY": "Datos del usuario {email}, modificados con éxito",
+    "USER_CREATED_SUCESSFULLY": "Usuario {email}, creado con éxito",
+    "SERVICE_CONF_SAVED": "Configuración guardada con éxito",
+    "SERVICE_CONF_NOT_SAVED": "Configuración no se ha guardado, reintente, y si persiste, contacte a soporte técnico especializado",
+    "NOT_PROVIDE_SERVICE_TYPE": "Decorador ServiceIsAvailable: Se necesita el ID del servicio para continuar, por favor verifique",
+    "USER_SUCCESSFULLY_NOTIFIED": "Usuario notificado con éxito",
+    "USER_ROLE_SUCCESSFULLY_SAVED": "Nuevo rol adicionado con éxito",
+    "USER_ROLE_SUCCESSFULLY_REMOVED": "Rol eliminado con éxito",
+    "NOTIFICATION_IN_PROCESS": "La notificación ha sido creada. Proceso de envío iniciado",
+    "COULD_NOT_BE_NOTIFIED": "La notificación no pudo ser enviada"
+  }
+}
