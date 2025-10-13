@@ -146,6 +146,15 @@
     "SAME_VALUE": "The value sent ({value}) is the same as it is already, please check"
   },
   "patient": {
-    "PATIENT_NOT_FOUND": "The patient is not found or has not been registered, please check"
+    "PATIENT_NOT_FOUND": "Patient is not found or has not been registered, please check"
+  },
+  "survey": {
+    "NOT_FOUND": "Survey is not found or has not been registered, please check"
+  },
+  "survey_question": {
+    "NOT_FOUND": "Survey question is not found or has not been registered, please check"
+  },
+  "survey_question_pa": {
+    "NOT_FOUND": "Survey question possible a nswer, is not found or has not been registered, please check"
   }
 }

@@ -145,6 +145,15 @@
     "SAME_VALUE": "El valor enviado ({value}) es el mismo que ya está, por favor verifique"
   },
   "patient": {
-    "PATIENT_NOT_FOUND": "El paciente no se encuentra o no ha sido registrado, por favor veirifique"
+    "PATIENT_NOT_FOUND": "El paciente no se encuentra o no ha sido registrado, por favor verifique"
+  },
+  "survey": {
+    "NOT_FOUND": "La encuesta no se encuentra o no ha sido registrado, por favor verifique"
+  },
+  "survey_question": {
+    "NOT_FOUND": "La pregunta de encuesta no se encuentra o no ha sido registrada, por favor verifique"
+  },
+  "survey_question_pa": {
+    "NOT_FOUND": "La posible respuesta a una pregunta de encuesta, no se encuentra o no ha sido registrada, por favor verifique"
   }
 }

@@ -31,6 +31,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
     //* console.log(`//-JwtRefresh->payload: ${JSON.stringify(payload)}-//`);
     const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
     //* console.log(`//-JwtRefresh->validate, refreshToken: ${refreshToken}-//`);
+    //* console.log(payload);
     if (!payload.userId) {
       this.logger.warn('{message}', {
         userId: payload.userId,

@@ -5,13 +5,15 @@ import {
   Entity,
   Index,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { PatientSurveyAnswers } from './patientSurveyAnswers.entity';
 import { Person } from './person.entity';
 
-Entity('patient');
+@Entity('patient')
 @Index(['id'], { where: 'deleted_at IS NULL' })
 @Index(['phone'], {
   unique: true,
@@ -22,14 +24,19 @@ Entity('patient');
   where: 'phone is not null and deleted_at IS NULL',
 })
 export class Patient {
+  @OneToMany(() => PatientSurveyAnswers, (surveyAnswer) => surveyAnswer.patient)
+  surveyAnswers: PatientSurveyAnswers[];
+
   @PrimaryColumn({ type: 'bigint', comment: 'id column' })
-  @OneToOne(() => Person, (person) => person.id, {
+  id: number;
+
+  @OneToOne(() => Person, (person) => person.patient, {
     nullable: false,
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn({ name: 'id' })
-  id: number;
+  @JoinColumn({ name: 'id', referencedColumnName: 'id' })
+  person: Person;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone: string;

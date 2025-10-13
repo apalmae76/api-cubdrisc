@@ -8,10 +8,10 @@ import {
 
 @Injectable()
 export class JwtTokenService implements IJwtService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async checkToken(token: string, options?: JwtVerifyOptions): Promise<any> {
+  checkToken(token: string, options?: JwtVerifyOptions): any {
     if (!options) {
       options = <JwtVerifyOptions>{
         secret: process.env.JWT_TOKEN_SECRET,
@@ -20,7 +20,7 @@ export class JwtTokenService implements IJwtService {
         },
       };
     }
-    const decode = await this.jwtService.verifyAsync(token, options);
+    const decode = this.jwtService.verify(token, options);
     return decode;
   }
 

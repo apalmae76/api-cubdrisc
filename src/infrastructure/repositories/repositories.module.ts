@@ -8,9 +8,13 @@ import { UserEmails } from '../entities/emails.entity';
 import { MedicalSpecialty } from '../entities/medicalSpecialty.entity';
 import { OperatorsActions } from '../entities/operatorsActions.entity';
 import { Patient } from '../entities/patient.entity';
+import { PatientSurveyAnswers } from '../entities/patientSurveyAnswers.entity';
 import { Person } from '../entities/person.entity';
 import { UserPhones } from '../entities/phone.entity';
 import { State } from '../entities/state.entity';
+import { Survey } from '../entities/survey.entity';
+import { SurveyQuestions } from '../entities/surveyQuestions.entity';
+import { SurveyQuestionsPossibleAnswers } from '../entities/surveyQuestionsPossibleAnswers.entity';
 import { User } from '../entities/user.entity';
 import { ApiLoggerModule } from '../services/logger/logger.module';
 import { ApiRedisModule } from '../services/redis/redis.module';
@@ -24,6 +28,9 @@ import { DatabasePatientRepository } from './patient.repository';
 import { DatabasePersonRepository } from './person.repository';
 import { DatabasePhoneRepository } from './phone.repository';
 import { DatabaseStateRepository } from './state.repository';
+import { DatabaseSurveyRepository } from './survey.repository';
+import { DatabaseSurveyQuestionsRepository } from './surveyQuestions.repository';
+import { DatabaseSurveyQuestionsPossibleAnswersRepository } from './surveyQuestionsPossibleAnswers.repository';
 import { DatabaseUserRepository } from './user.repository';
 
 @Module({
@@ -44,6 +51,11 @@ import { DatabaseUserRepository } from './user.repository';
       State,
       City,
       MedicalSpecialty,
+
+      Survey,
+      SurveyQuestions,
+      SurveyQuestionsPossibleAnswers,
+      PatientSurveyAnswers,
     ]),
   ],
   providers: [
@@ -57,6 +69,10 @@ import { DatabaseUserRepository } from './user.repository';
     DatabaseCityRepository,
     DatabaseMedicalSpecialtyRepository,
     DatabaseOperatorsActionsRepository,
+
+    DatabaseSurveyRepository,
+    DatabaseSurveyQuestionsRepository,
+    DatabaseSurveyQuestionsPossibleAnswersRepository,
   ],
   exports: [
     DatabasePersonRepository,
@@ -69,6 +85,10 @@ import { DatabaseUserRepository } from './user.repository';
     DatabaseCityRepository,
     DatabaseMedicalSpecialtyRepository,
     DatabaseOperatorsActionsRepository,
+
+    DatabaseSurveyRepository,
+    DatabaseSurveyQuestionsRepository,
+    DatabaseSurveyQuestionsPossibleAnswersRepository,
   ],
 })
 export class RepositoriesModule { }

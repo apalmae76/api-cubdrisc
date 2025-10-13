@@ -1,0 +1,21 @@
+export class SurveyQuestionCreateModel {
+  surveyId: number;
+  question: string;
+  order: number;
+  required: boolean;
+  active: boolean;
+}
+export class SurveyQuestionUpdateModel {
+  surveyId?: number;
+  question?: string;
+  order?: number;
+  required?: boolean;
+  active?: boolean;
+}
+
+export class SurveyQuestionModel extends SurveyQuestionCreateModel {
+  id: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  deletedAt?: Date;
+}

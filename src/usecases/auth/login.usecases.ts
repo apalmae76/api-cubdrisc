@@ -37,7 +37,8 @@ interface IUserNeeds {
 }
 
 interface ILoginResponse {
-  message: BaseResponsePresenter<null>;
+  message: string;
+  expirationTime: number;
   userId: number;
 }
 export class LoginUseCases extends JwtGetToken {
@@ -79,15 +80,16 @@ export class LoginUseCases extends JwtGetToken {
       user.id,
     );
     // Guardo la data en Redis
-    const expOtpTime = this.appConfig.getOtpEmailExpirationTime();
+    const expirationTime = this.appConfig.getOtpEmailExpirationTime();
     // Registro la data del usuario en Redis
-    await this.redisService.set<string>(cacheKey, otpCode, expOtpTime);
+    await this.redisService.set<string>(cacheKey, otpCode, expirationTime);
     try {
       if (!isTestingUser && this.appConfig.isNotLocalEnv()) {
         await this.sendMailOTPMessage(email, otpCode, emailSyncQueue);
       }
       return {
-        message: new BaseResponsePresenter('messages.common.EMAIL_OTP_SENDED'),
+        message: 'messages.common.EMAIL_OTP_SENDED',
+        expirationTime,
         userId: user.id,
       };
     } catch (er: unknown) {

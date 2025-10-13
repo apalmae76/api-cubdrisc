@@ -17,6 +17,10 @@ export enum EEntitiesForGetEntity {
   USER_PHONES = 'phones',
   USER_EMAILS = 'emails',
   OPER_ACTIONS = 'operatorsActions',
+
+  SURVEY = 'surveys',
+  SURVEY_QUESTIONS = 'surveysQuestions',
+  SURVEY_QUESTIONS_PA = 'surveysQuestionsPA',
 }
 
 export enum ERepoRefForGetEntity {
@@ -26,6 +30,10 @@ export enum ERepoRefForGetEntity {
   phones = 'userPhoneRepo',
   emails = 'userEmailsRepo',
   operatorsActions = 'opActionsRepo',
+
+  surveys = 'surveysRepo',
+  surveysQuestions = 'surveysQuestionsRepo',
+  surveysQuestionsPA = 'surveysQuestionsPARepo',
 }
 
 export enum EEntitiesForGetDetail {

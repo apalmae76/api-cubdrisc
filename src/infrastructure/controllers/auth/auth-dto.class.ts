@@ -9,10 +9,10 @@ import {
   IsOptional,
   IsString,
   Matches,
-  Validate,
-  ValidateIf,
+  Validate
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
+import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { IsTextParam } from 'src/infrastructure/common/dtos/isTextParam-dto';
 import {
   RE_EMAIL_LENGTHS,
@@ -98,17 +98,36 @@ export class EmailDto {
   })
   email: string;
 }
+
+export class ExpirationTimePresenter {
+  @ApiProperty({ description: 'in seconds', type: 'integer' })
+  expirationTime: number;
+
+  constructor(expirationTime: number) {
+    this.expirationTime = expirationTime;
+  }
+}
+
+export class GetOtpPresenter extends BaseResponsePresenter<ExpirationTimePresenter> {
+  @ApiProperty({
+    description: 'Response data',
+    type: ExpirationTimePresenter,
+  })
+  data: ExpirationTimePresenter;
+  constructor(data: ExpirationTimePresenter, message: string = 'AUTO') {
+    super(message, data);
+  }
+}
 export class LogginEmailOTPDto extends EmailDto {
   @ApiProperty({
     example: '567890',
     description: 'OTP code',
-    required: false,
+    required: true,
   })
-  @ValidateIf((obj) => obj.otpCode)
   @Matches(RE_OTP, {
     message: i18nValidationMessage('validation.MATCH_OTP_CODE'),
   })
-  otpCode?: string;
+  otpCode: string;
 }
 
 export class sendEmailOtpDto extends EmailDto {

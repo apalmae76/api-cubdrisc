@@ -438,7 +438,7 @@ export class DatabaseUserRepository
     if (!user) {
       return null;
     }
-    return this.toModel(user, user, true);
+    return this.toModel(user, user);
   }
 
   async getIdByEmail(email: string): Promise<number> {

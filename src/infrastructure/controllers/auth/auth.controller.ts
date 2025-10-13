@@ -4,7 +4,7 @@ import {
   HttpCode,
   Inject,
   Post,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -20,7 +20,11 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { LogginEmailOTPDto } from './auth-dto.class';
+import {
+  ExpirationTimePresenter,
+  GetOtpPresenter,
+  LogginEmailOTPDto,
+} from './auth-dto.class';
 import {
   GetAuthTokensPresenter,
   GetRefreshTokenPresenter,
@@ -69,9 +73,9 @@ export class AuthController {
     private readonly logger: ApiLoggerService,
   ) { }
 
-  @Post('mail-login')
+  @Post('mail-login/otp')
   @ApiCreatedResponse({ type: BaseResponsePresenter<GetAuthTokensPresenter> })
-  @ApiBody({ type: LogginEmailOTPDto })
+  @ApiBody({ type: GetOtpPresenter })
   @ApiOperation({
     description: `Recommended regular expression for validating email 
     is: /^[-a-z0-9~!$%^&\\*\\*=+}{'?]+(.[-a-z0-9~!$%^&\\*\\*=+}{\\'?]+)*@([a-z0-9_][-a-z0-9_]\\*(\\.[-a-z0-9_]+)\\*/
@@ -83,29 +87,44 @@ export class AuthController {
     \n- **HELP**: When request fails for otp fail maybe user needs our help to go on. Upon receiving it, it should show description help to the user.
   `,
     summary: 'Initiate authentication with email, triggering the OTP sending',
-    operationId: 'postMailLogin',
+    operationId: 'postMailLoginOtp',
   })
-  async mailLogin(
+  async postMailLoginOtp(
     @Body() auth: LogginEmailOTPDto,
     @CurrentApp() app: EAppTypes,
-  ): Promise<
-    BaseResponsePresenter<GetAuthTokensPresenter> | BaseResponsePresenter<null>
-  > {
-    if (auth.otpCode) {
-      const response = await this.loginUC
-        .getInstance()
-        .authenticateUserByOtpEmail(auth, app);
-      if (response.data) {
-        delete response.data.userId;
-        delete response.data.email;
-      }
-      return response;
-    } else {
-      const response = await this.loginUC
-        .getInstance()
-        .sendLogInEmailOtpCode(auth.email, this.emailSyncQueue, app);
-      return response.message;
+  ): Promise<GetOtpPresenter> {
+    const response = await this.loginUC
+      .getInstance()
+      .sendLogInEmailOtpCode(auth.email, this.emailSyncQueue, app);
+    return new GetOtpPresenter(
+      new ExpirationTimePresenter(response.expirationTime),
+      response.message,
+    );
+  }
+
+  @Post('mail-login/token')
+  @ApiCreatedResponse({ type: BaseResponsePresenter<GetAuthTokensPresenter> })
+  @ApiBody({ type: LogginEmailOTPDto })
+  @ApiOperation({
+    description: `
+    \nOTP code is a 6-digit number (/[0-9]{6}$/)\n
+    \ndevice: Its required
+    `,
+    summary: 'Ends authentication with email, triggering tokens sending',
+    operationId: 'postMailLoginTokens',
+  })
+  async postMailLoginTokens(
+    @Body() auth: LogginEmailOTPDto,
+    @CurrentApp() app: EAppTypes,
+  ): Promise<BaseResponsePresenter<GetAuthTokensPresenter>> {
+    const response = await this.loginUC
+      .getInstance()
+      .authenticateUserByOtpEmail(auth, app);
+    if (response.data) {
+      delete response.data.userId;
+      delete response.data.email;
     }
+    return response;
   }
 
   @Post('logout')
@@ -138,6 +157,8 @@ export class AuthController {
     @CurrentUser() user: AuthUser,
     @CurrentApp() app: EAppTypes,
   ): Promise<BaseResponsePresenter<RefreshTokenPresenter>> {
+    console.log(user);
+    console.log(app);
     return await this.refreshToken(user, app);
   }
 

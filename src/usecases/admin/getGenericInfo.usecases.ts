@@ -18,6 +18,9 @@ import { DatabaseEmailRepository } from 'src/infrastructure/repositories/email.r
 import { DatabasePatientRepository } from 'src/infrastructure/repositories/patient.repository';
 import { DatabasePersonRepository } from 'src/infrastructure/repositories/person.repository';
 import { DatabasePhoneRepository } from 'src/infrastructure/repositories/phone.repository';
+import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
+import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/surveyQuestions.repository';
+import { DatabaseSurveyQuestionsPossibleAnswersRepository } from 'src/infrastructure/repositories/surveyQuestionsPossibleAnswers.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { UseCaseBase } from '../usecases.base';
@@ -29,6 +32,9 @@ export class GetGenericInfoUseCases extends UseCaseBase {
     private readonly patientRepo: DatabasePatientRepository,
     private readonly userPhoneRepo: DatabasePhoneRepository,
     private readonly userEmailsRepo: DatabaseEmailRepository,
+    private readonly surveysRepo: DatabaseSurveyRepository,
+    private readonly surveysQuestionsRepo: DatabaseSurveyQuestionsRepository,
+    private readonly surveysQuestionsPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
     protected readonly logger: ApiLoggerService,
   ) {
     super(logger);

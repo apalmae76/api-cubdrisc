@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Patient } from './patient.entity';
 
 @Entity('person')
 @Index(['ci'], { unique: true })
@@ -60,4 +62,7 @@ export class Person {
     comment: 'Entity update',
   })
   updatedAt: Date;
+
+  @OneToMany(() => Patient, (patient) => patient.person)
+  patient: Patient;
 }

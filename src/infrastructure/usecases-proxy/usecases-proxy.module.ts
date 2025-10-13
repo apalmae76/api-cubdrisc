@@ -33,6 +33,9 @@ import { UpdUserEmailWithOtpUseCases } from 'src/usecases/profile/updUserEmailWi
 import { DatabaseOperatorsActionsRepository } from '../repositories/operatorsActions.repository';
 import { DatabasePatientRepository } from '../repositories/patient.repository';
 import { DatabasePersonRepository } from '../repositories/person.repository';
+import { DatabaseSurveyRepository } from '../repositories/survey.repository';
+import { DatabaseSurveyQuestionsRepository } from '../repositories/surveyQuestions.repository';
+import { DatabaseSurveyQuestionsPossibleAnswersRepository } from '../repositories/surveyQuestionsPossibleAnswers.repository';
 import { CronTasksModule } from '../services/cronjobs/cronTasks.module';
 import { ApiLoggerModule } from '../services/logger/logger.module';
 import { ApiLoggerService } from '../services/logger/logger.service';
@@ -230,6 +233,9 @@ export class UsecasesProxyModule {
             DatabasePatientRepository,
             DatabasePhoneRepository,
             DatabaseEmailRepository,
+            DatabaseSurveyRepository,
+            DatabaseSurveyQuestionsRepository,
+            DatabaseSurveyQuestionsPossibleAnswersRepository,
             ApiLoggerService,
           ],
           provide: UsecasesProxyModule.GET_GENERIC,
@@ -239,6 +245,9 @@ export class UsecasesProxyModule {
             patientRepo: DatabasePatientRepository,
             userPhoneRepo: DatabasePhoneRepository,
             userEmailsRepo: DatabaseEmailRepository,
+            surveysRepo: DatabaseSurveyRepository,
+            surveysQuestionsRepo: DatabaseSurveyQuestionsRepository,
+            surveysQuestionsPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
             logger: ApiLoggerService,
           ) =>
             new UseCaseProxy(
@@ -248,6 +257,9 @@ export class UsecasesProxyModule {
                 patientRepo,
                 userPhoneRepo,
                 userEmailsRepo,
+                surveysRepo,
+                surveysQuestionsRepo,
+                surveysQuestionsPARepo,
                 logger,
               ),
             ),

@@ -13,6 +13,7 @@ import { tap } from 'rxjs/operators';
 import ContextStorageService from 'src/infrastructure/services/context/context.interface';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { v4 as uuidv4 } from 'uuid';
+import { extractCurrentUserFromRequestWithAccessToken } from '../decorators/current-user.decorator';
 import { EAppTypes } from '../utils/constants';
 import { getIP } from '../utils/get-ip';
 
@@ -21,7 +22,7 @@ export class LoggerInterceptor implements NestInterceptor {
   constructor(
     private readonly logger: ApiLoggerService,
     private contextStorageService: ContextStorageService,
-  ) {}
+  ) { }
 
   async intercept(
     context: ExecutionContext,
@@ -30,87 +31,88 @@ export class LoggerInterceptor implements NestInterceptor {
     const now = Date.now();
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest();
-    const { path, method, body, query, params, headers } = request;
-
+    const { path, baseUrl, method, body, query, params, headers } = request;
     if (headers['correlation-id'] === undefined) {
       headers['correlation-id'] = uuidv4();
     }
     // validate required header app exist
-    let appInHeader = EAppTypes[headers.app];
-    if (
-      !appInHeader &&
-      (path === '/calls/incoming' || path === '/calls/callback')
-    ) {
+    let appInHeader =
+      headers.app && EAppTypes[headers.app] ? EAppTypes[headers.app] : null;
+    const versionInHeader = headers.version ?? '?';
+    const routesWithNoAppHeader = ['/calls/incoming', '/calls/callback'];
+    if (!appInHeader && routesWithNoAppHeader.includes(path)) {
       appInHeader = EAppTypes.app;
     }
     const ip = getIP(headers, request.connection.remoteAddress);
-    if (appInHeader) {
-      this.contextStorageService.set<string>('app', appInHeader);
-    } else {
-      const addInfo = {
-        prop: 'app',
-        technicalError: `The application type sent in the request header (${headers.app}), is invalid`,
-      };
-      this.logger.warn('{message}', {
-        message: addInfo.technicalError,
-        path,
-        method,
-        ip,
-        body,
-        query,
-        params,
-        appInHeader,
-        appType: appInHeader,
-        correlationId: headers['correlation-id'],
-        context: `${method}`,
-      });
-      throw new UnprocessableEntityException({
-        message: [
-          `messages.common.INVALID_HEADER_VALUE|${JSON.stringify(addInfo)}`,
-        ],
-      });
+    if (versionInHeader !== '?') {
+      this.contextStorageService.set<string>('frontVersion', versionInHeader);
     }
-    // validate app in user, is equal than app in header
-    const appInUser = request.user?.app ?? null;
-    if (appInUser && appInUser !== appInHeader) {
-      const addInfo = {
-        prop: 'app',
-        technicalError: `The application type sent in the request header (${appInHeader}), must match the content in the authenticated user token`,
-      };
-      this.logger.warn('{message}', {
-        message: `${addInfo.technicalError} (${appInUser})`,
-        path,
-        method,
-        ip,
-        body,
-        query,
-        params,
-        appType: appInUser,
-        appInHeader,
-        appInUser,
-        correlationId: headers['correlation-id'],
-        context: `${method}`,
-      });
-      throw new ForbiddenException({
-        message: [
-          `messages.common.INVALID_HEADER_VALUE|${JSON.stringify(addInfo)}`,
-        ],
-      });
-    }
-    const userId = Number(request.user?.id || -1);
-    this.logger.info('Incoming request on {path} ===============', {
-      path,
+    const logData = {
+      path: path === '/' ? baseUrl : path,
       method,
       body,
       query,
       params,
       ip,
-      userId,
+      userId: Number(request.user?.id ?? -1),
+      deviceKey: request.user?.deviceKey ?? '?',
       appType: appInHeader,
-      appInUser,
+      userAgent: headers['user-agent'] ?? 'NULL',
+      frontVersion: versionInHeader,
       correlationId: headers['correlation-id'],
       context: `${method}`,
-    });
+      localContext: `${LoggerInterceptor.name}.intercept`,
+      message: undefined,
+      appInHeader: undefined,
+      appInUserToken: request.user?.app ?? null,
+    };
+    if (logData.userId === -1) {
+      const user = await extractCurrentUserFromRequestWithAccessToken(
+        null,
+        request,
+      );
+      if (user) {
+        logData.userId = user.id;
+        logData.appInUserToken = user.app;
+        logData.deviceKey = user.deviceKey;
+        logData.appInUserToken = user.app;
+      }
+    }
+    if (appInHeader) {
+      this.contextStorageService.set<string>('app', appInHeader);
+    } else {
+      const app = headers.app ?? '?';
+      const addInfo = {
+        prop: 'app',
+        technicalError: `The application type sent in the 'app' header (${app}), is invalid`,
+      };
+      logData.message = addInfo.technicalError;
+      logData.appType = app;
+      logData.appInHeader = app;
+      logData.localContext = `${logData.localContext}.warn`;
+      this.logger.warn('{message}', logData);
+      throw new UnprocessableEntityException({
+        message: [
+          `messages.common.INVALID_HEADER_VALUE_APP|${JSON.stringify(addInfo)}`,
+        ],
+      });
+    }
+    // validate app in user, is equal than app in header
+    if (logData.appInUserToken && logData.appInUserToken !== appInHeader) {
+      const addInfo = {
+        prop: 'app',
+        technicalError: `The application type sent in the 'app' header (${appInHeader}), must match the content in the authenticated user token`,
+      };
+      logData.message = `${addInfo.technicalError} (${logData.appInUserToken})`;
+      this.logger.warn('{message}', logData);
+      throw new ForbiddenException({
+        message: [
+          `messages.common.INVALID_HEADER_VALUE_APP|${JSON.stringify(addInfo)}`,
+        ],
+      });
+    }
+
+    this.logger.info('Incoming request on {path} ===============', logData);
 
     return next.handle().pipe(
       tap({
@@ -119,16 +121,10 @@ export class LoggerInterceptor implements NestInterceptor {
           this.logger.info(
             'End request for {path}, status {status}, duration={duration}ms ============',
             {
-              path,
-              method,
-              ip,
-              userId,
-              appType: appInHeader,
-              correlationId: request.headers['correlation-id'],
+              ...logData,
               response,
               status,
               duration: Date.now() - now,
-              context: `${method}`,
             },
           );
         },
