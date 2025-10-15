@@ -8,6 +8,7 @@ import { UserEmails } from '../entities/emails.entity';
 import { MedicalSpecialty } from '../entities/medicalSpecialty.entity';
 import { OperatorsActions } from '../entities/operatorsActions.entity';
 import { Patient } from '../entities/patient.entity';
+import { PatientSurvey } from '../entities/patientSurvey.entity';
 import { PatientSurveyAnswers } from '../entities/patientSurveyAnswers.entity';
 import { Person } from '../entities/person.entity';
 import { UserPhones } from '../entities/phone.entity';
@@ -25,6 +26,8 @@ import { DatabaseEmailRepository } from './email.repository';
 import { DatabaseMedicalSpecialtyRepository } from './medicalSpecialty.repository';
 import { DatabaseOperatorsActionsRepository } from './operatorsActions.repository';
 import { DatabasePatientRepository } from './patient.repository';
+import { DatabasePatientSurveyRepository } from './patientSurvey.repository';
+import { DatabasePatientSurveyAnswersRepository } from './patientSurveyAnswers.repository';
 import { DatabasePersonRepository } from './person.repository';
 import { DatabasePhoneRepository } from './phone.repository';
 import { DatabaseStateRepository } from './state.repository';
@@ -55,6 +58,7 @@ import { DatabaseUserRepository } from './user.repository';
       Survey,
       SurveyQuestions,
       SurveyQuestionsPossibleAnswers,
+      PatientSurvey,
       PatientSurveyAnswers,
     ]),
   ],
@@ -73,6 +77,9 @@ import { DatabaseUserRepository } from './user.repository';
     DatabaseSurveyRepository,
     DatabaseSurveyQuestionsRepository,
     DatabaseSurveyQuestionsPossibleAnswersRepository,
+
+    DatabasePatientSurveyRepository,
+    DatabasePatientSurveyAnswersRepository,
   ],
   exports: [
     DatabasePersonRepository,
@@ -89,6 +96,9 @@ import { DatabaseUserRepository } from './user.repository';
     DatabaseSurveyRepository,
     DatabaseSurveyQuestionsRepository,
     DatabaseSurveyQuestionsPossibleAnswersRepository,
+
+    DatabasePatientSurveyRepository,
+    DatabasePatientSurveyAnswersRepository,
   ],
 })
 export class RepositoriesModule { }

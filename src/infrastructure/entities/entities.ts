@@ -4,6 +4,7 @@ import { UserEmails } from './emails.entity';
 import { MedicalSpecialty } from './medicalSpecialty.entity';
 import { OperatorsActions } from './operatorsActions.entity';
 import { Patient } from './patient.entity';
+import { PatientSurvey } from './patientSurvey.entity';
 import { PatientSurveyAnswers } from './patientSurveyAnswers.entity';
 import { Person } from './person.entity';
 import { UserPhones } from './phone.entity';
@@ -28,5 +29,6 @@ export const ENTITIES = [
   Survey,
   SurveyQuestions,
   SurveyQuestionsPossibleAnswers,
+  PatientSurvey,
   PatientSurveyAnswers,
 ];

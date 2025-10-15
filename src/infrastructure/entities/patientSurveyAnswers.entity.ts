@@ -1,28 +1,29 @@
 import {
-  Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-import { Patient } from './patient.entity';
+import { PatientSurvey } from './patientSurvey.entity';
 import { SurveyQuestionsPossibleAnswers } from './surveyQuestionsPossibleAnswers.entity';
 
 @Entity('patient_survey_answers')
-@Index(['order'], { where: 'deleted_at IS NULL' })
 export class PatientSurveyAnswers {
-  @ManyToOne(() => Patient, (patient) => patient.surveyAnswers, {
-    nullable: false,
-    onDelete: 'RESTRICT',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'patient_id', referencedColumnName: 'id' })
-  patient: Patient;
-
+  @ManyToOne(
+    () => PatientSurvey,
+    (patientSurvey) => patientSurvey.patientSurveyAnswers,
+    {
+      nullable: false,
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE',
+    },
+  )
+  @JoinColumn([
+    { name: 'patient_id', referencedColumnName: 'patientId' },
+    { name: 'survey_id', referencedColumnName: 'surveyId' },
+  ])
+  patientSurvey: PatientSurvey;
   @ManyToOne(
     () => SurveyQuestionsPossibleAnswers,
     (questionPossibleAnswer) => questionPossibleAnswer.possibleAnswers,
@@ -59,38 +60,10 @@ export class PatientSurveyAnswers {
   })
   surveyQuestionAnswerId: number;
 
-  @Column({ type: 'text' })
-  answer: string;
-
-  @Column({ type: 'text', name: 'educational_tip' })
-  educationalTip: string;
-
-  @Column({
-    name: 'order',
-    type: 'smallint',
-  })
-  order: number;
-
   @CreateDateColumn({
     type: 'timestamp',
     name: 'created_at',
     comment: 'Entity create',
   })
   createdAt: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    name: 'updated_at',
-    comment: 'Entity update',
-  })
-  updatedAt: Date;
-
-  @DeleteDateColumn({
-    type: 'timestamp',
-    comment: 'Entity delete',
-    nullable: true,
-    default: null,
-    name: 'deleted_at',
-  })
-  deletedAt: Date;
 }

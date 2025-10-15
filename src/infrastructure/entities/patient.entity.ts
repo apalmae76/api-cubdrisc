@@ -10,7 +10,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PatientSurveyAnswers } from './patientSurveyAnswers.entity';
+import { PatientSurvey } from './patientSurvey.entity';
 import { Person } from './person.entity';
 
 @Entity('patient')
@@ -24,9 +24,6 @@ import { Person } from './person.entity';
   where: 'phone is not null and deleted_at IS NULL',
 })
 export class Patient {
-  @OneToMany(() => PatientSurveyAnswers, (surveyAnswer) => surveyAnswer.patient)
-  surveyAnswers: PatientSurveyAnswers[];
-
   @PrimaryColumn({ type: 'bigint', comment: 'id column' })
   id: number;
 
@@ -74,4 +71,7 @@ export class Patient {
     name: 'deleted_at',
   })
   deletedAt: Date;
+
+  @OneToMany(() => PatientSurvey, (patientSurvey) => patientSurvey.survey)
+  patientSurvey: PatientSurvey[];
 }

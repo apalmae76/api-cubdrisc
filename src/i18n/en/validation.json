@@ -156,5 +156,8 @@
   },
   "survey_question_pa": {
     "NOT_FOUND": "Survey question possible a nswer, is not found or has not been registered, please check"
+  },
+  "patient_survey_answer": {
+    "NOT_FOUND": "The answer to a survey question is missing or has not been recorded, please check"
   }
 }

@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { PatientSurvey } from './patientSurvey.entity';
 import { SurveyQuestions } from './surveyQuestions.entity';
 
 @Entity('survey')
@@ -62,6 +63,9 @@ export class Survey {
     name: 'deleted_at',
   })
   deletedAt: Date;
+
+  @OneToMany(() => PatientSurvey, (patientSurvey) => patientSurvey.survey)
+  patientSurvey: PatientSurvey[];
 
   @OneToMany(() => SurveyQuestions, (question) => question.survey)
   questions: SurveyQuestions[];

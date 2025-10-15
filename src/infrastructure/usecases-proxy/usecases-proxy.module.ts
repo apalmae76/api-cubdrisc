@@ -32,6 +32,8 @@ import { UpdateUserUseCases } from 'src/usecases/admin/updateUser.usecases';
 import { UpdUserEmailWithOtpUseCases } from 'src/usecases/profile/updUserEmailWithOTP.usecases';
 import { DatabaseOperatorsActionsRepository } from '../repositories/operatorsActions.repository';
 import { DatabasePatientRepository } from '../repositories/patient.repository';
+import { DatabasePatientSurveyRepository } from '../repositories/patientSurvey.repository';
+import { DatabasePatientSurveyAnswersRepository } from '../repositories/patientSurveyAnswers.repository';
 import { DatabasePersonRepository } from '../repositories/person.repository';
 import { DatabaseSurveyRepository } from '../repositories/survey.repository';
 import { DatabaseSurveyQuestionsRepository } from '../repositories/surveyQuestions.repository';
@@ -236,6 +238,8 @@ export class UsecasesProxyModule {
             DatabaseSurveyRepository,
             DatabaseSurveyQuestionsRepository,
             DatabaseSurveyQuestionsPossibleAnswersRepository,
+            DatabasePatientSurveyRepository,
+            DatabasePatientSurveyAnswersRepository,
             ApiLoggerService,
           ],
           provide: UsecasesProxyModule.GET_GENERIC,
@@ -248,6 +252,8 @@ export class UsecasesProxyModule {
             surveysRepo: DatabaseSurveyRepository,
             surveysQuestionsRepo: DatabaseSurveyQuestionsRepository,
             surveysQuestionsPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
+            patientSurveyRepo: DatabasePatientSurveyRepository,
+            patientSARepo: DatabasePatientSurveyAnswersRepository,
             logger: ApiLoggerService,
           ) =>
             new UseCaseProxy(
@@ -260,6 +266,8 @@ export class UsecasesProxyModule {
                 surveysRepo,
                 surveysQuestionsRepo,
                 surveysQuestionsPARepo,
+                patientSurveyRepo,
+                patientSARepo,
                 logger,
               ),
             ),

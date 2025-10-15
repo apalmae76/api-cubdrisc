@@ -16,6 +16,8 @@ import {
 import { EAppRoles } from 'src/infrastructure/controllers/auth/role.enum';
 import { DatabaseEmailRepository } from 'src/infrastructure/repositories/email.repository';
 import { DatabasePatientRepository } from 'src/infrastructure/repositories/patient.repository';
+import { DatabasePatientSurveyRepository } from 'src/infrastructure/repositories/patientSurvey.repository';
+import { DatabasePatientSurveyAnswersRepository } from 'src/infrastructure/repositories/patientSurveyAnswers.repository';
 import { DatabasePersonRepository } from 'src/infrastructure/repositories/person.repository';
 import { DatabasePhoneRepository } from 'src/infrastructure/repositories/phone.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
@@ -35,6 +37,8 @@ export class GetGenericInfoUseCases extends UseCaseBase {
     private readonly surveysRepo: DatabaseSurveyRepository,
     private readonly surveysQuestionsRepo: DatabaseSurveyQuestionsRepository,
     private readonly surveysQuestionsPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
+    private readonly patientSurveyRepo: DatabasePatientSurveyRepository,
+    private readonly patientSARepo: DatabasePatientSurveyAnswersRepository,
     protected readonly logger: ApiLoggerService,
   ) {
     super(logger);

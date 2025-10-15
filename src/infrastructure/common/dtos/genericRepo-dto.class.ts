@@ -34,6 +34,9 @@ export enum ERepoRefForGetEntity {
   surveys = 'surveysRepo',
   surveysQuestions = 'surveysQuestionsRepo',
   surveysQuestionsPA = 'surveysQuestionsPARepo',
+
+  patientSurvey = 'patientSurveyRepo',
+  patientSA = 'patientSARepo',
 }
 
 export enum EEntitiesForGetDetail {

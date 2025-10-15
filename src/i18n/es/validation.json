@@ -155,5 +155,8 @@
   },
   "survey_question_pa": {
     "NOT_FOUND": "La posible respuesta a una pregunta de encuesta, no se encuentra o no ha sido registrada, por favor verifique"
+  },
+  "patient_survey_answer": {
+    "NOT_FOUND": "La respuesta a una pregunta de encuesta, no se encuentra o no ha sido registrada, por favor verifique"
   }
 }
