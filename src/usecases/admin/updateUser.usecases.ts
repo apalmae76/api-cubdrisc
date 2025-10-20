@@ -5,8 +5,11 @@ import { ProfileUserDto } from 'src/infrastructure/controllers/profile/profile-d
 import { ProfileUserPresenter } from 'src/infrastructure/controllers/profile/profile.presenter';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
+
+@InjectableUseCase()
 export class UpdateUserUseCases extends UseCaseBase {
   constructor(
     private readonly userRepo: DatabaseUserRepository,

@@ -1,48 +1,25 @@
-import { DynamicModule, Module } from '@nestjs/common';
-import { LoginUseCases } from '../../usecases/auth/login.usecases';
-import { LogoutUseCases } from '../../usecases/auth/logout.usecases';
+import {
+  DynamicModule,
+  InjectionToken,
+  Module,
+  Provider,
+} from '@nestjs/common';
 
 import { ExceptionsModule } from '../exceptions/exceptions.module';
 
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { BcryptModule } from '../services/bcrypt/bcrypt.module';
-import { BcryptService } from '../services/bcrypt/bcrypt.service';
 import { JwtModule } from '../services/jwt/jwt.module';
-import { JwtTokenService } from '../services/jwt/jwt.service';
 import { MailModule } from '../services/mail/mail.module';
 import { ApiRedisModule } from '../services/redis/redis.module';
-import { ApiRedisService } from '../services/redis/redis.service';
 
-import { DatabaseUserRepository } from '../repositories/user.repository';
-
-import { GetGenericInfoUseCases } from 'src/usecases/admin/getGenericInfo.usecases';
-import { ManageUsersRole } from 'src/usecases/admin/manageUsersRole.usecases';
-import { TerritoriesUseCases } from 'src/usecases/territories/territories.usecases';
-import { DataSource } from 'typeorm';
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
-import { EnvironmentConfigService } from '../config/environment-config/environment-config.service';
-import { DatabaseCityRepository } from '../repositories/city.repository';
-import { DatabaseCountryRepository } from '../repositories/country.repository';
-import { DatabaseEmailRepository } from '../repositories/email.repository';
-import { DatabasePhoneRepository } from '../repositories/phone.repository';
-import { DatabaseStateRepository } from '../repositories/state.repository';
 
-import { CreateUserUseCases } from 'src/usecases/admin/createUser.usecases';
-import { UpdateUserUseCases } from 'src/usecases/admin/updateUser.usecases';
-import { UpdUserEmailWithOtpUseCases } from 'src/usecases/profile/updUserEmailWithOTP.usecases';
-import { DatabaseOperatorsActionsRepository } from '../repositories/operatorsActions.repository';
-import { DatabasePatientRepository } from '../repositories/patient.repository';
-import { DatabasePatientSurveyRepository } from '../repositories/patientSurvey.repository';
-import { DatabasePatientSurveyAnswersRepository } from '../repositories/patientSurveyAnswers.repository';
-import { DatabasePersonRepository } from '../repositories/person.repository';
-import { DatabaseSurveyRepository } from '../repositories/survey.repository';
-import { DatabaseSurveyQuestionsRepository } from '../repositories/surveyQuestions.repository';
-import { DatabaseSurveyQuestionsPossibleAnswersRepository } from '../repositories/surveyQuestionsPossibleAnswers.repository';
 import { CronTasksModule } from '../services/cronjobs/cronTasks.module';
 import { ApiLoggerModule } from '../services/logger/logger.module';
-import { ApiLoggerService } from '../services/logger/logger.service';
 import { WSModule } from '../services/websockets/ws.module';
-import { UseCaseProxy } from './usecases-proxy';
+import { IUseCaseProviderData } from './plugin/interface/use-case-provider.interface';
+import { loadProxyModuleMeta } from './plugin/use-case.utils';
 
 @Module({
   imports: [
@@ -59,6 +36,35 @@ import { UseCaseProxy } from './usecases-proxy';
   ],
 })
 export class UsecasesProxyModule {
+  static loadProviders() {
+    const providersMap = new Map<InjectionToken, Provider>();
+    const { meta } = loadProxyModuleMeta();
+    const metaArray: IUseCaseProviderData[] = meta;
+    metaArray.forEach((meta) => {
+      providersMap.set(meta.token, {
+        inject: meta.dependencies,
+        provide: meta.token,
+        useFactory: meta.factory,
+      });
+    });
+    return {
+      providers: Array.from(providersMap.values()),
+      exports: Array.from(providersMap.keys()),
+    };
+  }
+
+  static register(): DynamicModule {
+    const { providers, exports } = this.loadProviders();
+    return {
+      module: UsecasesProxyModule,
+      providers,
+      exports,
+    };
+  }
+}
+
+/*
+export class UsecasesProxyModule22 {
   // Auth
   static LOGIN = LoginUseCases.name;
   static LOGOUT = LogoutUseCases.name;
@@ -72,6 +78,7 @@ export class UsecasesProxyModule {
 
   // Admin
   static MANAGE_USER_ROLE = ManageUsersRole.name;
+  static MANAGE_SURVEY = ManageSurveyUseCases.name;
 
   static GET_GENERIC = GetGenericInfoUseCases.name;
 
@@ -227,6 +234,34 @@ export class UsecasesProxyModule {
               new ManageUsersRole(userRepo, operActionRepo, dataSource, logger),
             ),
         },
+        // MANAGE SURVEY
+        {
+          inject: [
+            DatabaseSurveyRepository,
+            DatabaseOperatorsActionsRepository,
+            EnvironmentConfigService,
+            DataSource,
+            ApiLoggerService,
+          ],
+          provide: UsecasesProxyModule.MANAGE_SURVEY,
+          useFactory: (
+            surveyRepo: DatabaseSurveyRepository,
+            operActionRepo: DatabaseOperatorsActionsRepository,
+            appConfig: EnvironmentConfigService,
+            dataSource: DataSource,
+            logger: ApiLoggerService,
+          ) =>
+            new UseCaseProxy(
+              new ManageSurveyUseCases(
+                surveyRepo,
+                operActionRepo,
+                appConfig,
+                dataSource,
+                logger,
+              ),
+            ),
+        },
+
         // GET_GENERIC
         {
           inject: [
@@ -285,9 +320,11 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.GET_TERRITORIES,
         // Admin
         UsecasesProxyModule.MANAGE_USER_ROLE,
+        UsecasesProxyModule.MANAGE_SURVEY,
 
         UsecasesProxyModule.GET_GENERIC,
       ],
     };
   }
 }
+*/

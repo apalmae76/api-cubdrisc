@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Inject,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -46,10 +39,10 @@ import { EnvironmentConfigService } from 'src/infrastructure/config/environment-
 
 import { EmailJobData } from 'src/domain/adapters/email-job-data';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { LoginUseCases } from '../../../usecases/auth/login.usecases';
 import { LogoutUseCases } from '../../../usecases/auth/logout.usecases';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
-import { UsecasesProxyModule } from '../../usecases-proxy/usecases-proxy.module';
 import { AuthUser } from './authUser.interface';
 @ApiTags('Auth')
 @Controller('auth')
@@ -65,9 +58,9 @@ import { AuthUser } from './authUser.interface';
 export class AuthController {
   constructor(
     protected readonly appConfig: EnvironmentConfigService,
-    @Inject(UsecasesProxyModule.LOGIN)
+    @InjectUseCase(LoginUseCases)
     private readonly loginUC: UseCaseProxy<LoginUseCases>,
-    @Inject(UsecasesProxyModule.LOGOUT)
+    @InjectUseCase(LogoutUseCases)
     private readonly logoutUC: UseCaseProxy<LogoutUseCases>,
     @InjectQueue('email') private readonly emailSyncQueue: Queue<EmailJobData>,
     private readonly logger: ApiLoggerService,

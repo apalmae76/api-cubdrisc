@@ -14,13 +14,21 @@ export class ResponseFormat<T> {
   @ApiProperty()
   message: string;
   @ApiProperty()
-  errors: [];
+  statusCode: number;
+  @ApiProperty()
+  errors?: string[];
+  @ApiProperty({ description: 'Just visible in dev envs', required: false })
+  technicalError?: string;
+  @ApiProperty({
+    description: 'Just visible if needed, for PO-x errors',
+    required: false,
+  })
+  errorsDetails?: string | object;
 }
 
 @Injectable()
 export class ResponseInterceptor<T>
-  implements NestInterceptor<T, ResponseFormat<T>>
-{
+  implements NestInterceptor<T, ResponseFormat<T>> {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
@@ -34,6 +42,7 @@ export class ResponseInterceptor<T>
         return {
           data,
           message: data.message || '',
+          statusCode: data.statusCode,
           errors: [],
         };
       }),

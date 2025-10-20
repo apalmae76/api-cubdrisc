@@ -27,6 +27,7 @@ import { BcryptService } from 'src/infrastructure/services/bcrypt/bcrypt.service
 import { JwtTokenService } from 'src/infrastructure/services/jwt/jwt.service';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
+import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 interface IUserNeeds {
   id: number;
@@ -41,6 +42,7 @@ interface ILoginResponse {
   expirationTime: number;
   userId: number;
 }
+@InjectableUseCase()
 export class LoginUseCases extends JwtGetToken {
   private readonly syncProcessExistFrom = new Date('2024-04-14 01:00:00');
   constructor(

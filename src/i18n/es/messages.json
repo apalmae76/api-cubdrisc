@@ -47,5 +47,12 @@
     "USER_ROLE_SUCCESSFULLY_REMOVED": "Rol eliminado con éxito",
     "NOTIFICATION_IN_PROCESS": "La notificación ha sido creada. Proceso de envío iniciado",
     "COULD_NOT_BE_NOTIFIED": "La notificación no pudo ser enviada"
+  },
+  "survey": {
+    "CREATED_SUCESSFULLY": "El test ha sido creado con éxito",
+    "ACTIVATED_SUCCESSFULLY": "El test ha sido habilitado con éxito",
+    "DISABLED_SUCCESSFULLY": "El test ha sido deshabilitado con éxito",
+    "DELETED": "El test ha sido deshabilitado permanentemente",
+    "NOT_DELETED": "El test no ha podido ser deshabilitado, por favor verifique"
   }
 }

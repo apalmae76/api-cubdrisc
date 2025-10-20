@@ -3,10 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
-import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
+import { I18nMiddleware } from 'nestjs-i18n';
 import { AppModule } from './app.module';
 import { CustomI18nValidationExceptionFilter } from './infrastructure/common/filter/customI18nValidationExceptionFilter';
-import { MyExceptionFilter } from './infrastructure/common/filter/myException.filter';
 import { LoggerInterceptor } from './infrastructure/common/interceptors/logger.interceptor';
 import { ResponseFormat } from './infrastructure/common/interceptors/response.interceptor';
 import {
@@ -46,19 +45,8 @@ async function bootstrap() {
   app.enableCors(corsOptions);
 
   app.use(I18nMiddleware);
-  app.useGlobalPipes(
-    new I18nValidationPipe({
-      skipMissingProperties: true,
-      transform: true,
-      whitelist: true,
-    }),
-  );
   const logger = app.get(ApiLoggerService);
-
   app.useGlobalFilters(new CustomI18nValidationExceptionFilter(logger));
-  app.useGlobalFilters(
-    new MyExceptionFilter(logger, envCfgServ.isNotProductionEnv()),
-  );
 
   const cls = app.get(ContextStorageServiceKey);
   app.useGlobalInterceptors(new LoggerInterceptor(logger, cls));

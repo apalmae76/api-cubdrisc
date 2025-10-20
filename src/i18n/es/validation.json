@@ -148,7 +148,12 @@
     "PATIENT_NOT_FOUND": "El paciente no se encuentra o no ha sido registrado, por favor verifique"
   },
   "survey": {
-    "NOT_FOUND": "La encuesta no se encuentra o no ha sido registrado, por favor verifique"
+    "NOT_FOUND": "La encuesta no se encuentra o no ha sido registrada, por favor verifique",
+    "ALREADY_ACTIVE": "La encuesta ya esta activa, por favor verifique",
+    "ALREADY_DELETED": "La encuesta ya ha sido eliminada, por favor verifique"
+  },
+  "survey_risk_calculation_range": {
+    "NOT_FOUND": "El rango para el calculo de riesgo no se encuentra o no ha sido registrado, por favor verifique"
   },
   "survey_question": {
     "NOT_FOUND": "La pregunta de encuesta no se encuentra o no ha sido registrada, por favor verifique"

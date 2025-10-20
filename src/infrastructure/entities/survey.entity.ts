@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { PatientSurvey } from './patientSurvey.entity';
 import { SurveyQuestions } from './surveyQuestions.entity';
+import { SurveyRiskCalculationRanges } from './surveyRangesForRiskCalculation.entity';
 
 @Entity('survey')
 export class Survey {
@@ -23,14 +24,8 @@ export class Survey {
 
   @Column({
     type: 'boolean',
-    name: 'show_tips',
-    default: false,
-  })
-  showTips: boolean;
-
-  @Column({
-    type: 'boolean',
     name: 'calc_risks',
+    comment: 'run risk calculation when responding',
     default: false,
   })
   calcRisks: boolean;
@@ -69,4 +64,7 @@ export class Survey {
 
   @OneToMany(() => SurveyQuestions, (question) => question.survey)
   questions: SurveyQuestions[];
+
+  @OneToMany(() => SurveyRiskCalculationRanges, (rcRange) => rcRange.survey)
+  rcRanges: SurveyRiskCalculationRanges[];
 }

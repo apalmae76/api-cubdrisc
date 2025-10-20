@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Controller, Get, Inject, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -14,9 +14,9 @@ import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseRespon
 import RoleGuard from 'src/infrastructure/common/guards/role.guard';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
-import { UsecasesProxyModule } from '../../usecases-proxy/usecases-proxy.module';
 
 import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
+import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { GetGenericInfoUseCases } from 'src/usecases/admin/getGenericInfo.usecases';
 import {
   GetGenericAllDto,
@@ -39,7 +39,7 @@ import { EAppRoles } from '../auth/role.enum';
 export class AdminConfigSystemController {
   constructor(
     protected readonly appConfig: EnvironmentConfigService,
-    @Inject(UsecasesProxyModule.GET_GENERIC)
+    @InjectUseCase(GetGenericInfoUseCases)
     private readonly genericUC: UseCaseProxy<GetGenericInfoUseCases>,
   ) { }
 

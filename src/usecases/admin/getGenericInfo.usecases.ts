@@ -25,8 +25,10 @@ import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositori
 import { DatabaseSurveyQuestionsPossibleAnswersRepository } from 'src/infrastructure/repositories/surveyQuestionsPossibleAnswers.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { UseCaseBase } from '../usecases.base';
 
+@InjectableUseCase()
 export class GetGenericInfoUseCases extends UseCaseBase {
   constructor(
     private readonly personRepo: DatabasePersonRepository,

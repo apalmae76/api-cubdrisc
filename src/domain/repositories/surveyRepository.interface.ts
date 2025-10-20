@@ -6,9 +6,9 @@ import { SurveyModel, SurveyUpdateModel } from '../model/survey';
 export interface ISurveyRepository {
   create(patient: SurveyModel, em: EntityManager): Promise<SurveyModel>;
   softDelete(id: number, em?: EntityManager): Promise<boolean>;
-  updateIfExistOrFail(
+  update(
     id: number,
-    patient: SurveyUpdateModel,
+    payload: SurveyUpdateModel,
     em: EntityManager,
   ): Promise<boolean>;
   ensureExistOrFail(id: number): Promise<void>;

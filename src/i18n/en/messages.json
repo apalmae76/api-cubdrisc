@@ -47,5 +47,12 @@
     "USER_ROLE_SUCCESSFULLY_REMOVED": "Successfully deleted role",
     "NOTIFICATION_IN_PROCESS": "The notification has been created. Shipping process started",
     "COULD_NOT_BE_NOTIFIED": "The notification could not be sent"
+  },
+  "survey": {
+    "CREATED_SUCESSFULLY": "Test has been created successfully",
+    "ACTIVATED_SUCCESSFULLY": "Test has been enabled successfully",
+    "DISABLED_SUCCESSFULLY": "Test has been disabled successfully",
+    "DELETED": "The test has been permanently disabled",
+    "NOT_DELETED": "The test could not be disabled, please check"
   }
 }

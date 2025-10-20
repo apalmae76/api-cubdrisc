@@ -17,7 +17,7 @@ import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.serv
 export class UseCaseBase {
   protected contextTitle;
   protected context;
-  constructor(protected readonly logger: ApiLoggerService) {}
+  constructor(protected readonly logger: ApiLoggerService) { }
 
   /**
    * Abstraction of error handling and throwing of appropriate exceptions
@@ -131,6 +131,32 @@ export class UseCaseBase {
     } else {
       return false;
     }
+  }
+
+  protected handleNoChangedValuesOnUpdate<T>(
+    context: string,
+    response: T,
+    isProductionEnv: boolean,
+    personalizedError?: BadRequestException,
+  ): T {
+    if (!isProductionEnv) {
+      const defaultError = new BadRequestException({
+        message: ['messages.common.VALUES_NOT_CHANGED'],
+      });
+      const error = personalizedError ?? defaultError;
+      throw error;
+    }
+    this.logWarnForNoChangesMadeOnUpdate(context);
+    return response;
+  }
+
+  protected logWarnForNoChangesMadeOnUpdate(context: string): void {
+    const msg = 'There is no any changes; CHECK';
+    this.logger.warn(`Ends with warn; ${msg} !`, {
+      result: false,
+      message: `${context}: ${msg}`,
+      context,
+    });
   }
 
   protected async isSameUser(

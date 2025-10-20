@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
@@ -9,8 +9,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
+import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
-import { UsecasesProxyModule } from 'src/infrastructure/usecases-proxy/usecases-proxy.module';
 import { TerritoriesUseCases } from 'src/usecases/territories/territories.usecases';
 import {
   GetTCitiesDto,
@@ -18,12 +18,9 @@ import {
   GetTStatesDto,
 } from '../../common/dtos/nomenclatures-dto.class';
 import {
-  CitiesPresenter,
-  CountriesPresenter,
   GetCitiesPresenter,
   GetCountriesPresenter,
-  GetStatesPresenter,
-  StatesPresenter,
+  GetStatesPresenter
 } from './nomenclatures.presenter';
 
 @ApiTags('Nomenclatures')
@@ -37,9 +34,9 @@ import {
 @ApiInternalServerErrorResponse({ description: 'Internal error' })
 export class NomencladoresController {
   constructor(
-    @Inject(UsecasesProxyModule.GET_TERRITORIES)
+    @InjectUseCase(TerritoriesUseCases)
     private readonly getTerritoriesUC: UseCaseProxy<TerritoriesUseCases>,
-  ) {}
+  ) { }
 
   @Get('countries')
   @ApiOkResponse({ type: GetCountriesPresenter })
@@ -50,7 +47,7 @@ export class NomencladoresController {
   })
   async getCountries(
     @Query() dataDto: GetTCountriesDto,
-  ): Promise<BaseResponsePresenter<CountriesPresenter[]>> {
+  ): Promise<GetCountriesPresenter> {
     const response = await this.getTerritoriesUC
       .getInstance()
       .getCountries(dataDto);
@@ -67,7 +64,7 @@ export class NomencladoresController {
   })
   async getStates(
     @Query() dataDto: GetTStatesDto,
-  ): Promise<BaseResponsePresenter<StatesPresenter[]>> {
+  ): Promise<GetStatesPresenter> {
     const response = await this.getTerritoriesUC
       .getInstance()
       .getStates(dataDto);
@@ -84,7 +81,7 @@ export class NomencladoresController {
   })
   async getCities(
     @Query() dataDto: GetTCitiesDto,
-  ): Promise<BaseResponsePresenter<CitiesPresenter[]>> {
+  ): Promise<GetCitiesPresenter> {
     const response = await this.getTerritoriesUC
       .getInstance()
       .getCities(dataDto);

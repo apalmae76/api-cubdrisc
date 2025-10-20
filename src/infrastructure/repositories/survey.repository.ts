@@ -45,30 +45,24 @@ export class DatabaseSurveyRepository
 
     entity.name = model.name;
     entity.description = model.description;
-    entity.showTips = model.showTips;
     entity.calcRisks = model.calcRisks;
-    entity.active = model.active;
+    entity.active = false;
 
     return entity;
   }
 
-  async updateIfExistOrFail(
+  async update(
     id: number,
-    survey: SurveyUpdateModel,
+    payload: SurveyUpdateModel,
     em: EntityManager,
   ): Promise<boolean> {
     const repo = em ? em.getRepository(Survey) : this.surveyEntity;
-    const entity = await repo.findOne({ where: { id: id } });
-    if (!entity) {
-      throw new NotFoundException({
-        message: [`validation.survey.NOT_FOUND|{"id":"${id}"}`],
-      });
-    }
-    const update = await repo.update({ id }, survey);
+    const update = await repo.update({ id }, payload);
     if (update.affected > 0) {
       await this.cleanCacheData(id);
+      return true;
     }
-    return true;
+    return false;
   }
 
   async softDelete(id: number, em: EntityManager = null): Promise<boolean> {
@@ -77,7 +71,7 @@ export class DatabaseSurveyRepository
     const { affected } = await repo
       .createQueryBuilder()
       .update(Survey)
-      .set({ deletedAt: new Date() })
+      .set({ deletedAt: new Date(), active: false })
       .where('id = :id and deleted_at is null', { id })
       .execute();
     if (affected > 0) {
@@ -124,7 +118,6 @@ export class DatabaseSurveyRepository
         'survey.id as "id"',
         'survey.name as "name"',
         'survey.description as "description"',
-        'survey.show_tips as "showTips"',
         'survey.calc_risks as "calcRisks"',
         'survey.active as "active"',
         'survey.created_at as "createdAt"',
@@ -206,6 +199,16 @@ export class DatabaseSurveyRepository
     return survey;
   }
 
+  async canUpdate(id: number, onErrorFail = true): Promise<SurveyModel> {
+    const survey = await this.getByIdOrFail(id);
+    if (survey.active && onErrorFail) {
+      throw new NotFoundException({
+        message: [`validation.raffle.NOT_FOUND|{"id":"${id}"}`],
+      });
+    }
+    return survey;
+  }
+
   async setActive(
     id: number,
     active: boolean,
@@ -222,8 +225,6 @@ export class DatabaseSurveyRepository
       (survey2.name === undefined || survey1.name === survey2.name) &&
       (survey2.description === undefined ||
         survey1.description === survey2.description) &&
-      (survey2.showTips === undefined ||
-        survey1.showTips === survey2.showTips) &&
       (survey2.calcRisks === undefined ||
         survey1.calcRisks === survey2.calcRisks) &&
       (survey2.active === undefined || survey1.active === survey2.active)
@@ -239,7 +240,6 @@ export class DatabaseSurveyRepository
 
     model.name = entity.name;
     model.description = entity.description;
-    model.showTips = entity.showTips;
     model.calcRisks = entity.calcRisks;
     model.active = entity.active;
 
@@ -258,7 +258,6 @@ export class DatabaseSurveyRepository
     }
     model.name = entity.name;
     model.description = entity.description;
-    model.showTips = entity.showTips;
     model.calcRisks = entity.calcRisks;
     model.active = entity.active;
 

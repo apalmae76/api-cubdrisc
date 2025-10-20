@@ -12,6 +12,7 @@ import { State } from './state.entity';
 import { Survey } from './survey.entity';
 import { SurveyQuestions } from './surveyQuestions.entity';
 import { SurveyQuestionsPossibleAnswers } from './surveyQuestionsPossibleAnswers.entity';
+import { SurveyRiskCalculationRanges } from './surveyRangesForRiskCalculation.entity';
 import { User } from './user.entity';
 
 export const ENTITIES = [
@@ -27,6 +28,7 @@ export const ENTITIES = [
   City,
 
   Survey,
+  SurveyRiskCalculationRanges,
   SurveyQuestions,
   SurveyQuestionsPossibleAnswers,
   PatientSurvey,

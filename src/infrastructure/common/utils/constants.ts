@@ -85,4 +85,8 @@ export enum EOperatorsActions {
   USER_UNLOCK = 2,
   ADD_USER_ROLE = 3,
   REMOVE_USER_ROLE = 4,
+  SURVEY_CREATE = 5,
+  SURVEY_UPDATE = 6,
+  SURVEY_DELETE = 7,
+  SURVEY_ACTIVE = 8,
 }

@@ -19,8 +19,10 @@ import { BcryptService } from 'src/infrastructure/services/bcrypt/bcrypt.service
 import { JwtTokenService } from 'src/infrastructure/services/jwt/jwt.service';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
+import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 
+@InjectableUseCase()
 export class UpdUserEmailWithOtpUseCases extends JwtGetToken {
   constructor(
     protected readonly userRepo: DatabaseUserRepository,

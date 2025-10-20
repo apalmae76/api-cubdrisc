@@ -12,8 +12,10 @@ import { DatabaseCityRepository } from 'src/infrastructure/repositories/city.rep
 import { DatabaseCountryRepository } from 'src/infrastructure/repositories/country.repository';
 import { DatabaseStateRepository } from 'src/infrastructure/repositories/state.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { UseCaseBase } from '../usecases.base';
 
+@InjectableUseCase()
 export class TerritoriesUseCases extends UseCaseBase {
   constructor(
     private readonly countryRepo: DatabaseCountryRepository,

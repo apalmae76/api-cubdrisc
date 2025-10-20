@@ -3,9 +3,8 @@ import {
   Body,
   Controller,
   Get,
-  Inject,
   Patch,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -26,8 +25,8 @@ import { CorrelationId } from 'src/infrastructure/common/decorators/req-correlat
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import RoleGuard from 'src/infrastructure/common/guards/role.guard';
 import { EAppTypes } from 'src/infrastructure/common/utils/constants';
+import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
-import { UsecasesProxyModule } from 'src/infrastructure/usecases-proxy/usecases-proxy.module';
 import { UpdateUserUseCases } from 'src/usecases/admin/updateUser.usecases';
 import { UpdUserEmailWithOtpUseCases } from 'src/usecases/profile/updUserEmailWithOTP.usecases';
 import { AuthUser } from '../auth/authUser.interface';
@@ -47,9 +46,9 @@ import { GetUserPresenter, ProfileUserPresenter } from './profile.presenter';
 @ApiInternalServerErrorResponse({ description: 'Internal error' })
 export class ProfileController {
   constructor(
-    @Inject(UsecasesProxyModule.UPDATE_USER)
+    @InjectUseCase(UpdateUserUseCases)
     private readonly updateUserProxyUC: UseCaseProxy<UpdateUserUseCases>,
-    @Inject(UsecasesProxyModule.USER_EMAIL)
+    @InjectUseCase(UpdUserEmailWithOtpUseCases)
     private readonly updUserEmailWithOtpUC: UseCaseProxy<UpdUserEmailWithOtpUseCases>,
     @InjectQueue('email') private readonly emailSyncQueue: Queue<EmailJobData>,
   ) { }

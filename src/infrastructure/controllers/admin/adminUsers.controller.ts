@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -15,9 +15,9 @@ import {
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
-import { UsecasesProxyModule } from '../../usecases-proxy/usecases-proxy.module';
 
 import { CurrentFreeUser } from 'src/infrastructure/common/decorators/current-user.decorator';
+import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { CreateUserUseCases } from 'src/usecases/admin/createUser.usecases';
 import { ManageUsersRole } from 'src/usecases/admin/manageUsersRole.usecases';
 import { UpdateUserUseCases } from 'src/usecases/admin/updateUser.usecases';
@@ -53,11 +53,11 @@ import {
 export class AdminUsersController {
   constructor(
     protected readonly appConfig: EnvironmentConfigService,
-    @Inject(UsecasesProxyModule.CREATE_USER)
+    @InjectUseCase(CreateUserUseCases)
     private readonly createUserProxyUC: UseCaseProxy<CreateUserUseCases>,
-    @Inject(UsecasesProxyModule.UPDATE_USER)
+    @InjectUseCase(UpdateUserUseCases)
     private readonly updateUserProxyUC: UseCaseProxy<UpdateUserUseCases>,
-    @Inject(UsecasesProxyModule.MANAGE_USER_ROLE)
+    @InjectUseCase(ManageUsersRole)
     private readonly manageUserRoleUC: UseCaseProxy<ManageUsersRole>,
   ) { }
 

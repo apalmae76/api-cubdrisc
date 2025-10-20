@@ -16,6 +16,7 @@ import { State } from '../entities/state.entity';
 import { Survey } from '../entities/survey.entity';
 import { SurveyQuestions } from '../entities/surveyQuestions.entity';
 import { SurveyQuestionsPossibleAnswers } from '../entities/surveyQuestionsPossibleAnswers.entity';
+import { SurveyRiskCalculationRanges } from '../entities/surveyRangesForRiskCalculation.entity';
 import { User } from '../entities/user.entity';
 import { ApiLoggerModule } from '../services/logger/logger.module';
 import { ApiRedisModule } from '../services/redis/redis.module';
@@ -34,6 +35,7 @@ import { DatabaseStateRepository } from './state.repository';
 import { DatabaseSurveyRepository } from './survey.repository';
 import { DatabaseSurveyQuestionsRepository } from './surveyQuestions.repository';
 import { DatabaseSurveyQuestionsPossibleAnswersRepository } from './surveyQuestionsPossibleAnswers.repository';
+import { DatabaseSurveyRiskCalculationRangesRepository } from './surveyRiskCalculationRanges.repository';
 import { DatabaseUserRepository } from './user.repository';
 
 @Module({
@@ -56,6 +58,7 @@ import { DatabaseUserRepository } from './user.repository';
       MedicalSpecialty,
 
       Survey,
+      SurveyRiskCalculationRanges,
       SurveyQuestions,
       SurveyQuestionsPossibleAnswers,
       PatientSurvey,
@@ -75,6 +78,7 @@ import { DatabaseUserRepository } from './user.repository';
     DatabaseOperatorsActionsRepository,
 
     DatabaseSurveyRepository,
+    DatabaseSurveyRiskCalculationRangesRepository,
     DatabaseSurveyQuestionsRepository,
     DatabaseSurveyQuestionsPossibleAnswersRepository,
 
@@ -94,6 +98,7 @@ import { DatabaseUserRepository } from './user.repository';
     DatabaseOperatorsActionsRepository,
 
     DatabaseSurveyRepository,
+    DatabaseSurveyRiskCalculationRangesRepository,
     DatabaseSurveyQuestionsRepository,
     DatabaseSurveyQuestionsPossibleAnswersRepository,
 

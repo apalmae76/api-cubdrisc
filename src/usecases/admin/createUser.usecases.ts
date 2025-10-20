@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { UserModel } from 'src/domain/model/user';
+import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decorator';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
 import { EAppRoles } from 'src/infrastructure/controllers/auth/role.enum';
@@ -7,8 +8,11 @@ import { ProfileUserDto } from 'src/infrastructure/controllers/profile/profile-d
 import { ProfileUserPresenter } from 'src/infrastructure/controllers/profile/profile.presenter';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
+
+@InjectableUseCase()
 export class CreateUserUseCases extends UseCaseBase {
   constructor(
     private readonly userRepo: DatabaseUserRepository,
@@ -19,33 +23,19 @@ export class CreateUserUseCases extends UseCaseBase {
     this.context = `${CreateUserUseCases.name}.`;
   }
 
+  @UseCaseLogger()
   async execute(
     adminUser: AuthUser,
     userData: ProfileUserDto,
   ): Promise<BaseResponsePresenter<ProfileUserPresenter>> {
-    const context = `${this.context}execute`;
-    this.logger.debug(`Starting`, {
-      context,
-      adminUserId: adminUser ? adminUser.id : 'NULL',
-      data: userData,
+    const toCreateUser = await this.validateUser(adminUser, userData);
+    const ceatedUser = await this.dataSource.transaction(async (em) => {
+      return await this.userRepo.create(toCreateUser, em);
     });
-    try {
-      const toCreateUser = await this.validateUser(adminUser, userData);
-      const ceatedUser = await this.dataSource.transaction(async (em) => {
-        return await this.userRepo.create(toCreateUser, em);
-      });
-      this.logger.debug(`${this.contextTitle}: finish`, {
-        context,
-        adminUserId: adminUser ? adminUser.id : 'NULL',
-        result: ceatedUser,
-      });
-      return new BaseResponsePresenter(
-        `messages.admin.USER_CREATED_SUCESSFULLY|{"email":"${userData.email}"}`,
-        ceatedUser,
-      );
-    } catch (er: unknown) {
-      await this.personalizeError(er, context);
-    }
+    return new BaseResponsePresenter(
+      `messages.admin.USER_CREATED_SUCESSFULLY|{"email":"${userData.email}"}`,
+      new ProfileUserPresenter(ceatedUser),
+    );
   }
 
   private async validateUser(

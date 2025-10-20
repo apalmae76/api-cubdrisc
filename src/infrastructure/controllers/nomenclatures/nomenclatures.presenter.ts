@@ -23,11 +23,12 @@ export class CountriesPresenter {
 class ACountriesPresenter {
   @ApiProperty({
     description: 'Countries list data',
-    type: [CountriesPresenter],
+    type: () => CountriesPresenter,
+    isArray: true,
   })
   @IsArray()
   @Type(() => CountriesPresenter)
-  countries: [CountriesPresenter];
+  countries: CountriesPresenter[];
 
   @ApiProperty()
   total: number;
@@ -58,11 +59,12 @@ export class StatesPresenter {
 class AStatesPresenter {
   @ApiProperty({
     description: 'States list data',
-    type: [StatesPresenter],
+    type: () => StatesPresenter,
+    isArray: true,
   })
   @IsArray()
   @Type(() => StatesPresenter)
-  states: [StatesPresenter];
+  states: StatesPresenter[];
 
   @ApiProperty()
   total: number;
@@ -92,11 +94,12 @@ export class CitiesPresenter {
 class ACitiesPresenter {
   @ApiProperty({
     description: 'Cities list data',
-    type: [CitiesPresenter],
+    type: () => CitiesPresenter,
+    isArray: true,
   })
   @IsArray()
   @Type(() => CitiesPresenter)
-  cities: [CitiesPresenter];
+  cities: CitiesPresenter[];
 
   @ApiProperty()
   total: number;

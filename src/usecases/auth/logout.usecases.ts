@@ -2,9 +2,11 @@ import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseRespon
 import { EAppTypes } from 'src/infrastructure/common/utils/constants';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
 
+@InjectableUseCase()
 export class LogoutUseCases extends UseCaseBase {
   constructor(
     protected readonly userRepo: DatabaseUserRepository,

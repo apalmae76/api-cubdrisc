@@ -149,7 +149,12 @@
     "PATIENT_NOT_FOUND": "Patient is not found or has not been registered, please check"
   },
   "survey": {
-    "NOT_FOUND": "Survey is not found or has not been registered, please check"
+    "NOT_FOUND": "Survey is not found or has not been registered, please check",
+    "ALREADY_ACTIVE": "Survey is already active, please check",
+    "ALREADY_DELETED": "Survey is already deleted, please check"
+  },
+  "survey_risk_calculation_range": {
+    "NOT_FOUND": "The range for the risk calculation is not found or has not been recorded, please check"
   },
   "survey_question": {
     "NOT_FOUND": "Survey question is not found or has not been registered, please check"
