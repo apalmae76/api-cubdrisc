@@ -61,7 +61,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
 
   @UseCaseLogger()
   async update(
-    userId: number,
+    operatorId: number,
     surveyId: number,
     dataDto: UpdateSurveyDto,
   ): Promise<BaseResponsePresenter<SurveyPresenter>> {
@@ -80,7 +80,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
       );
     }
 
-    const updSurvey = await this.persistData(userId, surveyId, newData);
+    const updSurvey = await this.persistData(operatorId, surveyId, newData);
     return new BaseResponsePresenter(
       `messages.survey.UPDATED_SUCESSFULLY|{"name":"${dataDto.name}"}`,
       updSurvey,
@@ -120,23 +120,23 @@ export class ManageSurveyUseCases extends UseCaseBase {
   }
 
   async persistData(
-    userId: number,
+    operatorId: number,
     surveyId: number,
     payload: SurveyUpdateModel,
   ): Promise<SurveyPresenter> {
     const context = `${this.context}persistData`;
     this.logger.debug('Saving data', {
       context,
-      userId,
+      operatorId,
       raffleId: surveyId,
       payload,
     });
 
-    const updSurvey = await this.dataSource.transaction(async (em) => {
+    await this.dataSource.transaction(async (em) => {
       const updSurvey = await this.surveyRepo.update(surveyId, payload, em);
       if (updSurvey) {
         const opPayload: OperatorsActionCreateModel = {
-          operatorId: userId,
+          operatorId,
           toUserId: null,
           actionId: EOperatorsActions.SURVEY_UPDATE,
           reason: 'Modifica un test',
@@ -152,9 +152,9 @@ export class ManageSurveyUseCases extends UseCaseBase {
 
   @UseCaseLogger()
   async setActive(
+    operatorId: number,
     surveyId: number,
     action: boolean,
-    userId: number,
   ): Promise<BaseResponsePresenter<SurveyPresenter>> {
     const survey = await this.surveyRepo.getByIdOrFail(surveyId);
     const actionMsg = action
@@ -163,7 +163,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
     if (survey.active === action) {
       const addInfo = {
         name: survey.name,
-        technicalError: `Survey active atribbute has same value you send: ${action}; please check`,
+        technicalError: `Survey active attribute has same value you send: ${action}; please check`,
       };
       const response = new BaseResponsePresenter(
         `messages.survey.${actionMsg}|${JSON.stringify(addInfo)}`,
@@ -182,7 +182,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
         survey.active = action;
       }
       const opPayload: OperatorsActionCreateModel = {
-        operatorId: userId,
+        operatorId,
         toUserId: null,
         actionId: EOperatorsActions.SURVEY_ACTIVE,
         reason: `Poner test como ${action ? 'habilitado' : 'deshabilitado'}`,
@@ -199,8 +199,8 @@ export class ManageSurveyUseCases extends UseCaseBase {
 
   @UseCaseLogger()
   async delete(
+    operatorId: number,
     surveyId: number,
-    userId: number,
   ): Promise<BooleanDataResponsePresenter> {
     const survey = await this.surveyRepo.getByIdOrFail(surveyId);
     if (survey.deletedAt) {
@@ -222,7 +222,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
     const result = await this.dataSource.transaction(async (em) => {
       const result = await this.surveyRepo.softDelete(surveyId, em);
       const opPayload: OperatorsActionCreateModel = {
-        operatorId: userId,
+        operatorId,
         toUserId: null,
         actionId: EOperatorsActions.SURVEY_DELETE,
         reason: `Deshabilitar test de forma permanente: ${result}`,

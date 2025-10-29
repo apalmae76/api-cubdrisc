@@ -50,9 +50,24 @@
   },
   "survey": {
     "CREATED_SUCESSFULLY": "El test ha sido creado con éxito",
+    "UPDATED_SUCESSFULLY": "El test ha sido modificado con éxito",
     "ACTIVATED_SUCCESSFULLY": "El test ha sido habilitado con éxito",
     "DISABLED_SUCCESSFULLY": "El test ha sido deshabilitado con éxito",
     "DELETED": "El test ha sido deshabilitado permanentemente",
     "NOT_DELETED": "El test no ha podido ser deshabilitado, por favor verifique"
+  },
+  "survey_question": {
+    "CREATED_SUCESSFULLY": "La pregunta ha sido creado con éxito",
+    "UPDATED_SUCESSFULLY": "La pregunta ha sido modificada con éxito",
+    "ACTIVATED_SUCCESSFULLY": "La pregunta ha sido habilitada con éxito",
+    "DISABLED_SUCCESSFULLY": "La pregunta ha sido deshabilitada con éxito",
+    "DELETED": "La pregunta ha sido deshabilitada permanentemente",
+    "NOT_DELETED": "La pregunta no ha podido ser deshabilitada, por favor verifique"
+  },
+  "survey_question_answer": {
+    "CREATED_SUCESSFULLY": "La posible respuesta ha sido creado con éxito",
+    "UPDATED_SUCESSFULLY": "La posible respuesta ha sido modificada con éxito",
+    "DELETED": "La posible respuesta ha sido deshabilitada permanentemente",
+    "NOT_DELETED": "La posible respuesta no ha podido ser deshabilitada, por favor verifique"
   }
 }

@@ -93,6 +93,11 @@ export class DatabaseSurveyRepository
     }
   }
 
+  private async cleanCacheData(id: number) {
+    const cacheKey = `${this.cacheKey}${id}`;
+    await this.redisService.del(cacheKey);
+  }
+
   private async isRowDeleted(id: number): Promise<boolean> {
     const row = await this.surveyEntity
       .createQueryBuilder()
@@ -104,11 +109,6 @@ export class DatabaseSurveyRepository
       return row.deletedAt !== null;
     }
     return null;
-  }
-
-  private async cleanCacheData(id: number) {
-    const cacheKey = `${this.cacheKey}${id}`;
-    await this.redisService.del(cacheKey);
   }
 
   private getBasicQuery() {

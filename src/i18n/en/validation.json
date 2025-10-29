@@ -35,7 +35,13 @@
     "description": "description",
     "active": "active",
     "phoneCode": "phoneCode",
-    "medicalSpecialtyId": "medicalSpecialtyId"
+    "medicalSpecialtyId": "medicalSpecialtyId",
+    "surveyId": "surveyId",
+    "name": "name",
+    "calcRisks": "calcRisks",
+    "questionId": "questionId",
+    "question": "question",
+    "required": "required"
   },
   "IS_REQUIRED": "Required value",
   "IS_DEFINED": "Most be defined",
@@ -153,14 +159,21 @@
     "ALREADY_ACTIVE": "Survey is already active, please check",
     "ALREADY_DELETED": "Survey is already deleted, please check"
   },
+  "survey_question": {
+    "NOT_FOUND": "Question is not found or has not been registered, please check",
+    "REF_NOT_FOUND": "The reference question is not found or has not been registered, please check",
+    "CANT_ACTIVATE_ALREADY_DELETED": "The question has already been deleted, we are unable to activate it, please check",
+    "ALREADY_ACTIVE": "Question is already active, please check",
+    "ALREADY_DELETED": "Question is already deleted, please check"
+  },
+  "survey_question_answer": {
+    "NOT_FOUND": "Answer is not found or has not been registered, please check",
+    "REF_NOT_FOUND": "The reference answer is not found or has not been registered, please check",
+    "CANT_ACTIVATE_ALREADY_DELETED": "The answer has already been deleted, we are unable to activate it, please check",
+    "ALREADY_DELETED": "Answer is already deleted, please check"
+  },
   "survey_risk_calculation_range": {
     "NOT_FOUND": "The range for the risk calculation is not found or has not been recorded, please check"
-  },
-  "survey_question": {
-    "NOT_FOUND": "Survey question is not found or has not been registered, please check"
-  },
-  "survey_question_pa": {
-    "NOT_FOUND": "Survey question possible a nswer, is not found or has not been registered, please check"
   },
   "patient_survey_answer": {
     "NOT_FOUND": "The answer to a survey question is missing or has not been recorded, please check"

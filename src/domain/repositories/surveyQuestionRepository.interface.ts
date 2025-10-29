@@ -11,16 +11,16 @@ export interface ISurveyQuestionsRepository {
     surveyQuestion: SurveyQuestionModel,
     em: EntityManager,
   ): Promise<SurveyQuestionModel>;
-  softDelete(
-    surveyId: number,
-    id: number,
-    em?: EntityManager,
-  ): Promise<boolean>;
-  updateIfExistOrFail(
+  update(
     surveyId: number,
     id: number,
     patient: SurveyQuestionUpdateModel,
     em: EntityManager,
+  ): Promise<boolean>;
+  softDelete(
+    surveyId: number,
+    id: number,
+    em?: EntityManager,
   ): Promise<boolean>;
   ensureExistOrFail(surveyId: number, id: number): Promise<void>;
   getByQuery(

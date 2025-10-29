@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ListToUpdOrderModel } from 'src/domain/model/surveyQuestion';
 import {
   SurveyQuestionPossibleAnswerCreateModel,
   SurveyQuestionPossibleAnswerModel,
@@ -10,7 +11,6 @@ import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
-import { Survey } from '../entities/survey.entity';
 import { SurveyQuestionsPossibleAnswers } from '../entities/surveyQuestionsPossibleAnswers.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
@@ -37,49 +37,57 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     const repo = em
       ? em.getRepository(SurveyQuestionsPossibleAnswers)
       : this.surveyQPAEntity;
-    const entity = this.toCreate(data);
+    const entity = await this.toCreate(data);
     const dataSaved = await repo.save(entity);
     return this.toModel(dataSaved);
   }
 
-  private toCreate(
+  private async toCreate(
     model: SurveyQuestionPossibleAnswerCreateModel,
-  ): SurveyQuestionsPossibleAnswers {
+  ): Promise<SurveyQuestionsPossibleAnswers> {
     const entity = new SurveyQuestionsPossibleAnswers();
 
     entity.surveyId = model.surveyId;
     entity.surveyQuestionId = model.surveyQuestionId;
     entity.answer = model.answer;
     entity.educationalTip = model.educationalTip;
-    entity.order = model.order;
+    entity.order = await this.getLastOrder(
+      model.surveyId,
+      model.surveyQuestionId,
+    );
+    entity.active = false;
 
     return entity;
   }
 
-  async updateIfExistOrFail(
+  async getLastOrder(surveyId: number, questionId: number): Promise<number> {
+    const maxQuery = await this.surveyQPAEntity
+      .createQueryBuilder('sqa')
+      .select('max(sqa.order) as "maxOrder"')
+      .where('survey_id = :surveyId and survey_question_id = :questionId', {
+        surveyId,
+        questionId,
+      })
+      .getRawOne();
+    return maxQuery ? maxQuery.maxOrder + 1 : 1;
+  }
+
+  async update(
     surveyId: number,
     surveyQuestionId: number,
     id: number,
     surveyQuestion: SurveyQuestionPossibleAnswerUpdateModel,
     em: EntityManager,
   ): Promise<boolean> {
-    const repo = em ? em.getRepository(Survey) : this.surveyQPAEntity;
-    const entity = await repo.findOne({
-      where: { surveyId, surveyQuestionId, id },
-    });
-    if (!entity) {
-      throw new NotFoundException({
-        message: [
-          `validation.survey_question_pa.NOT_FOUND|{"surveyId":"${surveyId}","surveyQuestionId":"${surveyQuestionId}","id":"${id}"}`,
-        ],
-      });
-    }
+    const repo = em
+      ? em.getRepository(SurveyQuestionsPossibleAnswers)
+      : this.surveyQPAEntity;
     const update = await repo.update(
       { surveyId, surveyQuestionId, id },
       surveyQuestion,
     );
     if (update.affected > 0) {
-      await this.cleanCacheData(surveyId, surveyQuestionId, id);
+      await this.cleanCacheData(surveyId, surveyQuestionId);
     }
     return true;
   }
@@ -90,19 +98,21 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     id: number,
     em: EntityManager = null,
   ): Promise<boolean> {
-    const repo = em ? em.getRepository(Survey) : this.surveyQPAEntity;
+    const repo = em
+      ? em.getRepository(SurveyQuestionsPossibleAnswers)
+      : this.surveyQPAEntity;
 
     const { affected } = await repo
       .createQueryBuilder()
       .update(SurveyQuestionsPossibleAnswers)
       .set({ deletedAt: new Date() })
       .where(
-        'surveyId = :surveyId and surveyQuestionId = :surveyQuestionId and id = :id and deleted_at is null',
+        'survey_id = :surveyId and survey_question_id = :surveyQuestionId and id = :id and deleted_at is null',
         { surveyId, surveyQuestionId, id },
       )
       .execute();
     if (affected > 0) {
-      await this.cleanCacheData(surveyId, surveyQuestionId, id);
+      await this.cleanCacheData(surveyId, surveyQuestionId);
       return true;
     } else {
       const rowIsDeleted = await this.isRowDeleted(
@@ -112,7 +122,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
       );
       if (rowIsDeleted === null) {
         this.logger.warn(
-          `Survey questions repository, soft delete: Sended id does not exist `,
+          `Survey answer repository, soft delete: Sended id does not exist `,
           {
             affected,
             rowIsDeleted: rowIsDeleted ? rowIsDeleted : 'NULL',
@@ -134,7 +144,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
       .select(['deleted_at as "deletedAt"'])
       .withDeleted()
       .where(
-        'surveyId = :surveyId and surveyQuestionId = :surveyQuestionId and id = :id',
+        'survey_id = :surveyId and survey_question_id = :surveyQuestionId and id = :id',
         { surveyId, surveyQuestionId, id },
       )
       .getRawOne();
@@ -144,28 +154,25 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     return null;
   }
 
-  private async cleanCacheData(
-    surveyId: number,
-    surveyQuestionId: number,
-    id: number,
-  ) {
-    const cacheKey = `${this.cacheKey}${surveyId}:${surveyQuestionId}:${id}`;
-    await this.redisService.del(cacheKey);
+  async cleanCacheData(surveyId: number, surveyQuestionId: number) {
+    const keyPattern = `${this.cacheKey}${surveyId}:${surveyQuestionId}*`;
+    await this.redisService.removeAllKeysWithPattern(keyPattern);
   }
 
   private getBasicQuery() {
     return this.surveyQPAEntity
-      .createQueryBuilder('sq')
+      .createQueryBuilder('sqa')
       .select([
-        'sq.survey_id as "surveyId"',
-        'sq.survey_question_id as "surveyQuestionId"',
-        'sq.id as "id"',
-        'sq.answer as "answer"',
-        'sq.educational_tip as "educationalTip"',
-        'sq.order as "order"',
-        'sq.created_at as "createdAt"',
-        'sq.updated_at as "updatedAt"',
-        'sq.deleted_at as "deletedAt"',
+        'sqa.survey_id as "surveyId"',
+        'sqa.survey_question_id as "surveyQuestionId"',
+        'sqa.id as "id"',
+        'sqa.answer as "answer"',
+        'sqa.educational_tip as "educationalTip"',
+        'sqa.order as "order"',
+        'sqa.active as "active"',
+        'sqa.created_at as "createdAt"',
+        'sqa.updated_at as "updatedAt"',
+        'sqa.deleted_at as "deletedAt"',
       ])
       .withDeleted();
   }
@@ -177,7 +184,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
   ): Promise<SurveyQuestionPossibleAnswerModel> {
     const query = this.getBasicQuery();
     query.where(
-      'surveyId = :surveyId and surveyQuestionId = :surveyQuestionId and id = :id',
+      'survey_id = :surveyId and survey_question_id = :surveyQuestionId and id = :id',
       { surveyId, surveyQuestionId, id },
     );
     const survey = await query.getRawOne();
@@ -194,23 +201,23 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
 
     const query = await super.getByQueryBase<SurveyQuestionsPossibleAnswers>(
       queryDto,
-      'sq',
+      'sqa',
       null,
       queryList,
       false,
     );
 
-    const survQuestions = query.entities.map((survQuestion) =>
-      this.toModelPanel(survQuestion),
+    const survQPAs = query.entities.map((survQPA) =>
+      this.toModelPanel(survQPA),
     );
 
     const pageMetaDto = new PageMetaDto({
       total: query.itemCount,
       pageOptionsDto: queryDto,
-      itemPageCount: survQuestions.length,
+      itemPageCount: survQPAs.length,
     });
 
-    return new PageDto(survQuestions, pageMetaDto);
+    return new PageDto(survQPAs, pageMetaDto);
   }
 
   async ensureExistOrFail(
@@ -230,7 +237,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     if (!survey) {
       throw new NotFoundException({
         message: [
-          `validation.survey_question_pa.NOT_FOUND|{"surveyId":"${surveyId}","surveyQuestionId":"${surveyQuestionId}","id":"${id}"}`,
+          `validation.survey_question_answer.NOT_FOUND|{"surveyId":"${surveyId}","surveyQuestionId":"${surveyQuestionId}","id":"${id}"}`,
         ],
       });
     }
@@ -246,7 +253,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     let cacheKey = null;
     let survQPA: SurveyQuestionPossibleAnswerModel = null;
     if (useCache) {
-      cacheKey = `${this.cacheKey}${id}`;
+      cacheKey = `${this.cacheKey}${surveyId}:${surveyQuestionId}:${id}`;
       survQPA =
         await this.redisService.get<SurveyQuestionPossibleAnswerModel>(
           cacheKey,
@@ -258,14 +265,14 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     const query = await this.getBasicQuery();
     const survQPAQry = await query
       .where(
-        'surveyId = :surveyId and surveyQuestionId = :surveyQuestionId and id = :id',
+        'survey_id = :surveyId and survey_question_id = :surveyQuestionId and id = :id',
         { surveyId, surveyQuestionId, id },
       )
       .getRawOne();
     if (!survQPAQry) {
       return null;
     }
-    survQPA = this.toModel(survQPAQry, true);
+    survQPA = this.toModel(survQPAQry);
     if (cacheKey) {
       await this.redisService.set<SurveyQuestionPossibleAnswerModel>(
         cacheKey,
@@ -276,6 +283,47 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     return survQPA;
   }
 
+  async getToMove(
+    surveyId: number,
+    surveyQuestionId: number,
+    id: number,
+    order: number,
+  ): Promise<ListToUpdOrderModel[]> {
+    const answers = await this.surveyQPAEntity
+      .createQueryBuilder('sqa')
+      .select(['sqa.id as "id"', 'sqa.order as "order"'])
+      .where(
+        'survey_id = :surveyId and survey_question_id = :surveyQuestionId and sqa.id <> :id and sqa.order >= :order',
+        {
+          surveyId,
+          surveyQuestionId,
+          id,
+          order,
+        },
+      )
+      .orderBy('sqa.order', 'ASC')
+      .getRawMany();
+
+    return answers.map((answer) => this.toModel(answer));
+  }
+
+  async canUpdate(
+    surveyId: number,
+    questionId: number,
+    id: number,
+    toSetActive = false,
+  ): Promise<SurveyQuestionPossibleAnswerModel> {
+    const answer = await this.getByIdOrFail(surveyId, questionId, id);
+    if (toSetActive && answer.active === false && answer.deletedAt) {
+      throw new NotFoundException({
+        message: [
+          `validation.survey_question_answer.CANT_ACTIVATE_ALREADY_DELETED|{"surveyId":"${surveyId}","surveyQuestionId":"${questionId}","id":"${id}"}`,
+        ],
+      });
+    }
+    return answer;
+  }
+
   async setActive(
     surveyId: number,
     surveyQuestionId: number,
@@ -283,13 +331,28 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     active: boolean,
     em: EntityManager,
   ): Promise<boolean> {
-    const repo = em ? em.getRepository(Survey) : this.surveyQPAEntity;
+    const repo = em
+      ? em.getRepository(SurveyQuestionsPossibleAnswers)
+      : this.surveyQPAEntity;
     const result = await repo.update(
       { surveyId, surveyQuestionId, id },
       { active },
     );
-    await this.cleanCacheData(surveyId, surveyQuestionId, id);
+    await this.cleanCacheData(surveyId, surveyQuestionId);
     return result.affected > 0;
+  }
+
+  async setOrder(
+    surveyId: number,
+    surveyQuestionId: number,
+    id: number,
+    order: number,
+    em: EntityManager,
+  ): Promise<void> {
+    const repo = em
+      ? em.getRepository(SurveyQuestionsPossibleAnswers)
+      : this.surveyQPAEntity;
+    await repo.update({ surveyId, surveyQuestionId, id }, { order });
   }
 
   areSame(
@@ -304,7 +367,8 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
       (survey2.answer === undefined || survey1.answer === survey2.answer) &&
       (survey2.educationalTip === undefined ||
         survey1.educationalTip === survey2.educationalTip) &&
-      (survey2.order === undefined || survey1.order === survey2.order)
+      (survey2.order === undefined || survey1.order === survey2.order) &&
+      (survey2.active === undefined || survey1.active === survey2.active)
     );
   }
 
@@ -313,9 +377,8 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     isForDetails = false,
   ): SurveyQuestionPossibleAnswerModel {
     const model = new SurveyQuestionPossibleAnswerModel();
-
     model.surveyId = Number(entity.surveyId);
-    model.surveyQuestionId = Number(model.surveyQuestionId);
+    model.surveyQuestionId = Number(entity.surveyQuestionId);
 
     if (!isForDetails) {
       model.id = Number(entity.id);
@@ -324,6 +387,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     model.answer = entity.answer;
     model.educationalTip = entity.educationalTip;
     model.order = entity.order;
+    model.active = entity.active;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
@@ -339,7 +403,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     const model = new SurveyQuestionPossibleAnswerModel();
 
     model.surveyId = Number(entity.surveyId);
-    model.surveyQuestionId = Number(model.surveyQuestionId);
+    model.surveyQuestionId = Number(entity.surveyQuestionId);
 
     if (!isForPanel) {
       model.id = Number(entity.id);
@@ -347,6 +411,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     model.answer = entity.answer;
     model.educationalTip = entity.educationalTip;
     model.order = entity.order;
+    model.active = entity.active;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

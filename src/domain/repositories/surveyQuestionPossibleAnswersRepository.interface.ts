@@ -18,7 +18,7 @@ export interface ISurveyQuestionsPossibleAnswersRepository {
     id: number,
     em?: EntityManager,
   ): Promise<boolean>;
-  updateIfExistOrFail(
+  update(
     surveyId: number,
     surveyQuestionId: number,
     id: number,

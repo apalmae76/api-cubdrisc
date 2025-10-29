@@ -50,9 +50,24 @@
   },
   "survey": {
     "CREATED_SUCESSFULLY": "Test has been created successfully",
+    "UPDATED_SUCESSFULLY": "Test has been updated successfully",
     "ACTIVATED_SUCCESSFULLY": "Test has been enabled successfully",
     "DISABLED_SUCCESSFULLY": "Test has been disabled successfully",
-    "DELETED": "The test has been permanently disabled",
-    "NOT_DELETED": "The test could not be disabled, please check"
+    "DELETED": "Test has been permanently disabled",
+    "NOT_DELETED": "Test could not be disabled, please check"
+  },
+  "survey_question": {
+    "CREATED_SUCESSFULLY": "Test question has been created successfully",
+    "UPDATED_SUCESSFULLY": "Test question has been updated successfully",
+    "ACTIVATED_SUCCESSFULLY": "Test question has been enabled successfully",
+    "DISABLED_SUCCESSFULLY": "Test question has been disabled successfully",
+    "DELETED": "Test question has been permanently disabled",
+    "NOT_DELETED": "Test question could not be disabled, please check"
+  },
+  "survey_question_answer": {
+    "CREATED_SUCESSFULLY": "Test possible answer has been created successfully",
+    "UPDATED_SUCESSFULLY": "Test possible answer has been updated successfully",
+    "DELETED": "Test possible answer has been permanently disabled",
+    "NOT_DELETED": "Test possible answer could not be disabled, please check"
   }
 }

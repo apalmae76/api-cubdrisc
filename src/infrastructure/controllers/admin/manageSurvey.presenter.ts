@@ -5,7 +5,7 @@ import { SurveyModel } from 'src/domain/model/survey';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 
 export class SurveyPresenter {
-  @ApiProperty()
+  @ApiProperty({ type: 'integer' })
   @IsNumber()
   id: number;
 
