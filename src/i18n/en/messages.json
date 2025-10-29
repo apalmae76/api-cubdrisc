@@ -64,6 +64,12 @@
     "DELETED": "Test question has been permanently disabled",
     "NOT_DELETED": "Test question could not be disabled, please check"
   },
+  "survey_risk_calculation": {
+    "CREATED_SUCESSFULLY": "Rule question has been created successfully",
+    "UPDATED_SUCESSFULLY": "Rule question has been updated successfully",
+    "DELETED": "Rule question has been permanently disabled",
+    "NOT_DELETED": "Rule question could not be disabled, please check"
+  },
   "survey_question_answer": {
     "CREATED_SUCESSFULLY": "Test possible answer has been created successfully",
     "UPDATED_SUCESSFULLY": "Test possible answer has been updated successfully",

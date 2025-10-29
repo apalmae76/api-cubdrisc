@@ -26,7 +26,7 @@ export class UpdateUserUseCases extends UseCaseBase {
     userData: ProfileUserDto,
   ): Promise<BaseResponsePresenter<ProfileUserPresenter>> {
     const context = `${this.context}execute`;
-    this.logger.debug(`${this.contextTitle}: starting`, {
+    this.logger.debug(`Starting`, {
       context,
       adminUserId: adminUser ? adminUser.id : 'NULL',
       data: userData,
@@ -37,7 +37,7 @@ export class UpdateUserUseCases extends UseCaseBase {
       const updUser = await this.dataSource.transaction(async (em) => {
         return await this.userRepo.updateIfExistOrFail(toUserId, userData, em);
       });
-      this.logger.debug(`${this.contextTitle}: finish`, {
+      this.logger.debug(`Ends after save`, {
         context,
         adminUserId: adminUser ? adminUser.id : 'NULL',
         result: updUser,

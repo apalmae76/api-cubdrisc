@@ -32,8 +32,10 @@ import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorato
 import { ManageSurveyUseCases } from 'src/usecases/survey/manageSurvey.usecases';
 import { ManageSurveyQuestionUseCases } from 'src/usecases/survey/manageSurveyQuestion.usecases';
 import { ManageSurveyQuestionAnswerUseCases } from 'src/usecases/survey/manageSurveyQuestionAnswer.usecases';
+import { ManageSurveyRiskCalculationUseCases } from 'src/usecases/survey/manageSurveyRiskCalculation.usecases';
 import { MoveSurveyQuestionUseCases } from 'src/usecases/survey/moveSurveyQuestion.usecases';
 import { MoveSurveyQuestionAnswerUseCases } from 'src/usecases/survey/moveSurveyQuestionAnswer.usecases';
+import { MoveSurveyRiskCalculationUseCases } from 'src/usecases/survey/moveSurveyRiskCalculation.usecases';
 import { AuthUser } from '../auth/authUser.interface';
 import { EAppRoles } from '../auth/role.enum';
 import {
@@ -53,9 +55,15 @@ import {
   UpdateSurveyQuestionDto,
   ValidQuestionIdDto,
 } from './manage-survey-question-dto.class';
+import {
+  CreateSurveyRiskCalculationDto,
+  UpdateSurveyRiskCalculationDto,
+  ValidRuleIdDto,
+} from './manage-survey-risk-calculation-dto.class';
 import { GetSurveyPresenter } from './manageSurvey.presenter';
 import { GetSurveyQuestionPresenter } from './manageSurveyQuestion.presenter';
 import { GetSurveyQuestionAnswerPresenter } from './manageSurveyQuestionAnswer.presenter';
+import { GetSurveyRiskCalculationPresenter } from './manageSurveyRiskCalculation.presenter';
 
 @ApiTags('Survey')
 @Controller('survey')
@@ -81,8 +89,13 @@ export class AdminSurveysController {
     private readonly manageSurveyQAnsProxyUC: UseCaseProxy<ManageSurveyQuestionAnswerUseCases>,
     @InjectUseCase(MoveSurveyQuestionAnswerUseCases)
     private readonly moveSurveyQAnsProxyUC: UseCaseProxy<MoveSurveyQuestionAnswerUseCases>,
+    @InjectUseCase(ManageSurveyRiskCalculationUseCases)
+    private readonly manageRiskCRulesProxyUC: UseCaseProxy<ManageSurveyRiskCalculationUseCases>,
+    @InjectUseCase(MoveSurveyRiskCalculationUseCases)
+    private readonly moveRiskCRulesProxyUC: UseCaseProxy<MoveSurveyRiskCalculationUseCases>,
   ) { }
 
+  // Manage surveys --------------------------------------------------------
   @Post()
   @ApiCreatedResponse({ type: GetSurveyPresenter })
   @ApiBody({ type: CreateSurveyDto })
@@ -168,6 +181,7 @@ export class AdminSurveysController {
       .delete(user.id, surveyId);
   }
 
+  // Manage questions --------------------------------------------------------
   @Post('/:surveyId/question')
   @ApiCreatedResponse({ type: GetSurveyQuestionPresenter })
   @ApiBody({ type: CreateSurveyQuestionDto })
@@ -257,7 +271,7 @@ export class AdminSurveysController {
   @ApiOkResponse({ type: BooleanDataResponsePresenter })
   @ApiOperation({
     description: '',
-    summary: 'Allows operators to modify a question presentation order',
+    summary: 'Allows admins to modify a question presentation order',
     operationId: 'patchMoveQuestion',
   })
   @ApiBody({ type: MoveRowDto })
@@ -313,7 +327,7 @@ export class AdminSurveysController {
       .delete(user.id, surveyId, questionId);
   }
 
-  // Manage answers --------------------------------------------
+  // Manage answers --------------------------------------------------------
   @Post('/:surveyId/question/:questionId/answer')
   @ApiCreatedResponse({ type: GetSurveyQuestionAnswerPresenter })
   @ApiBody({ type: CreateSurveyQuestionAnswerDto })
@@ -424,7 +438,7 @@ export class AdminSurveysController {
   @ApiOkResponse({ type: BooleanDataResponsePresenter })
   @ApiOperation({
     description: '',
-    summary: 'Allows operators to modify a question answer presentation order',
+    summary: 'Allows admins to modify a question answer presentation order',
     operationId: 'patchMoveQuestionAnswer',
   })
   @ApiBody({ type: MoveRowDto })
@@ -492,5 +506,122 @@ export class AdminSurveysController {
     return await this.manageSurveyQAnsProxyUC
       .getInstance()
       .delete(user.id, surveyId, questionId, answerId);
+  }
+
+  // Manage risk calculation rules ---------------------------------------------
+  @Post('/:surveyId/rule')
+  @ApiCreatedResponse({ type: GetSurveyRiskCalculationPresenter })
+  @ApiBody({ type: CreateSurveyRiskCalculationDto })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows admins, to create new risk calculation rule',
+    operationId: 'createRuleQuestion',
+  })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  async createRuleQuestion(
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Body() dataDto: CreateSurveyRiskCalculationDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<GetSurveyRiskCalculationPresenter> {
+    return await this.manageRiskCRulesProxyUC
+      .getInstance()
+      .create({ operatorId: user.id, surveyId, dataDto });
+  }
+
+  @Patch('/:surveyId/rule/:ruleId')
+  @ApiBody({ type: UpdateSurveyRiskCalculationDto })
+  @ApiOkResponse({ type: GetSurveyRiskCalculationPresenter })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows admins, to update risk calculation rule',
+    operationId: 'updateSurveyRule',
+  })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  @ApiParam({
+    name: 'ruleId',
+    type: 'number',
+    example: 34,
+    description: 'Rule ID that will be affected',
+  })
+  async updateSurveyRule(
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Param() { ruleId }: ValidRuleIdDto,
+    @Body() dataDto: UpdateSurveyRiskCalculationDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<GetSurveyRiskCalculationPresenter> {
+    return await this.manageRiskCRulesProxyUC
+      .getInstance()
+      .update(user.id, surveyId, ruleId, dataDto);
+  }
+
+  @Patch('/:surveyId/rule/:ruleId/move')
+  @ApiOkResponse({ type: BooleanDataResponsePresenter })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows admins to modify a risk calculation rule order',
+    operationId: 'patchMoveRule',
+  })
+  @ApiBody({ type: MoveRowDto })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  @ApiParam({
+    name: 'ruleId',
+    type: 'number',
+    example: 34,
+    description: 'Rule ID that will be affected',
+  })
+  async patchMoveRule(
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Param() { ruleId }: ValidRuleIdDto,
+    @Body() dataDto: MoveRowDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<BooleanDataResponsePresenter> {
+    return await this.moveRiskCRulesProxyUC
+      .getInstance()
+      .execute(user.id, surveyId, ruleId, dataDto);
+  }
+
+  @Delete('/:surveyId/rule/:ruleId')
+  @ApiOkResponse({ type: BooleanDataResponsePresenter })
+  @ApiOperation({
+    description: '',
+    summary:
+      'Allows admins, to delete (soft) survey risk calculation rule data',
+    operationId: 'deleteRule',
+  })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  @ApiParam({
+    name: 'ruleId',
+    type: 'number',
+    example: 34,
+    description: 'Rule ID that will be affected',
+  })
+  async deleteRule(
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Param() { ruleId }: ValidRuleIdDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<BooleanDataResponsePresenter> {
+    return await this.manageRiskCRulesProxyUC
+      .getInstance()
+      .delete(user.id, surveyId, ruleId);
   }
 }

@@ -254,15 +254,14 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
       surveyId,
       questionId,
     );
+    const jsonIds = `{"surveyId":"${surveyId}","questionId":"${questionId}"}`;
     if (question.deletedAt) {
       const response = new BooleanDataResponsePresenter(
-        `messages.survey_question.DELETED|{"surveyId":"${surveyId}","questionId":"${questionId}"}`,
+        `messages.survey_question.DELETED|${jsonIds}`,
         true,
       );
       const error = new BadRequestException({
-        message: [
-          `validation.survey.ALREADY_DELETED|{"surveyId":"${surveyId}","questionId":"${questionId}"}`,
-        ],
+        message: [`validation.survey_question.ALREADY_DELETED|${jsonIds}`],
       });
       return this.handleNoChangedValuesOnUpdate(
         `${this.context}delete`,
@@ -291,7 +290,7 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
 
     const actionMsg = result ? 'DELETED' : 'NOT_DELETED';
     return new BooleanDataResponsePresenter(
-      `messages.survey_question.${actionMsg}|"surveyId":"${surveyId}","questionId":"${questionId}"`,
+      `messages.survey_question.${actionMsg}|${jsonIds}`,
       result,
     );
   }

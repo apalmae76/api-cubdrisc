@@ -5,59 +5,59 @@ import { BooleanDataResponsePresenter } from 'src/infrastructure/common/dtos/bas
 import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { MoveRowDto } from 'src/infrastructure/controllers/admin/manage-survey-question-dto.class';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
-import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/surveyQuestions.repository';
+import { DatabaseSurveyRiskCalculationRangesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRanges.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
 
 @InjectableUseCase()
-export class MoveSurveyQuestionUseCases extends UseCaseBase {
+export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
   constructor(
-    private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
+    private readonly surveyRiscCRepo: DatabaseSurveyRiskCalculationRangesRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     protected readonly dataSource: DataSource,
     protected readonly logger: ApiLoggerService,
   ) {
     super(logger);
-    this.context = `${MoveSurveyQuestionUseCases.name}.`;
+    this.context = `${MoveSurveyRiskCalculationUseCases.name}.`;
   }
 
   @UseCaseLogger()
   async execute(
     operatorId: number,
     surveyId: number,
-    questionId: number,
+    ruleId: number,
     data: MoveRowDto,
   ): Promise<BooleanDataResponsePresenter> {
-    const refOrder = await this.validate(surveyId, questionId, data);
-    const question = await this.persistData(
+    const refOrder = await this.validate(surveyId, ruleId, data);
+    const rule = await this.persistData(
       operatorId,
       surveyId,
-      questionId,
+      ruleId,
       data,
       refOrder,
     );
-    this.logger.debug(`Ends after save`, {
+    this.logger.debug(`Ends after save `, {
       operatorId,
-      question,
+      rule,
     });
     return new BooleanDataResponsePresenter(
-      `messages.survey_question.UPDATED_SUCESSFULLY|{"surveyId":"${surveyId}","questionId":"${questionId}"}`,
-      question,
+      `messages.survey_risk_calculation.UPDATED_SUCESSFULLY|{"surveyId":"${surveyId}","ruleId":"${ruleId}"}`,
+      rule,
     );
   }
 
   private async validate(
     surveyId: number,
-    questionId: number,
+    ruleId: number,
     data: MoveRowDto,
   ): Promise<number> {
-    const [refQuestion] = await Promise.all([
-      await this.surveyQuestionRepo.getById(surveyId, data.referenceId),
-      await this.surveyQuestionRepo.canUpdate(surveyId, questionId),
+    const [refRule] = await Promise.all([
+      this.surveyRiscCRepo.getById(surveyId, data.referenceId),
+      this.surveyRiscCRepo.canUpdate(surveyId, ruleId),
     ]);
-    if (!refQuestion) {
+    if (!refRule) {
       const args = {
         surveyId,
         refQuestionId: data.referenceId,
@@ -69,13 +69,13 @@ export class MoveSurveyQuestionUseCases extends UseCaseBase {
         ],
       });
     }
-    return refQuestion.order;
+    return refRule.order;
   }
 
   async persistData(
     operatorId: number,
     surveyId: number,
-    questionToMoveId: number,
+    ruleToMoveId: number,
     data: MoveRowDto,
     refOrder: number,
   ): Promise<boolean> {
@@ -83,7 +83,7 @@ export class MoveSurveyQuestionUseCases extends UseCaseBase {
     this.logger.debug(`Saving data`, {
       context,
       surveyId,
-      questionToMoveId,
+      ruleToMoveId,
       refOrder,
       data,
     });
@@ -93,9 +93,9 @@ export class MoveSurveyQuestionUseCases extends UseCaseBase {
       refPos = 1;
     }
 
-    const listToUpd = await this.surveyQuestionRepo.getToMove(
+    const listToUpd = await this.surveyRiscCRepo.getToMove(
       surveyId,
-      questionToMoveId,
+      ruleToMoveId,
       refPos,
     );
 
@@ -103,28 +103,24 @@ export class MoveSurveyQuestionUseCases extends UseCaseBase {
     const opPayload: OperatorsActionCreateModel = {
       operatorId,
       toUserId: null,
-      actionId: EOperatorsActions.SURVEY_QUESTION_MOVE,
-      details: { officeToMoveId: questionToMoveId, ...data },
-      reason: 'Modifica una pregunta (cambia el orden de presentación)',
+      actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_MOVE,
+      details: { officeToMoveId: ruleToMoveId, ...data },
+      reason:
+        'Modifica una regla de calculo de riesgo (cambia el orden de presentación)',
     };
     const result = await this.dataSource.transaction(async (em) => {
-      await this.surveyQuestionRepo.setOrder(
-        surveyId,
-        questionToMoveId,
-        refPos,
-        em,
-      );
+      await this.surveyRiscCRepo.setOrder(surveyId, ruleToMoveId, refPos, em);
       await Promise.all([
         this.operActionRepo.create(opPayload, em),
         listToUpd.map((val) => {
-          this.surveyQuestionRepo.setOrder(surveyId, val.id, ++newPos, em);
+          this.surveyRiscCRepo.setOrder(surveyId, val.id, ++newPos, em);
         }),
       ]);
       return true;
     });
     if (result) {
       this.logger.debug('Moved successfully', { context });
-      this.surveyQuestionRepo.cleanCacheData(surveyId);
+      this.surveyRiscCRepo.cleanCacheData(surveyId);
       return true;
     }
     return false;

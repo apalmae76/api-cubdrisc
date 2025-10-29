@@ -41,7 +41,9 @@
     "calcRisks": "calcRisks",
     "questionId": "questionId",
     "question": "question",
-    "required": "required"
+    "required": "required",
+    "minRange": "minRange",
+    "maxRange": "maxRange"
   },
   "IS_REQUIRED": "Required value",
   "IS_DEFINED": "Most be defined",
@@ -165,6 +167,11 @@
     "CANT_ACTIVATE_ALREADY_DELETED": "The question has already been deleted, we are unable to activate it, please check",
     "ALREADY_ACTIVE": "Question is already active, please check",
     "ALREADY_DELETED": "Question is already deleted, please check"
+  },
+  "survey_risk_calculation": {
+    "NOT_FOUND": "Rule is not found or has not been registered, please check",
+    "REF_NOT_FOUND": "The reference rule is not found or has not been registered, please check",
+    "ALREADY_DELETED": "Rule is already deleted, please check"
   },
   "survey_question_answer": {
     "NOT_FOUND": "Answer is not found or has not been registered, please check",

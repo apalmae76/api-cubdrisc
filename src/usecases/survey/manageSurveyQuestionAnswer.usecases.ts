@@ -214,6 +214,9 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
       : 'DISABLED_SUCCESSFULLY';
     if (answer.active === action) {
       const addInfo = {
+        surveyId,
+        questionId,
+        answerId,
         answer: answer.answer,
         technicalError: `Survey question answer active attribute has same value you send: ${action}; please check`,
       };

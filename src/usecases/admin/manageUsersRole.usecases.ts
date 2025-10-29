@@ -28,10 +28,9 @@ export class ManageUsersRole extends UseCaseBase {
     toUserId: number,
     role: string,
   ): Promise<BaseResponsePresenter<boolean>> {
-    const contextTitle = `${this.contextTitle}lockUser: `;
     const context = `${this.context}execute`;
     const operatorId = user.id;
-    this.logger.debug(`${contextTitle}starting add role `, {
+    this.logger.debug(`Starting add role`, {
       context,
       operatorId,
       toUserId,
@@ -51,7 +50,7 @@ export class ManageUsersRole extends UseCaseBase {
         await this.userRepo.addRole(toUserId, role, em);
         return true;
       });
-      this.logger.debug(`${contextTitle}finish set role`, {
+      this.logger.debug(`Finish set role`, {
         result: response,
         message: 'User role was saved',
         context,
@@ -71,10 +70,9 @@ export class ManageUsersRole extends UseCaseBase {
     toUserId: number,
     role: string,
   ): Promise<BaseResponsePresenter<boolean>> {
-    const contextTitle = `${this.contextTitle}lockUser: `;
     const context = `${this.context}execute`;
     const operatorId = user.id;
-    this.logger.debug(`${contextTitle}starting remove role `, {
+    this.logger.debug(`Starting remove role`, {
       context,
       operatorId,
       toUserId,
@@ -94,7 +92,7 @@ export class ManageUsersRole extends UseCaseBase {
         await this.userRepo.removeRole(toUserId, role, em);
         return true;
       });
-      this.logger.debug(`${contextTitle}finish remove role`, {
+      this.logger.debug(`Finish remove role`, {
         result: response,
         message: 'User role was removed',
         context,
@@ -115,15 +113,14 @@ export class ManageUsersRole extends UseCaseBase {
     role: string,
     action: string,
   ): Promise<boolean> {
-    const contextTitle = `${this.contextTitle}validate data: `;
     const context = `${this.context}validate`;
     const operatorId = user.id;
-    await super.isSameUser(user, toUserId, contextTitle, context, false);
+    await super.isSameUser(user, toUserId, '', context, false);
     const { roles } = await this.userRepo.getByIdOrFail(toUserId);
     const userRoles = roles ? `${roles}`.replace(/[{}]/g, '').split(',') : [];
 
     if (action === 'add' && userRoles.includes(role)) {
-      this.logger.debug(`${contextTitle}ends with errors, user has role`, {
+      this.logger.debug(`Ends with errors, user has role`, {
         operatorId,
         toUserId,
         roleToAdd: role,
@@ -136,16 +133,13 @@ export class ManageUsersRole extends UseCaseBase {
         ],
       });
     } else if (action === 'remove' && !userRoles.includes(role)) {
-      this.logger.debug(
-        `${contextTitle}ends with errors, user does not have this role`,
-        {
-          operatorId,
-          toUserId,
-          roleToRemove: role,
-          userRoles: roles,
-          context,
-        },
-      );
+      this.logger.debug(`Ends with errors, user does not have this role`, {
+        operatorId,
+        toUserId,
+        roleToRemove: role,
+        userRoles: roles,
+        context,
+      });
       throw new BadRequestException({
         message: [
           `validation.admin.USER_NOT_HAVE_ROL|{"toUserId":"${toUserId}","role":"${role}"}`,

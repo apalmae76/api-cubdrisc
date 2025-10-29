@@ -40,7 +40,7 @@ export class MoveSurveyQuestionAnswerUseCases extends UseCaseBase {
       data,
       refOrder,
     );
-    this.logger.debug(`${this.contextTitle}after save `, {
+    this.logger.debug(`Ends after save`, {
       operatorId,
       question,
     });

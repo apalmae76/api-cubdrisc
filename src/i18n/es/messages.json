@@ -64,6 +64,12 @@
     "DELETED": "La pregunta ha sido deshabilitada permanentemente",
     "NOT_DELETED": "La pregunta no ha podido ser deshabilitada, por favor verifique"
   },
+  "survey_risk_calculation": {
+    "CREATED_SUCESSFULLY": "La regla ha sido creado con éxito",
+    "UPDATED_SUCESSFULLY": "La regla ha sido modificada con éxito",
+    "DELETED": "La regla ha sido deshabilitada permanentemente",
+    "NOT_DELETED": "La regla no ha podido ser deshabilitada, por favor verifique"
+  },
   "survey_question_answer": {
     "CREATED_SUCESSFULLY": "La posible respuesta ha sido creado con éxito",
     "UPDATED_SUCESSFULLY": "La posible respuesta ha sido modificada con éxito",

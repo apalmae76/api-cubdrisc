@@ -67,10 +67,9 @@ export class UpdUserEmailWithOtpUseCases extends JwtGetToken {
   }
 
   private async validate(userId: number, email: string) {
-    const contextTitle = `${this.contextTitle}, validating`;
     const context = `${this.context}validate`;
     const mailInUse = await this.userRepo.isEmailInUse(email);
-    this.logger.debug(contextTitle, {
+    this.logger.debug('Starting', {
       userId,
       email,
       mailInUse,

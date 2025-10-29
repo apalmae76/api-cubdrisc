@@ -41,7 +41,9 @@
     "calcRisks": "calcRisks",
     "questionId": "questionId",
     "question": "question",
-    "required": "required"
+    "required": "required",
+    "minRange": "minRange",
+    "maxRange": "maxRange"
   },
   "IS_REQUIRED": "Es un valor requerido",
   "IS_DEFINED": "Debe definirlo",
@@ -164,6 +166,11 @@
     "CANT_ACTIVATE_ALREADY_DELETED": "La pregunta ya ha sido eliminada, nos es posible activarla, por favor verifique",
     "ALREADY_ACTIVE": "La pregunta ya esta activa, por favor verifique",
     "ALREADY_DELETED": "La pregunta ya ha sido eliminada, por favor verifique"
+  },
+  "survey_risk_calculation": {
+    "NOT_FOUND": "La regla no se encuentra o no ha sido registrada, por favor verifique",
+    "REF_NOT_FOUND": "La regla de referencia no se encuentra o no ha sido registrada, por favor verifique",
+    "ALREADY_DELETED": "La regla ya ha sido eliminada, por favor verifique"
   },
   "survey_question_answer": {
     "NOT_FOUND": "La respuesta no se encuentra o no ha sido registrada, por favor verifique",

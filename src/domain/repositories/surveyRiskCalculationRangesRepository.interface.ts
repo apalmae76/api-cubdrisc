@@ -17,7 +17,7 @@ export interface ISurveyRiskCalculationRangesRepository {
     id: number,
     em?: EntityManager,
   ): Promise<boolean>;
-  updateIfExistOrFail(
+  update(
     surveyId: number,
     id: number,
     data: SurveyRiskCalculationRangesUpdateModel,

@@ -1,4 +1,5 @@
 export class SurveyRiskCalculationRangesCreateModel {
+  surveyId: number;
   description: string;
   minRange: number;
   maxRange: number;
@@ -11,7 +12,8 @@ export class SurveyRiskCalculationRangesUpdateModel {
 
 export class SurveyRiskCalculationRangesModel extends SurveyRiskCalculationRangesCreateModel {
   id: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deletedAt?: Date;
+  order: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }

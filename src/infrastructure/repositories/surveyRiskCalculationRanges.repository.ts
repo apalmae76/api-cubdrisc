@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ListToUpdOrderModel } from 'src/domain/model/surveyQuestion';
 import {
   SurveyRiskCalculationRangesCreateModel,
   SurveyRiskCalculationRangesModel,
@@ -37,24 +38,35 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     const repo = em
       ? em.getRepository(SurveyRiskCalculationRanges)
       : this.surveyRCRangesEntity;
-    const entity = this.toCreate(data);
+    const entity = await this.toCreate(data);
     const dataSaved = await repo.save(entity);
     return this.toModel(dataSaved);
   }
 
-  private toCreate(
+  private async toCreate(
     model: SurveyRiskCalculationRangesCreateModel,
-  ): SurveyRiskCalculationRanges {
+  ): Promise<SurveyRiskCalculationRanges> {
     const entity = new SurveyRiskCalculationRanges();
 
+    entity.surveyId = model.surveyId;
     entity.description = model.description;
     entity.minRange = model.minRange;
     entity.maxRange = model.maxRange;
+    entity.order = await this.getLastOrder(model.surveyId);
 
     return entity;
   }
 
-  async updateIfExistOrFail(
+  async getLastOrder(surveyId: number): Promise<number> {
+    const maxQuery = await this.surveyRCRangesEntity
+      .createQueryBuilder('srcr')
+      .select('max(srcr.order) as "maxOrder"')
+      .where('survey_id = :surveyId', { surveyId })
+      .getRawOne();
+    return maxQuery ? maxQuery.maxOrder + 1 : 1;
+  }
+
+  async update(
     surveyId: number,
     id: number,
     survey: SurveyRiskCalculationRangesUpdateModel,
@@ -71,7 +83,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     }
     const update = await repo.update({ surveyId, id }, survey);
     if (update.affected > 0) {
-      await this.cleanCacheData(surveyId, id);
+      await this.cleanCacheData(surveyId);
     }
     return true;
   }
@@ -89,13 +101,13 @@ export class DatabaseSurveyRiskCalculationRangesRepository
       .createQueryBuilder()
       .update(SurveyRiskCalculationRanges)
       .set({ deletedAt: new Date() })
-      .where('surveyId = :surveyId and id = :id and deleted_at is null', {
+      .where('survey_id = :surveyId and id = :id and deleted_at is null', {
         surveyId,
         id,
       })
       .execute();
     if (affected > 0) {
-      await this.cleanCacheData(surveyId, id);
+      await this.cleanCacheData(surveyId);
       return true;
     } else {
       const rowIsDeleted = await this.isRowDeleted(surveyId, id, em);
@@ -113,6 +125,18 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     }
   }
 
+  async setOrder(
+    surveyId: number,
+    id: number,
+    order: number,
+    em: EntityManager,
+  ): Promise<void> {
+    const repo = em
+      ? em.getRepository(SurveyRiskCalculationRanges)
+      : this.surveyRCRangesEntity;
+    await repo.update({ surveyId, id }, { order });
+  }
+
   private async isRowDeleted(
     surveyId: number,
     id: number,
@@ -126,7 +150,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
       .createQueryBuilder()
       .select(['deleted_at as "deletedAt"'])
       .withDeleted()
-      .where('surveyId = :surveyId and id = :id', { surveyId, id })
+      .where('survey_id = :surveyId and id = :id', { surveyId, id })
       .getRawOne();
     if (row) {
       return row.deletedAt !== null;
@@ -134,24 +158,52 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     return null;
   }
 
-  private async cleanCacheData(surveyId: number, id: number) {
-    const cacheKey = `${this.cacheKey}${surveyId}:${id}`;
-    await this.redisService.del(cacheKey);
+  async cleanCacheData(surveyId: number) {
+    const keyPattern = `${this.cacheKey}${surveyId}:*`;
+    await this.redisService.removeAllKeysWithPattern(keyPattern);
   }
 
   private getBasicQuery() {
     return this.surveyRCRangesEntity
-      .createQueryBuilder('surveyrcr')
+      .createQueryBuilder('srcr')
       .select([
-        'surveyrcr.id as "id"',
-        'surveyrcr.description as "description"',
-        'surveyrcr.min_range as "minRange"',
-        'surveyrcr.max_range as "maxRange"',
-        'surveyrcr.created_at as "createdAt"',
-        'surveyrcr.updated_at as "updatedAt"',
-        'surveyrcr.deleted_at as "deletedAt"',
+        'srcr.survey_id as "surveyId"',
+        'srcr.id as "id"',
+        'srcr.description as "description"',
+        'srcr.min_range as "minRange"',
+        'srcr.max_range as "maxRange"',
+        'srcr.created_at as "createdAt"',
+        'srcr.updated_at as "updatedAt"',
+        'srcr.deleted_at as "deletedAt"',
       ])
       .withDeleted();
+  }
+
+  async canUpdate(
+    surveyId: number,
+    id: number,
+  ): Promise<SurveyRiskCalculationRangesModel> {
+    const rule = await this.getByIdOrFail(surveyId, id);
+    return rule;
+  }
+
+  async getToMove(
+    surveyId: number,
+    id: number,
+    order: number,
+  ): Promise<ListToUpdOrderModel[]> {
+    const rules = await this.surveyRCRangesEntity
+      .createQueryBuilder('srcr')
+      .select(['id as "id"', 'order as "order"'])
+      .where('survey_id = :surveyId and id <> :id and order >= :order', {
+        surveyId,
+        id,
+        order,
+      })
+      .orderBy('order', 'ASC')
+      .getRawMany();
+
+    return rules.map((rule) => this.toModel(rule, true));
   }
 
   async getByIdForPanel(
@@ -159,7 +211,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     id: number,
   ): Promise<SurveyRiskCalculationRangesModel> {
     const query = this.getBasicQuery();
-    query.where('survey.id = :surveyId and surveyrcr.id = :id', {
+    query.where('survey.id = :surveyId and id = :id', {
       surveyId,
       id,
     });
@@ -177,7 +229,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
 
     const query = await super.getByQueryBase<SurveyRiskCalculationRanges>(
       queryDto,
-      'surveyrcr',
+      'srcr',
       null,
       queryList,
       false,
@@ -232,7 +284,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     }
     const query = await this.getBasicQuery();
     const surveyQry = await query
-      .where('surveyId = :surveyId and id = :id', { surveyId, id })
+      .where('survey_id = :surveyId and id = :id', { surveyId, id })
       .getRawOne();
     if (!surveyQry) {
       return null;
@@ -269,6 +321,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     const model: SurveyRiskCalculationRangesModel =
       new SurveyRiskCalculationRangesModel();
 
+    model.surveyId = Number(entity.surveyId);
     if (!isForDetails) {
       model.id = Number(entity.id);
     }
@@ -291,6 +344,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     const model: SurveyRiskCalculationRangesModel =
       new SurveyRiskCalculationRangesModel();
 
+    model.surveyId = Number(entity.surveyId);
     if (!isForPanel) {
       model.id = Number(entity.id);
     }
