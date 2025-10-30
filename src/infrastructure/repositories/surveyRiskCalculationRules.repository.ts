@@ -2,63 +2,64 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ListToUpdOrderModel } from 'src/domain/model/surveyQuestion';
 import {
-  SurveyRiskCalculationRangesCreateModel,
-  SurveyRiskCalculationRangesModel,
-  SurveyRiskCalculationRangesUpdateModel,
-} from 'src/domain/model/surveyRiskCalculationRanges';
-import { ISurveyRiskCalculationRangesRepository } from 'src/domain/repositories/surveyRiskCalculationRangesRepository.interface';
+  SurveyRiskCalculationRulesCreateModel,
+  SurveyRiskCalculationRulesModel,
+  SurveyRiskCalculationRulesUpdateModel,
+} from 'src/domain/model/surveyRiskCalculationRules';
+import { ISurveyRiskCalculationRulesRepository } from 'src/domain/repositories/surveyRiskCalculationRulesRepository.interface';
 import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
-import { SurveyRiskCalculationRanges } from '../entities/surveyRangesForRiskCalculation.entity';
+import { SurveyRiskCalculationRules } from '../entities/surveyRulesForRiskCalculation.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 
 @Injectable()
-export class DatabaseSurveyRiskCalculationRangesRepository
+export class DatabaseSurveyRiskCalculationRulesRepository
   extends BaseRepository
-  implements ISurveyRiskCalculationRangesRepository {
-  private readonly cacheKey = 'Repository:SurveyRiskCalculationRanges:';
+  implements ISurveyRiskCalculationRulesRepository {
+  private readonly cacheKey = 'Repository:SurveyRiskCalculationRules:';
   private readonly cacheTime = 15 * 60; // 15 mins
   constructor(
-    @InjectRepository(SurveyRiskCalculationRanges)
-    private readonly surveyRCRangesEntity: Repository<SurveyRiskCalculationRanges>,
+    @InjectRepository(SurveyRiskCalculationRules)
+    private readonly surveyRCRulesEntity: Repository<SurveyRiskCalculationRules>,
     private readonly redisService: ApiRedisService,
     protected readonly logger: ApiLoggerService,
   ) {
-    super(surveyRCRangesEntity, logger);
+    super(surveyRCRulesEntity, logger);
   }
 
   async create(
-    data: SurveyRiskCalculationRangesCreateModel,
+    data: SurveyRiskCalculationRulesCreateModel,
     em: EntityManager,
-  ): Promise<SurveyRiskCalculationRangesModel> {
+  ): Promise<SurveyRiskCalculationRulesModel> {
     const repo = em
-      ? em.getRepository(SurveyRiskCalculationRanges)
-      : this.surveyRCRangesEntity;
+      ? em.getRepository(SurveyRiskCalculationRules)
+      : this.surveyRCRulesEntity;
     const entity = await this.toCreate(data);
     const dataSaved = await repo.save(entity);
     return this.toModel(dataSaved);
   }
 
   private async toCreate(
-    model: SurveyRiskCalculationRangesCreateModel,
-  ): Promise<SurveyRiskCalculationRanges> {
-    const entity = new SurveyRiskCalculationRanges();
+    model: SurveyRiskCalculationRulesCreateModel,
+  ): Promise<SurveyRiskCalculationRules> {
+    const entity = new SurveyRiskCalculationRules();
 
     entity.surveyId = model.surveyId;
     entity.description = model.description;
     entity.minRange = model.minRange;
     entity.maxRange = model.maxRange;
+    entity.percent = model.percent;
     entity.order = await this.getLastOrder(model.surveyId);
 
     return entity;
   }
 
   async getLastOrder(surveyId: number): Promise<number> {
-    const maxQuery = await this.surveyRCRangesEntity
+    const maxQuery = await this.surveyRCRulesEntity
       .createQueryBuilder('srcr')
       .select('max(srcr.order) as "maxOrder"')
       .where('survey_id = :surveyId', { surveyId })
@@ -69,12 +70,12 @@ export class DatabaseSurveyRiskCalculationRangesRepository
   async update(
     surveyId: number,
     id: number,
-    survey: SurveyRiskCalculationRangesUpdateModel,
+    survey: SurveyRiskCalculationRulesUpdateModel,
     em: EntityManager,
   ): Promise<boolean> {
     const repo = em
-      ? em.getRepository(SurveyRiskCalculationRanges)
-      : this.surveyRCRangesEntity;
+      ? em.getRepository(SurveyRiskCalculationRules)
+      : this.surveyRCRulesEntity;
     const entity = await repo.findOne({ where: { id: id } });
     if (!entity) {
       throw new NotFoundException({
@@ -94,12 +95,12 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     em: EntityManager = null,
   ): Promise<boolean> {
     const repo = em
-      ? em.getRepository(SurveyRiskCalculationRanges)
-      : this.surveyRCRangesEntity;
+      ? em.getRepository(SurveyRiskCalculationRules)
+      : this.surveyRCRulesEntity;
 
     const { affected } = await repo
       .createQueryBuilder()
-      .update(SurveyRiskCalculationRanges)
+      .update(SurveyRiskCalculationRules)
       .set({ deletedAt: new Date() })
       .where('survey_id = :surveyId and id = :id and deleted_at is null', {
         surveyId,
@@ -117,7 +118,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
           {
             affected,
             rowIsDeleted: rowIsDeleted ? rowIsDeleted : 'NULL',
-            context: `${DatabaseSurveyRiskCalculationRangesRepository.name}.softDelete`,
+            context: `${DatabaseSurveyRiskCalculationRulesRepository.name}.softDelete`,
           },
         );
       }
@@ -132,8 +133,8 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     em: EntityManager,
   ): Promise<void> {
     const repo = em
-      ? em.getRepository(SurveyRiskCalculationRanges)
-      : this.surveyRCRangesEntity;
+      ? em.getRepository(SurveyRiskCalculationRules)
+      : this.surveyRCRulesEntity;
     await repo.update({ surveyId, id }, { order });
   }
 
@@ -143,8 +144,8 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     em: EntityManager = null,
   ): Promise<boolean> {
     const repo = em
-      ? em.getRepository(SurveyRiskCalculationRanges)
-      : this.surveyRCRangesEntity;
+      ? em.getRepository(SurveyRiskCalculationRules)
+      : this.surveyRCRulesEntity;
 
     const row = await repo
       .createQueryBuilder()
@@ -164,7 +165,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
   }
 
   private getBasicQuery() {
-    return this.surveyRCRangesEntity
+    return this.surveyRCRulesEntity
       .createQueryBuilder('srcr')
       .select([
         'srcr.survey_id as "surveyId"',
@@ -172,6 +173,8 @@ export class DatabaseSurveyRiskCalculationRangesRepository
         'srcr.description as "description"',
         'srcr.min_range as "minRange"',
         'srcr.max_range as "maxRange"',
+        'srcr.percent as "percent"',
+        'srcr.order as "order"',
         'srcr.created_at as "createdAt"',
         'srcr.updated_at as "updatedAt"',
         'srcr.deleted_at as "deletedAt"',
@@ -182,7 +185,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
   async canUpdate(
     surveyId: number,
     id: number,
-  ): Promise<SurveyRiskCalculationRangesModel> {
+  ): Promise<SurveyRiskCalculationRulesModel> {
     const rule = await this.getByIdOrFail(surveyId, id);
     return rule;
   }
@@ -192,15 +195,18 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     id: number,
     order: number,
   ): Promise<ListToUpdOrderModel[]> {
-    const rules = await this.surveyRCRangesEntity
+    const rules = await this.surveyRCRulesEntity
       .createQueryBuilder('srcr')
-      .select(['id as "id"', 'order as "order"'])
-      .where('survey_id = :surveyId and id <> :id and order >= :order', {
-        surveyId,
-        id,
-        order,
-      })
-      .orderBy('order', 'ASC')
+      .select(['srcr.id as "id"', 'srcr."order" as "order"'])
+      .where(
+        'srcr.survey_id = :surveyId and srcr.id <> :id and srcr."order" >= :order',
+        {
+          surveyId,
+          id,
+          order,
+        },
+      )
+      .orderBy('srcr."order"', 'ASC')
       .getRawMany();
 
     return rules.map((rule) => this.toModel(rule, true));
@@ -209,7 +215,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
   async getByIdForPanel(
     surveyId: number,
     id: number,
-  ): Promise<SurveyRiskCalculationRangesModel> {
+  ): Promise<SurveyRiskCalculationRulesModel> {
     const query = this.getBasicQuery();
     query.where('survey.id = :surveyId and id = :id', {
       surveyId,
@@ -224,10 +230,10 @@ export class DatabaseSurveyRiskCalculationRangesRepository
 
   async getByQuery(
     queryDto: GetGenericAllDto,
-  ): Promise<PageDto<SurveyRiskCalculationRangesModel>> {
+  ): Promise<PageDto<SurveyRiskCalculationRulesModel>> {
     const queryList = this.getBasicQuery();
 
-    const query = await super.getByQueryBase<SurveyRiskCalculationRanges>(
+    const query = await super.getByQueryBase<SurveyRiskCalculationRules>(
       queryDto,
       'srcr',
       null,
@@ -255,7 +261,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
   async getByIdOrFail(
     surveyId: number,
     id: number,
-  ): Promise<SurveyRiskCalculationRangesModel> {
+  ): Promise<SurveyRiskCalculationRulesModel> {
     const surveyRCR = await this.getById(surveyId, id);
     if (!surveyRCR) {
       throw new NotFoundException({
@@ -271,13 +277,13 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     surveyId: number,
     id: number,
     useCache = true,
-  ): Promise<SurveyRiskCalculationRangesModel> {
+  ): Promise<SurveyRiskCalculationRulesModel> {
     let cacheKey = null;
-    let surveyRCR: SurveyRiskCalculationRangesModel = null;
+    let surveyRCR: SurveyRiskCalculationRulesModel = null;
     if (useCache) {
       cacheKey = `${this.cacheKey}${id}`;
       surveyRCR =
-        await this.redisService.get<SurveyRiskCalculationRangesModel>(cacheKey);
+        await this.redisService.get<SurveyRiskCalculationRulesModel>(cacheKey);
       if (surveyRCR) {
         return surveyRCR;
       }
@@ -291,7 +297,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     }
     surveyRCR = this.toModel(surveyQry, true);
     if (cacheKey) {
-      await this.redisService.set<SurveyRiskCalculationRangesModel>(
+      await this.redisService.set<SurveyRiskCalculationRulesModel>(
         cacheKey,
         surveyRCR,
         this.cacheTime,
@@ -300,26 +306,12 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     return surveyRCR;
   }
 
-  areSame(
-    surveyRCR1: SurveyRiskCalculationRangesModel,
-    surveyRCR2: SurveyRiskCalculationRangesUpdateModel,
-  ): boolean {
-    return (
-      (surveyRCR2.description === undefined ||
-        surveyRCR1.description === surveyRCR2.description) &&
-      (surveyRCR2.minRange === undefined ||
-        surveyRCR1.minRange === surveyRCR2.minRange) &&
-      (surveyRCR2.maxRange === undefined ||
-        surveyRCR1.maxRange === surveyRCR2.maxRange)
-    );
-  }
-
   private toModelPanel(
-    entity: SurveyRiskCalculationRanges,
+    entity: SurveyRiskCalculationRules,
     isForDetails = false,
-  ): SurveyRiskCalculationRangesModel {
-    const model: SurveyRiskCalculationRangesModel =
-      new SurveyRiskCalculationRangesModel();
+  ): SurveyRiskCalculationRulesModel {
+    const model: SurveyRiskCalculationRulesModel =
+      new SurveyRiskCalculationRulesModel();
 
     model.surveyId = Number(entity.surveyId);
     if (!isForDetails) {
@@ -329,6 +321,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     model.description = entity.description;
     model.minRange = entity.minRange;
     model.maxRange = entity.maxRange;
+    model.order = entity.order;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
@@ -338,11 +331,11 @@ export class DatabaseSurveyRiskCalculationRangesRepository
   }
 
   private toModel(
-    entity: SurveyRiskCalculationRanges,
+    entity: SurveyRiskCalculationRules,
     isForPanel = false,
-  ): SurveyRiskCalculationRangesModel {
-    const model: SurveyRiskCalculationRangesModel =
-      new SurveyRiskCalculationRangesModel();
+  ): SurveyRiskCalculationRulesModel {
+    const model: SurveyRiskCalculationRulesModel =
+      new SurveyRiskCalculationRulesModel();
 
     model.surveyId = Number(entity.surveyId);
     if (!isForPanel) {
@@ -351,6 +344,7 @@ export class DatabaseSurveyRiskCalculationRangesRepository
     model.description = entity.description;
     model.minRange = entity.minRange;
     model.maxRange = entity.maxRange;
+    model.order = entity.order;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
@@ -12,16 +12,7 @@ import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseRespon
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
 import { TerritoriesUseCases } from 'src/usecases/territories/territories.usecases';
-import {
-  GetTCitiesDto,
-  GetTCountriesDto,
-  GetTStatesDto,
-} from '../../common/dtos/nomenclatures-dto.class';
-import {
-  GetCitiesPresenter,
-  GetCountriesPresenter,
-  GetStatesPresenter
-} from './nomenclatures.presenter';
+import { GetStatesPresenter } from './nomenclatures.presenter';
 
 @ApiTags('Nomenclatures')
 @Controller('nomenclatures')
@@ -38,23 +29,6 @@ export class NomencladoresController {
     private readonly getTerritoriesUC: UseCaseProxy<TerritoriesUseCases>,
   ) { }
 
-  @Get('countries')
-  @ApiOkResponse({ type: GetCountriesPresenter })
-  @ApiOperation({
-    description: '',
-    summary: 'Allows to obtain the Countries',
-    operationId: 'getCountries',
-  })
-  async getCountries(
-    @Query() dataDto: GetTCountriesDto,
-  ): Promise<GetCountriesPresenter> {
-    const response = await this.getTerritoriesUC
-      .getInstance()
-      .getCountries(dataDto);
-    const total = response ? response.length : 0;
-    return new BaseResponsePresenter('AUTO', { countries: response, total });
-  }
-
   @Get('states')
   @ApiOkResponse({ type: GetStatesPresenter })
   @ApiOperation({
@@ -62,30 +36,9 @@ export class NomencladoresController {
     summary: 'Allows to obtain the States',
     operationId: 'getStates',
   })
-  async getStates(
-    @Query() dataDto: GetTStatesDto,
-  ): Promise<GetStatesPresenter> {
-    const response = await this.getTerritoriesUC
-      .getInstance()
-      .getStates(dataDto);
+  async getStates(): Promise<GetStatesPresenter> {
+    const response = await this.getTerritoriesUC.getInstance().getStates();
     const total = response ? response.length : 0;
     return new BaseResponsePresenter('AUTO', { states: response, total });
-  }
-
-  @Get('cities')
-  @ApiOkResponse({ type: GetCitiesPresenter })
-  @ApiOperation({
-    description: '',
-    summary: 'Allows to obtain the Cities',
-    operationId: 'getCities',
-  })
-  async getCities(
-    @Query() dataDto: GetTCitiesDto,
-  ): Promise<GetCitiesPresenter> {
-    const response = await this.getTerritoriesUC
-      .getInstance()
-      .getCities(dataDto);
-    const total = response ? response.length : 0;
-    return new BaseResponsePresenter('AUTO', { cities: response, total });
   }
 }

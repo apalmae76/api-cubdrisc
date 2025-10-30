@@ -53,6 +53,16 @@ export class CreateSurveyRiskCalculationDto {
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
   readonly maxRange: number;
+
+  @ApiProperty({
+    description: 'max range',
+    example: 2,
+    required: true,
+  })
+  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  readonly percent: number;
 }
 
 export class UpdateSurveyRiskCalculationDto {
@@ -91,4 +101,15 @@ export class UpdateSurveyRiskCalculationDto {
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
   readonly maxRange: number;
+
+  @ApiProperty({
+    description: 'max range',
+    example: 20,
+    required: false,
+  })
+  @IsOptional()
+  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  readonly percent: number;
 }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsDate, IsInt, IsNumber, IsString } from 'class-validator';
-import { SurveyRiskCalculationRangesModel } from 'src/domain/model/surveyRiskCalculationRanges';
+import { SurveyRiskCalculationRulesModel } from 'src/domain/model/surveyRiskCalculationRules';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 
 export class SurveyRiskCalculationPresenter {
@@ -41,7 +41,7 @@ export class SurveyRiskCalculationPresenter {
   @IsDate()
   deletedAt: Date;
 
-  constructor(rule: SurveyRiskCalculationRangesModel) {
+  constructor(rule: SurveyRiskCalculationRulesModel) {
     this.surveyId = rule.surveyId;
     this.id = rule.id;
     this.description = rule.description;

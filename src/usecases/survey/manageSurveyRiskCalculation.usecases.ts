@@ -1,10 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
 import {
-  SurveyRiskCalculationRangesCreateModel,
-  SurveyRiskCalculationRangesModel,
-  SurveyRiskCalculationRangesUpdateModel,
-} from 'src/domain/model/surveyRiskCalculationRanges';
+  SurveyRiskCalculationRulesCreateModel,
+  SurveyRiskCalculationRulesModel,
+  SurveyRiskCalculationRulesUpdateModel,
+} from 'src/domain/model/surveyRiskCalculationRules';
 import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decorator';
 import {
   BaseResponsePresenter,
@@ -19,7 +19,7 @@ import {
 import { SurveyRiskCalculationPresenter } from 'src/infrastructure/controllers/admin/manageSurveyRiskCalculation.presenter';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
-import { DatabaseSurveyRiskCalculationRangesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRanges.repository';
+import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRules.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
@@ -29,7 +29,7 @@ import { UseCaseBase } from '../usecases.base';
 export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
   constructor(
     private readonly surveyRepo: DatabaseSurveyRepository,
-    private readonly surveyRiscCRepo: DatabaseSurveyRiskCalculationRangesRepository,
+    private readonly surveyRiscCRepo: DatabaseSurveyRiskCalculationRulesRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     private readonly appConfig: EnvironmentConfigService,
     protected readonly dataSource: DataSource,
@@ -51,7 +51,7 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
   }): Promise<BaseResponsePresenter<SurveyRiskCalculationPresenter>> {
     // validate if survey exist
     await this.surveyRepo.getByIdOrFail(surveyId);
-    const newData: SurveyRiskCalculationRangesCreateModel = {
+    const newData: SurveyRiskCalculationRulesCreateModel = {
       ...dataDto,
       surveyId,
     };
@@ -119,13 +119,13 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     ruleId: number,
     dataDto: UpdateSurveyRiskCalculationDto,
   ): Promise<{
-    newData: SurveyRiskCalculationRangesUpdateModel | null;
-    rule: SurveyRiskCalculationRangesModel;
+    newData: SurveyRiskCalculationRulesUpdateModel | null;
+    rule: SurveyRiskCalculationRulesModel;
   }> {
     await this.surveyRepo.getByIdOrFail(surveyId);
     const rule = await this.surveyRiscCRepo.canUpdate(surveyId, ruleId);
 
-    const newData: SurveyRiskCalculationRangesUpdateModel = {};
+    const newData: SurveyRiskCalculationRulesUpdateModel = {};
     if (
       dataDto.description !== undefined &&
       dataDto.description !== rule.description
@@ -138,6 +138,9 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     if (dataDto.minRange !== undefined && dataDto.minRange !== rule.minRange) {
       newData.minRange = dataDto.minRange;
     }
+    if (dataDto.percent !== undefined && dataDto.percent !== rule.percent) {
+      newData.percent = dataDto.percent;
+    }
 
     if (Object.keys(newData).length === 0) {
       return { newData: null, rule };
@@ -149,7 +152,7 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     operatorId: number,
     surveyId: number,
     ruleId: number,
-    payload: SurveyRiskCalculationRangesUpdateModel,
+    payload: SurveyRiskCalculationRulesUpdateModel,
   ): Promise<SurveyRiskCalculationPresenter> {
     const context = `${this.context}persistData`;
     this.logger.debug('Saving data', {

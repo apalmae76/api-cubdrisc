@@ -1,7 +1,6 @@
 {
   "properties": {
     "id": "Id",
-    "address": "Address data",
     "user": "User data",
     "countryId": "Country ID",
     "country": "Country",
@@ -106,7 +105,7 @@
     "COUNTRY_ID_NOT_EXIST": "Country: The sent ID value does not exist",
     "COUNTRY_ISO2_NOT_FOUND": "It is not possible to use the selected country at this time. Contact technical support team for more information",
     "STATE_ID_NOT_EXIST": "State: The submitted ID value does not exist or is not found, for that country ID",
-    "STATE_ISO2_NOT_FOUND": "It is not possible to use the selected state (provinc) at this time{stateCode}. Contact technical support team for more information",
+    "STATE_ISO2_NOT_FOUND": "It is not possible to use the selected state (provinc) at this time{code}. Contact technical support team for more information",
     "CITY_ID_NOT_EXIST": "City: The submitted ID value does not exist or is not found, for that state & country ID",
     "CITY_NOT_FOUND": "City: does not exist or is not found in the system. Please verify the identifier or try again later.",
     "MEDICAL_SPECIALTY_NOT_FOUND": "Medical specialty: Does not exist or is not found in the system. Please verify the identifier or try again later",

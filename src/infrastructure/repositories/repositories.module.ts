@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
 import { TypeOrmConfigModule } from '../config/typeorm/typeorm.module';
-import { City } from '../entities/city.entity';
-import { Country } from '../entities/country.entity';
 import { UserEmails } from '../entities/emails.entity';
 import { MedicalSpecialty } from '../entities/medicalSpecialty.entity';
 import { OperatorsActions } from '../entities/operatorsActions.entity';
@@ -16,13 +14,11 @@ import { State } from '../entities/state.entity';
 import { Survey } from '../entities/survey.entity';
 import { SurveyQuestions } from '../entities/surveyQuestions.entity';
 import { SurveyQuestionsPossibleAnswers } from '../entities/surveyQuestionsPossibleAnswers.entity';
-import { SurveyRiskCalculationRanges } from '../entities/surveyRangesForRiskCalculation.entity';
+import { SurveyRiskCalculationRules } from '../entities/surveyRulesForRiskCalculation.entity';
 import { User } from '../entities/user.entity';
 import { ApiLoggerModule } from '../services/logger/logger.module';
 import { ApiRedisModule } from '../services/redis/redis.module';
 import { WSModule } from '../services/websockets/ws.module';
-import { DatabaseCityRepository } from './city.repository';
-import { DatabaseCountryRepository } from './country.repository';
 import { DatabaseEmailRepository } from './email.repository';
 import { DatabaseMedicalSpecialtyRepository } from './medicalSpecialty.repository';
 import { DatabaseOperatorsActionsRepository } from './operatorsActions.repository';
@@ -35,7 +31,7 @@ import { DatabaseStateRepository } from './state.repository';
 import { DatabaseSurveyRepository } from './survey.repository';
 import { DatabaseSurveyQuestionsRepository } from './surveyQuestions.repository';
 import { DatabaseSurveyQuestionsPossibleAnswersRepository } from './surveyQuestionsPossibleAnswers.repository';
-import { DatabaseSurveyRiskCalculationRangesRepository } from './surveyRiskCalculationRanges.repository';
+import { DatabaseSurveyRiskCalculationRulesRepository } from './surveyRiskCalculationRules.repository';
 import { DatabaseUserRepository } from './user.repository';
 
 @Module({
@@ -52,13 +48,11 @@ import { DatabaseUserRepository } from './user.repository';
       UserEmails,
       UserPhones,
       OperatorsActions,
-      Country,
       State,
-      City,
       MedicalSpecialty,
 
       Survey,
-      SurveyRiskCalculationRanges,
+      SurveyRiskCalculationRules,
       SurveyQuestions,
       SurveyQuestionsPossibleAnswers,
       PatientSurvey,
@@ -71,14 +65,12 @@ import { DatabaseUserRepository } from './user.repository';
     DatabasePatientRepository,
     DatabaseEmailRepository,
     DatabasePhoneRepository,
-    DatabaseCountryRepository,
     DatabaseStateRepository,
-    DatabaseCityRepository,
     DatabaseMedicalSpecialtyRepository,
     DatabaseOperatorsActionsRepository,
 
     DatabaseSurveyRepository,
-    DatabaseSurveyRiskCalculationRangesRepository,
+    DatabaseSurveyRiskCalculationRulesRepository,
     DatabaseSurveyQuestionsRepository,
     DatabaseSurveyQuestionsPossibleAnswersRepository,
 
@@ -91,14 +83,12 @@ import { DatabaseUserRepository } from './user.repository';
     DatabasePatientRepository,
     DatabaseEmailRepository,
     DatabasePhoneRepository,
-    DatabaseCountryRepository,
     DatabaseStateRepository,
-    DatabaseCityRepository,
     DatabaseMedicalSpecialtyRepository,
     DatabaseOperatorsActionsRepository,
 
     DatabaseSurveyRepository,
-    DatabaseSurveyRiskCalculationRangesRepository,
+    DatabaseSurveyRiskCalculationRulesRepository,
     DatabaseSurveyQuestionsRepository,
     DatabaseSurveyQuestionsPossibleAnswersRepository,
 

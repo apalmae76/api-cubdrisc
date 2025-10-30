@@ -1,16 +1,18 @@
-export class SurveyRiskCalculationRangesCreateModel {
+export class SurveyRiskCalculationRulesCreateModel {
   surveyId: number;
   description: string;
   minRange: number;
   maxRange: number;
+  percent: number;
 }
-export class SurveyRiskCalculationRangesUpdateModel {
+export class SurveyRiskCalculationRulesUpdateModel {
   description?: string;
   minRange?: number;
   maxRange?: number;
+  percent?: number;
 }
 
-export class SurveyRiskCalculationRangesModel extends SurveyRiskCalculationRangesCreateModel {
+export class SurveyRiskCalculationRulesModel extends SurveyRiskCalculationRulesCreateModel {
   id: number;
   order: number;
   createdAt: Date;

@@ -20,6 +20,7 @@ export enum EEntitiesForGetEntity {
 
   SURVEY = 'surveys',
   SURVEY_QUESTIONS = 'surveysQuestions',
+  SURVEY_RULES = 'surveysRules',
   SURVEY_QUESTIONS_PA = 'surveysQuestionsPA',
 }
 
@@ -32,6 +33,7 @@ export enum ERepoRefForGetEntity {
   operatorsActions = 'opActionsRepo',
 
   surveys = 'surveysRepo',
+  surveysRules = 'surveyRulesRepo',
   surveysQuestions = 'surveysQuestionsRepo',
   surveysQuestionsPA = 'surveysQuestionsPARepo',
 

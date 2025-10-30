@@ -8,13 +8,13 @@ import {
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 import { Survey } from './survey.entity';
 
-@Entity('survey_risk_calculation_ranges')
+@Entity('survey_risk_calculation_rules')
 @Index(['order'], { where: 'deleted_at IS NULL' })
-export class SurveyRiskCalculationRanges {
+export class SurveyRiskCalculationRules {
   @ManyToOne(() => Survey, (survey) => survey.id, {
     nullable: false,
     onDelete: 'RESTRICT',
@@ -37,6 +37,13 @@ export class SurveyRiskCalculationRanges {
 
   @Column({ type: 'smallint', name: 'max_range' })
   maxRange: number;
+
+  @Column({
+    type: 'smallint',
+    name: 'percent',
+    comment: 'percentage that represents',
+  })
+  percent: number;
 
   @Column({
     name: 'order',

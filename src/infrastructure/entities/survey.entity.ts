@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { PatientSurvey } from './patientSurvey.entity';
 import { SurveyQuestions } from './surveyQuestions.entity';
-import { SurveyRiskCalculationRanges } from './surveyRangesForRiskCalculation.entity';
+import { SurveyRiskCalculationRules } from './surveyRulesForRiskCalculation.entity';
 
 @Entity('survey')
 export class Survey {
@@ -65,6 +65,6 @@ export class Survey {
   @OneToMany(() => SurveyQuestions, (question) => question.survey)
   questions: SurveyQuestions[];
 
-  @OneToMany(() => SurveyRiskCalculationRanges, (rcRange) => rcRange.survey)
-  rcRanges: SurveyRiskCalculationRanges[];
+  @OneToMany(() => SurveyRiskCalculationRules, (rcRange) => rcRange.survey)
+  rcRules: SurveyRiskCalculationRules[];
 }

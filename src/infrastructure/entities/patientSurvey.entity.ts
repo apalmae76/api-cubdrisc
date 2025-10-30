@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Patient } from './patient.entity';
 import { PatientSurveyAnswers } from './patientSurveyAnswers.entity';
+import { State } from './state.entity';
 import { Survey } from './survey.entity';
 
 @Entity('patient_survey')
@@ -34,6 +35,17 @@ export class PatientSurvey {
 
   @PrimaryColumn({ type: 'bigint', name: 'survey_id', comment: 'id column' })
   surveyId: number;
+
+  @ManyToOne(() => State, (state) => state.id, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'state_id', referencedColumnName: 'id' })
+  state: State;
+
+  @Column({ type: 'bigint', name: 'state_id', comment: 'id column' })
+  stateId: number;
 
   @Column({
     type: 'smallint',

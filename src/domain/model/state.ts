@@ -1,11 +1,11 @@
 export class StateCreateModel {
   name: string;
-  stateCode?: string;
-  countryId: number;
+  code: string;
 }
 
 export class StateModel extends StateCreateModel {
   id: number;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
 }

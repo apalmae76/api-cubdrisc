@@ -1,5 +1,3 @@
-import { City } from './city.entity';
-import { Country } from './country.entity';
 import { UserEmails } from './emails.entity';
 import { MedicalSpecialty } from './medicalSpecialty.entity';
 import { OperatorsActions } from './operatorsActions.entity';
@@ -12,7 +10,7 @@ import { State } from './state.entity';
 import { Survey } from './survey.entity';
 import { SurveyQuestions } from './surveyQuestions.entity';
 import { SurveyQuestionsPossibleAnswers } from './surveyQuestionsPossibleAnswers.entity';
-import { SurveyRiskCalculationRanges } from './surveyRangesForRiskCalculation.entity';
+import { SurveyRiskCalculationRules } from './surveyRulesForRiskCalculation.entity';
 import { User } from './user.entity';
 
 export const ENTITIES = [
@@ -23,12 +21,10 @@ export const ENTITIES = [
   UserEmails,
   MedicalSpecialty,
   OperatorsActions,
-  Country,
   State,
-  City,
 
   Survey,
-  SurveyRiskCalculationRanges,
+  SurveyRiskCalculationRules,
   SurveyQuestions,
   SurveyQuestionsPossibleAnswers,
   PatientSurvey,

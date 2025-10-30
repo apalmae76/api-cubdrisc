@@ -106,7 +106,7 @@
     "COUNTRY_ID_NOT_EXIST": "País: El valor ID enviado no existe",
     "COUNTRY_ISO2_NOT_FOUND": "No es posible emplear el país seleccionado en estos momentos. Para más información, comuníquese con el equipo de soporte",
     "STATE_ID_NOT_EXIST": "Estado/provincia: El valor ID enviado no existe o no se encuentra, para ese ID de país",
-    "STATE_ISO2_NOT_FOUND": "No es posible emplear el estado (provincia) seleccionado en estos momentos{stateCode}. Para más información, comuníquese con el equipo de soporte",
+    "STATE_ISO2_NOT_FOUND": "No es posible emplear el estado (provincia) seleccionado en estos momentos{code}. Para más información, comuníquese con el equipo de soporte",
     "CITY_ID_NOT_EXIST": "Ciudad/municipio: El valor ID enviado no existe o no se encuentra, para ese ID de estado y país",
     "CITY_NOT_FOUND": "Ciudad/municipio: No existe o no se encuentra en el sistema. Por favor, verifice el identificador o intente de nuevo más tarde",
     "MEDICAL_SPECIALTY_NOT_FOUND": "Especialidad médica: No existe o no se encuentra en el sistema. Por favor, verifice el identificador o intente de nuevo más tarde",

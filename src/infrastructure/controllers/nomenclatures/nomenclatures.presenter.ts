@@ -52,7 +52,7 @@ export class StatesPresenter {
   constructor(data: StateModel) {
     this.key = `${data.id}`;
     this.value = data.name;
-    this.state_code = data.stateCode;
+    this.state_code = data.code;
   }
 }
 

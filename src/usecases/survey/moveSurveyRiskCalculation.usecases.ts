@@ -5,7 +5,7 @@ import { BooleanDataResponsePresenter } from 'src/infrastructure/common/dtos/bas
 import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { MoveRowDto } from 'src/infrastructure/controllers/admin/manage-survey-question-dto.class';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
-import { DatabaseSurveyRiskCalculationRangesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRanges.repository';
+import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRules.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
@@ -14,7 +14,7 @@ import { UseCaseBase } from '../usecases.base';
 @InjectableUseCase()
 export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
   constructor(
-    private readonly surveyRiscCRepo: DatabaseSurveyRiskCalculationRangesRepository,
+    private readonly surveyRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     protected readonly dataSource: DataSource,
     protected readonly logger: ApiLoggerService,
@@ -54,8 +54,8 @@ export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
     data: MoveRowDto,
   ): Promise<number> {
     const [refRule] = await Promise.all([
-      this.surveyRiscCRepo.getById(surveyId, data.referenceId),
-      this.surveyRiscCRepo.canUpdate(surveyId, ruleId),
+      this.surveyRulesRepo.getById(surveyId, data.referenceId),
+      this.surveyRulesRepo.canUpdate(surveyId, ruleId),
     ]);
     if (!refRule) {
       const args = {
@@ -65,7 +65,7 @@ export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
       };
       throw new NotFoundException({
         message: [
-          `validation.raffle_question.REF_NOT_FOUND|${JSON.stringify(args)}`,
+          `validation.survey_risk_calculation.REF_NOT_FOUND|${JSON.stringify(args)}`,
         ],
       });
     }
@@ -84,7 +84,7 @@ export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
       context,
       surveyId,
       ruleToMoveId,
-      refOrder,
+      refOrder: refOrder ?? '?',
       data,
     });
 
@@ -93,7 +93,7 @@ export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
       refPos = 1;
     }
 
-    const listToUpd = await this.surveyRiscCRepo.getToMove(
+    const listToUpd = await this.surveyRulesRepo.getToMove(
       surveyId,
       ruleToMoveId,
       refPos,
@@ -109,18 +109,18 @@ export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
         'Modifica una regla de calculo de riesgo (cambia el orden de presentación)',
     };
     const result = await this.dataSource.transaction(async (em) => {
-      await this.surveyRiscCRepo.setOrder(surveyId, ruleToMoveId, refPos, em);
+      await this.surveyRulesRepo.setOrder(surveyId, ruleToMoveId, refPos, em);
       await Promise.all([
         this.operActionRepo.create(opPayload, em),
         listToUpd.map((val) => {
-          this.surveyRiscCRepo.setOrder(surveyId, val.id, ++newPos, em);
+          this.surveyRulesRepo.setOrder(surveyId, val.id, ++newPos, em);
         }),
       ]);
       return true;
     });
     if (result) {
       this.logger.debug('Moved successfully', { context });
-      this.surveyRiscCRepo.cleanCacheData(surveyId);
+      this.surveyRulesRepo.cleanCacheData(surveyId);
       return true;
     }
     return false;

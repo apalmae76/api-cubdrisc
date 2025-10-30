@@ -2,16 +2,16 @@ import { GetGenericAllDto } from 'src/infrastructure/common/dtos/genericRepo-dto
 import { PageDto } from 'src/infrastructure/common/dtos/page.dto';
 import { EntityManager } from 'typeorm';
 import {
-  SurveyRiskCalculationRangesCreateModel,
-  SurveyRiskCalculationRangesModel,
-  SurveyRiskCalculationRangesUpdateModel,
-} from '../model/surveyRiskCalculationRanges';
+  SurveyRiskCalculationRulesCreateModel,
+  SurveyRiskCalculationRulesModel,
+  SurveyRiskCalculationRulesUpdateModel,
+} from '../model/surveyRiskCalculationRules';
 
-export interface ISurveyRiskCalculationRangesRepository {
+export interface ISurveyRiskCalculationRulesRepository {
   create(
-    data: SurveyRiskCalculationRangesCreateModel,
+    data: SurveyRiskCalculationRulesCreateModel,
     em: EntityManager,
-  ): Promise<SurveyRiskCalculationRangesModel>;
+  ): Promise<SurveyRiskCalculationRulesModel>;
   softDelete(
     surveyId: number,
     id: number,
@@ -20,23 +20,23 @@ export interface ISurveyRiskCalculationRangesRepository {
   update(
     surveyId: number,
     id: number,
-    data: SurveyRiskCalculationRangesUpdateModel,
+    data: SurveyRiskCalculationRulesUpdateModel,
     em: EntityManager,
   ): Promise<boolean>;
   ensureExistOrFail(surveyId: number, id: number): Promise<void>;
   getByQuery(
     pageOptionsDto: GetGenericAllDto,
-  ): Promise<PageDto<SurveyRiskCalculationRangesModel>>;
+  ): Promise<PageDto<SurveyRiskCalculationRulesModel>>;
   getByIdForPanel(
     surveyId: number,
     id: number,
-  ): Promise<SurveyRiskCalculationRangesModel>;
+  ): Promise<SurveyRiskCalculationRulesModel>;
   getById(
     surveyId: number,
     id: number,
-  ): Promise<SurveyRiskCalculationRangesModel>;
+  ): Promise<SurveyRiskCalculationRulesModel>;
   getByIdOrFail(
     surveyId: number,
     id: number,
-  ): Promise<SurveyRiskCalculationRangesModel>;
+  ): Promise<SurveyRiskCalculationRulesModel>;
 }

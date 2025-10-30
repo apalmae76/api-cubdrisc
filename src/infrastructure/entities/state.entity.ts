@@ -1,18 +1,18 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   Index,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Country } from './country.entity';
+import { PatientSurvey } from './patientSurvey.entity';
 
 @Entity('states')
-@Index(['countryId', 'name'], { unique: false })
-@Index(['countryId', 'stateCode'], { unique: true })
+@Index(['name'], { unique: false })
+@Index(['code'], { unique: true })
 export class State {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: 'id column' })
   id: number;
@@ -20,24 +20,13 @@ export class State {
   @Column({ name: 'name', type: 'varchar', length: 100, nullable: false })
   name: string;
 
-  @Column({ name: 'country_id', type: 'bigint' })
-  countryId: number;
-
-  @ManyToOne(() => Country, (country) => country.id, {
-    nullable: false,
-    onDelete: 'RESTRICT',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'country_id' })
-  country: Country;
-
   @Column({
-    name: 'state_code',
+    name: 'code',
     type: 'varchar',
     length: 10,
     nullable: false,
   })
-  stateCode: string;
+  code: string;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -54,4 +43,16 @@ export class State {
     comment: 'Entity update',
   })
   updatedAt: Date;
+
+  @DeleteDateColumn({
+    type: 'timestamp',
+    comment: 'Entity delete',
+    nullable: true,
+    default: null,
+    name: 'deleted_at',
+  })
+  deletedAt;
+
+  @OneToMany(() => PatientSurvey, (patientSurvey) => patientSurvey.stateId)
+  patientSurvey: PatientSurvey[];
 }

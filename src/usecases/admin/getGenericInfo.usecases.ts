@@ -23,6 +23,7 @@ import { DatabasePhoneRepository } from 'src/infrastructure/repositories/phone.r
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
 import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/surveyQuestions.repository';
 import { DatabaseSurveyQuestionsPossibleAnswersRepository } from 'src/infrastructure/repositories/surveyQuestionsPossibleAnswers.repository';
+import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRules.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
@@ -37,6 +38,7 @@ export class GetGenericInfoUseCases extends UseCaseBase {
     private readonly userPhoneRepo: DatabasePhoneRepository,
     private readonly userEmailsRepo: DatabaseEmailRepository,
     private readonly surveysRepo: DatabaseSurveyRepository,
+    private readonly surveyRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
     private readonly surveysQuestionsRepo: DatabaseSurveyQuestionsRepository,
     private readonly surveysQuestionsPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
     private readonly patientSurveyRepo: DatabasePatientSurveyRepository,
