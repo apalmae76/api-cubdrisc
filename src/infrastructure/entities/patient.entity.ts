@@ -5,41 +5,25 @@ import {
   Entity,
   Index,
   JoinColumn,
-  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PatientSurvey } from './patientSurvey.entity';
 import { Person } from './person.entity';
 
 @Entity('patient')
-@Index(['id'], { where: 'deleted_at IS NULL' })
-@Index(['phone'], {
-  unique: true,
-  where: 'phone is not null and deleted_at IS NULL',
-})
-@Index(['email'], {
-  unique: true,
-  where: 'phone is not null and deleted_at IS NULL',
-})
+@Index(['personId'], { where: 'deleted_at IS NULL' })
 export class Patient {
-  @PrimaryColumn({ type: 'bigint', comment: 'id column' })
-  id: number;
-
-  @OneToOne(() => Person, (person) => person.patient, {
+  @OneToOne(() => Person, (person) => person.personPatient, {
     nullable: false,
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn({ name: 'id', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'person_id', referencedColumnName: 'id' })
   person: Person;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phone: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  email: string;
+  @PrimaryColumn({ type: 'bigint', name: 'person_id', comment: 'id column' })
+  personId: number;
 
   @Column({
     name: 'diagnosed',
@@ -71,7 +55,4 @@ export class Patient {
     name: 'deleted_at',
   })
   deletedAt: Date;
-
-  @OneToMany(() => PatientSurvey, (patientSurvey) => patientSurvey.survey)
-  patientSurvey: PatientSurvey[];
 }

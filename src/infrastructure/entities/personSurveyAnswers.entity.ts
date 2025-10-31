@@ -5,14 +5,14 @@ import {
   ManyToOne,
   PrimaryColumn,
 } from 'typeorm';
-import { PatientSurvey } from './patientSurvey.entity';
+import { PersonSurvey } from './personSurvey.entity';
 import { SurveyQuestionsPossibleAnswers } from './surveyQuestionsPossibleAnswers.entity';
 
-@Entity('patient_survey_answers')
-export class PatientSurveyAnswers {
+@Entity('person_survey_answers')
+export class PersonSurveyAnswers {
   @ManyToOne(
-    () => PatientSurvey,
-    (patientSurvey) => patientSurvey.patientSurveyAnswers,
+    () => PersonSurvey,
+    (personSurvey) => personSurvey.personSurveyAnswers,
     {
       nullable: false,
       onDelete: 'RESTRICT',
@@ -20,10 +20,12 @@ export class PatientSurveyAnswers {
     },
   )
   @JoinColumn([
-    { name: 'patient_id', referencedColumnName: 'patientId' },
+    { name: 'person_id', referencedColumnName: 'personId' },
     { name: 'survey_id', referencedColumnName: 'surveyId' },
+    { name: 'person_survey_id', referencedColumnName: 'id' },
   ])
-  patientSurvey: PatientSurvey;
+  personSurvey: PersonSurvey;
+
   @ManyToOne(
     () => SurveyQuestionsPossibleAnswers,
     (questionPossibleAnswer) => questionPossibleAnswer.possibleAnswers,
@@ -40,11 +42,18 @@ export class PatientSurveyAnswers {
   ])
   questionPossibleAnswers: SurveyQuestionsPossibleAnswers;
 
-  @PrimaryColumn({ type: 'bigint', name: 'patient_id', comment: 'id column' })
-  patientId: number;
+  @PrimaryColumn({ type: 'bigint', name: 'person_id', comment: 'id column' })
+  personId: number;
 
   @PrimaryColumn({ type: 'bigint', name: 'survey_id', comment: 'id column' })
   surveyId: number;
+
+  @PrimaryColumn({
+    type: 'bigint',
+    name: 'person_survey_id',
+    comment: 'id column',
+  })
+  personSurveyId: number;
 
   @PrimaryColumn({
     type: 'bigint',

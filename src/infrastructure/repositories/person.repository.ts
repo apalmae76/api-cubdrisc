@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -8,14 +7,13 @@ import {
 } from 'src/domain/model/person';
 import { IPersonRepository } from 'src/domain/repositories/personRepository.interface';
 import { EntityManager, Repository } from 'typeorm';
-import { UserModel } from '../../domain/model/user';
 import {
   EQueryOperators,
   GetGenericAllDto,
 } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
-import { EAppTypes, SYSTEM_USER_ID } from '../common/utils/constants';
+import { SYSTEM_USER_ID } from '../common/utils/constants';
 import { Person } from '../entities/person.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
@@ -45,34 +43,34 @@ export class DatabasePersonRepository
     return this.toModel(entity);
   }
 
-  async updateIfExistOrFail(
+  private toCreate(model: PersonCreateModel): Person {
+    const entity = new Person();
+
+    entity.ci = model.ci;
+    entity.firstName = model.firstName;
+    entity.middleName = model.middleName;
+    entity.lastName = model.lastName;
+    entity.secondLastName = model.secondLastName;
+    entity.fullName = this.getFullName(model);
+
+    entity.dateOfBirth = model.dateOfBirth;
+    entity.gender = model.gender;
+
+    return entity;
+  }
+
+  async update(
     id: number,
     person: PersonUpdateModel,
     em: EntityManager,
   ): Promise<boolean> {
     const repo = em ? em.getRepository(Person) : this.personEntity;
-    const entity = await repo.findOne({ where: { id: id } });
-    if (!person) {
-      throw new NotFoundException({
-        message: [`validation.profile.USER_NOT_FOUND|{"userId":"${id}"}`],
-      });
-    }
-    entity.ci = person.ci;
-    entity.firstName = person.firstName;
-    entity.middleName = person.middleName;
-    entity.lastName = person.lastName;
-    entity.secondLastName = person.secondLastName;
-    entity.fullName = this.getFullName(entity);
-
-    entity.dateOfBirth = person.dateOfBirth;
-    entity.gender = person.gender;
-
-    await repo.save(entity);
+    await repo.update({ id }, person);
     await this.cleanCacheData(id);
     return true;
   }
 
-  private async cleanCacheData(id: number, app: EAppTypes | null = null) {
+  private async cleanCacheData(id: number) {
     const cacheKey = `${this.cacheKey}${id}`;
     await this.redisService.del(cacheKey);
   }
@@ -180,7 +178,7 @@ export class DatabasePersonRepository
         'last_name as "lastName"',
         'second_last_name as "secondLastName"',
         'date_of_birth as "dateOfBirth"',
-        'gender',
+        'gender as "gender"',
         'created_at as "createdAt"',
         'updated_at as "updatedAt"',
       ]);
@@ -217,31 +215,8 @@ export class DatabasePersonRepository
     return this.toModel(person);
   }
 
-  personsAreSame(
-    person1: PersonUpdateModel,
-    person2: PersonUpdateModel,
-  ): boolean {
-    const u1DateOfBirth = person1.dateOfBirth
-      ? new Date(person1.dateOfBirth)
-      : null;
-    const sameDateOfBirth =
-      (u1DateOfBirth &&
-        u1DateOfBirth.toISOString().slice(0, 10) ===
-        `${person2.dateOfBirth}`) ||
-      person1.dateOfBirth == person2.dateOfBirth;
-    return (
-      person1.ci === person2.ci &&
-      person1.firstName === person2.firstName &&
-      person1.middleName === person2.middleName &&
-      person1.lastName === person2.lastName &&
-      person1.secondLastName === person2.secondLastName &&
-      sameDateOfBirth &&
-      person1.gender === person2.gender
-    );
-  }
-
   toModel(entity: Person, isForPanel = false): PersonModel {
-    const model: UserModel = new UserModel();
+    const model: PersonModel = new PersonModel();
 
     if (!isForPanel) {
       model.id = Number(entity.id);
@@ -262,29 +237,12 @@ export class DatabasePersonRepository
     return model;
   }
 
-  private toCreate(model: PersonCreateModel): Person {
-    const entity = new Person();
-
-    entity.ci = model.ci;
-    entity.firstName = model.firstName;
-    entity.middleName = model.middleName;
-    entity.lastName = model.lastName;
-    entity.secondLastName = model.secondLastName;
-    entity.fullName = this.getFullName(model);
-
-    entity.dateOfBirth = model.dateOfBirth;
-    entity.gender = model.gender;
-
-    return entity;
-  }
-
-  private getFullName(model: PersonCreateModel): string {
-    const middleName = model.middleName ? ' ' + model.middleName : '';
-    const secondLastName = model.secondLastName
-      ? ' ' + model.secondLastName
-      : '';
-    return `${model.firstName}${middleName} ${model.lastName}${secondLastName}`
-      .replace(/[\s-]/g, ' ')
+  private getFullName(model: PersonUpdateModel): string {
+    const { firstName, middleName, lastName, secondLastName } = model;
+    return [firstName, middleName, lastName, secondLastName]
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+/g, ' ')
       .trim();
   }
 }

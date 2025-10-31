@@ -4,10 +4,12 @@ import {
   Entity,
   Index,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Patient } from './patient.entity';
+import { PersonSurvey } from './personSurvey.entity';
 
 @Entity('person')
 @Index(['ci'], { unique: true })
@@ -63,6 +65,9 @@ export class Person {
   })
   updatedAt: Date;
 
-  @OneToMany(() => Patient, (patient) => patient.person)
-  patient: Patient;
+  @OneToOne(() => Patient, (personPatient) => personPatient.person)
+  personPatient: Patient;
+
+  @OneToMany(() => PersonSurvey, (personSurvey) => personSurvey.person)
+  personSurvey: PersonSurvey[];
 }

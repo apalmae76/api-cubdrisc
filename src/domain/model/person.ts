@@ -1,19 +1,26 @@
-export class PersonUpdateModel {
+export class PersonCreateModel {
   ci: string;
   firstName: string;
-  middleName?: string;
+  middleName?: string | null;
   lastName: string;
-  secondLastName?: string;
-  fullName?: string;
+  secondLastName?: string | null;
   dateOfBirth: Date;
   gender: string;
 }
+export class PersonUpdateModel {
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  secondLastName?: string;
+  fullName?: string;
+  dateOfBirth?: Date;
+  gender?: string;
+}
 
-export class PersonCreateModel extends PersonUpdateModel {
+export class PersonModel extends PersonCreateModel {
+  id: number;
+  fullName: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-}
-export class PersonModel extends PersonCreateModel {
-  id: number;
 }

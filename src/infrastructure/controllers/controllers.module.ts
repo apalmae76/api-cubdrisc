@@ -7,6 +7,7 @@ import { ApiRedisModule } from '../services/redis/redis.module';
 import { UsecasesProxyModule } from '../usecases-proxy/usecases-proxy.module';
 import { AuthController } from './auth/auth.controller';
 import { NomencladoresController } from './nomenclatures/nomenclatures.controller';
+import { ManagePatientController } from './patient/managePatientSurvey.controller';
 import { ProfileController } from './profile/profile.controller';
 
 @Module({
@@ -18,6 +19,11 @@ import { ProfileController } from './profile/profile.controller';
     RepositoriesModule,
     ApiRedisModule,
   ],
-  controllers: [AuthController, ProfileController, NomencladoresController],
+  controllers: [
+    AuthController,
+    ProfileController,
+    NomencladoresController,
+    ManagePatientController,
+  ],
 })
-export class ControllersModule {}
+export class ControllersModule { }

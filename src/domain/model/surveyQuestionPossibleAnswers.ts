@@ -3,6 +3,7 @@ export class SurveyQuestionPossibleAnswerCreateModel {
   surveyQuestionId: number;
   answer: string;
   educationalTip: string;
+  value: number;
   order?: number;
   active?: boolean;
 }
@@ -11,6 +12,7 @@ export class SurveyQuestionPossibleAnswerUpdateModel {
   surveyQuestionId?: number;
   answer?: string;
   educationalTip?: string;
+  value?: number;
   order?: number;
   active?: boolean;
 }

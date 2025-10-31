@@ -51,6 +51,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     entity.surveyQuestionId = model.surveyQuestionId;
     entity.answer = model.answer;
     entity.educationalTip = model.educationalTip;
+    entity.value = model.value;
     entity.order = await this.getLastOrder(
       model.surveyId,
       model.surveyQuestionId,
@@ -168,6 +169,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
         'sqa.id as "id"',
         'sqa.answer as "answer"',
         'sqa.educational_tip as "educationalTip"',
+        'sqa.value as "value"',
         'sqa.order as "order"',
         'sqa.active as "active"',
         'sqa.created_at as "createdAt"',
@@ -355,23 +357,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     await repo.update({ surveyId, surveyQuestionId, id }, { order });
   }
 
-  areSame(
-    survey1: SurveyQuestionsPossibleAnswers,
-    survey2: SurveyQuestionPossibleAnswerModel,
-  ): boolean {
-    return (
-      (survey2.surveyId === undefined ||
-        survey1.surveyId === survey2.surveyId) &&
-      (survey2.surveyQuestionId === undefined ||
-        survey1.surveyQuestionId === survey2.surveyQuestionId) &&
-      (survey2.answer === undefined || survey1.answer === survey2.answer) &&
-      (survey2.educationalTip === undefined ||
-        survey1.educationalTip === survey2.educationalTip) &&
-      (survey2.order === undefined || survey1.order === survey2.order) &&
-      (survey2.active === undefined || survey1.active === survey2.active)
-    );
-  }
-
   private toModelPanel(
     entity: SurveyQuestionsPossibleAnswers,
     isForDetails = false,
@@ -386,6 +371,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
 
     model.answer = entity.answer;
     model.educationalTip = entity.educationalTip;
+    model.value = entity.value;
     model.order = entity.order;
     model.active = entity.active;
 
@@ -410,6 +396,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     }
     model.answer = entity.answer;
     model.educationalTip = entity.educationalTip;
+    model.value = entity.value;
     model.order = entity.order;
     model.active = entity.active;
 

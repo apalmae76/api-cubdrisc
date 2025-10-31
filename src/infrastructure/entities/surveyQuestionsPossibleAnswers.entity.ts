@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PatientSurveyAnswers } from './patientSurveyAnswers.entity';
+import { PersonSurveyAnswers } from './personSurveyAnswers.entity';
 import { SurveyQuestions } from './surveyQuestions.entity';
 
 @Entity('survey_questions_possible_answers')
@@ -46,6 +46,13 @@ export class SurveyQuestionsPossibleAnswers {
 
   @Column({ type: 'text', name: 'educational_tip' })
   educationalTip: string;
+
+  @Column({
+    type: 'smallint',
+    name: 'value',
+    comment: 'id column',
+  })
+  value: number;
 
   @Column({
     name: 'order',
@@ -83,8 +90,8 @@ export class SurveyQuestionsPossibleAnswers {
   deletedAt: Date;
 
   @ManyToMany(
-    () => PatientSurveyAnswers,
+    () => PersonSurveyAnswers,
     (answer) => answer.questionPossibleAnswers,
   )
-  possibleAnswers: PatientSurveyAnswers[];
+  possibleAnswers: PersonSurveyAnswers[];
 }

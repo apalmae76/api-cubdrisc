@@ -2,40 +2,44 @@ import { GetGenericAllDto } from 'src/infrastructure/common/dtos/genericRepo-dto
 import { PageDto } from 'src/infrastructure/common/dtos/page.dto';
 import { EntityManager } from 'typeorm';
 import {
-  PatientSurveyAnswersCreateModel,
-  PatientSurveyAnswersModel,
-} from '../model/patientSurveyAnswers';
+  PersonSurveyAnswersCreateModel,
+  PersonSurveyAnswersModel,
+} from '../model/personSurveyAnswers';
 
-export interface IPatientSurveyAnswersRepository {
+export interface IPersonSurveyAnswersRepository {
   create(
-    surveyQuestion: PatientSurveyAnswersCreateModel,
+    surveyQuestion: PersonSurveyAnswersCreateModel,
     em: EntityManager,
-  ): Promise<PatientSurveyAnswersModel>;
+  ): Promise<PersonSurveyAnswersModel>;
   ensureExistOrFail(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
   ): Promise<void>;
   getByQuery(
     pageOptionsDto: GetGenericAllDto,
-  ): Promise<PageDto<PatientSurveyAnswersModel>>;
+  ): Promise<PageDto<PersonSurveyAnswersModel>>;
   getByIdForPanel(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
-  ): Promise<PatientSurveyAnswersModel>;
+  ): Promise<PersonSurveyAnswersModel>;
   getById(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
-  ): Promise<PatientSurveyAnswersModel>;
+  ): Promise<PersonSurveyAnswersModel>;
   getByIdOrFail(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
-  ): Promise<PatientSurveyAnswersModel>;
+  ): Promise<PersonSurveyAnswersModel>;
 }

@@ -5,9 +5,9 @@ import { PersonModel, PersonUpdateModel } from '../model/person';
 
 export interface IPersonRepository {
   create(user: PersonModel, em: EntityManager): Promise<PersonModel>;
-  updateIfExistOrFail(
+  update(
     id: number,
-    user: PersonUpdateModel,
+    person: PersonUpdateModel,
     em: EntityManager,
   ): Promise<boolean>;
   ensureExistOrFail(id: number): Promise<void>;
@@ -15,5 +15,4 @@ export interface IPersonRepository {
   getByIdForPanel(id: number): Promise<PersonModel>;
   getById(id: number): Promise<PersonModel>;
   getByIdOrFail(id: number): Promise<PersonModel>;
-  personsAreSame(user1: PersonUpdateModel, user2: PersonUpdateModel): boolean;
 }

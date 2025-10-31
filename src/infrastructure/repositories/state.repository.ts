@@ -24,7 +24,7 @@ export class DatabaseStateRepository implements IStateRepository {
       states && states.length ? states.find((item) => item.id == id) : null;
     if (failIfNotExist && !state) {
       throw new BadRequestException({
-        message: [`validation.common.STATE_ID_NOT_EXIST|{"stateId":"${id}"}`],
+        message: [`validation.state.NOT_FOUND|{"stateId":"${id}"}`],
       });
     }
     return state;
@@ -105,9 +105,9 @@ export class DatabaseStateRepository implements IStateRepository {
         'state.id as "id"',
         'state.name as "name"',
         'state.code as "code"',
-        'srcr.created_at as "createdAt"',
-        'srcr.updated_at as "updatedAt"',
-        'srcr.deleted_at as "deletedAt"',
+        'state.created_at as "createdAt"',
+        'state.updated_at as "updatedAt"',
+        'state.deleted_at as "deletedAt"',
       ]);
   }
 

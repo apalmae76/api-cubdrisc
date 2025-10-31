@@ -75,5 +75,9 @@
     "UPDATED_SUCESSFULLY": "La posible respuesta ha sido modificada con éxito",
     "DELETED": "La posible respuesta ha sido deshabilitada permanentemente",
     "NOT_DELETED": "La posible respuesta no ha podido ser deshabilitada, por favor verifique"
+  },
+  "person_survey": {
+    "CREATED_SUCESSFULLY": "El test ha iniciado con éxito",
+    "UPDATED_SUCESSFULLY": "El test se ha actualizado con éxito"
   }
 }

@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PatientSurvey } from './patientSurvey.entity';
+import { PersonSurvey } from './personSurvey.entity';
 
 @Entity('states')
 @Index(['name'], { unique: false })
@@ -53,6 +53,6 @@ export class State {
   })
   deletedAt;
 
-  @OneToMany(() => PatientSurvey, (patientSurvey) => patientSurvey.stateId)
-  patientSurvey: PatientSurvey[];
+  @OneToMany(() => PersonSurvey, (patientSurvey) => patientSurvey.stateId)
+  patientSurvey: PersonSurvey[];
 }

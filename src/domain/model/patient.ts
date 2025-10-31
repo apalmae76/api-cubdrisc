@@ -1,13 +1,12 @@
-import { PersonCreateModel } from './person';
-
-export class PatientUpdateModel extends PersonCreateModel {
-  phone: string;
-  email: string;
-  diagnosed?: Date | null;
+export class PatientCreateModel {
+  personId: number;
+  diagnosed: Date;
+}
+export class PatientUpdateModel {
+  diagnosed?: Date;
 }
 
-export class PatientModel extends PatientUpdateModel {
-  id: number;
+export class PatientModel extends PatientCreateModel {
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;

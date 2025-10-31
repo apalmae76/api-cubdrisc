@@ -7,11 +7,15 @@ import {
   IsOptional,
   IsString,
   Length,
+  Max,
   Min,
   MinLength,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
-import { RE_INT_NUMBER } from 'src/infrastructure/common/utils/constants';
+import {
+  RE_INT_NUMBER,
+  RE_INT_NUMBER_INCLUDE_0,
+} from 'src/infrastructure/common/utils/constants';
 
 export class ValidAnswerIdDto {
   @Transform(({ value }) =>
@@ -41,6 +45,15 @@ export class CreateSurveyQuestionAnswerDto {
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @MinLength(10, { message: i18nValidationMessage('validation.MIN_LENGTH') })
   educationalTip: string;
+
+  @Transform(({ value }) =>
+    value && RE_INT_NUMBER_INCLUDE_0.test(value) ? parseInt(value) : value,
+  )
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
+  @Min(0, { message: i18nValidationMessage('validation.MIN') })
+  @Max(5, { message: i18nValidationMessage('validation.MAX') })
+  readonly value: number;
 }
 
 export class UpdateSurveyQuestionAnswerDto {
@@ -71,4 +84,14 @@ export class UpdateSurveyQuestionAnswerDto {
     ),
   })
   educationalTip?: string;
+
+  @Transform(({ value }) =>
+    value && RE_INT_NUMBER_INCLUDE_0.test(value) ? parseInt(value) : value,
+  )
+  @IsOptional()
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
+  @Min(0, { message: i18nValidationMessage('validation.MIN') })
+  @Max(5, { message: i18nValidationMessage('validation.MAX') })
+  readonly value: number;
 }

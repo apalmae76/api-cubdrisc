@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PatientSurvey } from './patientSurvey.entity';
+import { PersonSurvey } from './personSurvey.entity';
 import { SurveyQuestions } from './surveyQuestions.entity';
 import { SurveyRiskCalculationRules } from './surveyRulesForRiskCalculation.entity';
 
@@ -59,8 +59,8 @@ export class Survey {
   })
   deletedAt: Date;
 
-  @OneToMany(() => PatientSurvey, (patientSurvey) => patientSurvey.survey)
-  patientSurvey: PatientSurvey[];
+  @OneToMany(() => PersonSurvey, (personSurvey) => personSurvey.survey)
+  personSurvey: PersonSurvey[];
 
   @OneToMany(() => SurveyQuestions, (question) => question.survey)
   questions: SurveyQuestions[];

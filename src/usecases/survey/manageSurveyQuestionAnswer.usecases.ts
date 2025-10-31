@@ -143,6 +143,9 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
     ) {
       newData.educationalTip = dataDto.educationalTip;
     }
+    if (dataDto.value !== undefined && dataDto.value !== answer.value) {
+      newData.value = dataDto.value;
+    }
 
     if (Object.keys(newData).length === 0) {
       return { newData: null, answer };

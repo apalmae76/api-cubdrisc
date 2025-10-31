@@ -18,6 +18,7 @@ export class MetaData {
 
 export class UserModel extends UserUpdateModel {
   id: number;
+  fullName?: string;
   roles: EAppRoles[];
   lastLogin?: Date;
   hashRefreshToken?: string;

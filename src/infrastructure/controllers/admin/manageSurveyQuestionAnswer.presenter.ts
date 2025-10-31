@@ -27,6 +27,10 @@ export class SurveyQuestionAnswerPresenter {
 
   @ApiProperty({ type: 'integer' })
   @IsInt()
+  value: number;
+
+  @ApiProperty({ type: 'integer' })
+  @IsInt()
   order: number;
 
   @ApiProperty()
@@ -45,6 +49,7 @@ export class SurveyQuestionAnswerPresenter {
     this.id = answer.id;
     this.answer = answer.answer;
     this.educationalTip = answer.educationalTip;
+    this.value = answer.value;
     this.order = answer.order;
 
     this.createdAt = answer.createdAt;

@@ -1,27 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  PatientSurveyAnswersCreateModel,
-  PatientSurveyAnswersModel,
-} from 'src/domain/model/patientSurveyAnswers';
-import { IPatientSurveyAnswersRepository } from 'src/domain/repositories/patientSurveyAnswersRepository.interface';
+  PersonSurveyAnswersCreateModel,
+  PersonSurveyAnswersModel,
+} from 'src/domain/model/personSurveyAnswers';
+import { IPersonSurveyAnswersRepository } from 'src/domain/repositories/personSurveyAnswersRepository.interface';
 import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
-import { PatientSurveyAnswers } from '../entities/patientSurveyAnswers.entity';
+import { PersonSurveyAnswers } from '../entities/personSurveyAnswers.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 @Injectable()
-export class DatabasePatientSurveyAnswersRepository
+export class DatabasePersonSurveyAnswersRepository
   extends BaseRepository
-  implements IPatientSurveyAnswersRepository {
-  private readonly cacheKey = 'Repository:PatientSurveyAnswers:';
+  implements IPersonSurveyAnswersRepository {
+  private readonly cacheKey = 'Repository:PersonSurveyAnswers:';
   private readonly cacheTime = 15 * 60; // 15 mins
   constructor(
-    @InjectRepository(PatientSurveyAnswers)
-    private readonly surveyQPAEntity: Repository<PatientSurveyAnswers>,
+    @InjectRepository(PersonSurveyAnswers)
+    private readonly surveyQPAEntity: Repository<PersonSurveyAnswers>,
     private readonly redisService: ApiRedisService,
     protected readonly logger: ApiLoggerService,
   ) {
@@ -29,11 +29,11 @@ export class DatabasePatientSurveyAnswersRepository
   }
 
   async create(
-    data: PatientSurveyAnswersCreateModel,
+    data: PersonSurveyAnswersCreateModel,
     em: EntityManager,
-  ): Promise<PatientSurveyAnswersModel> {
+  ): Promise<PersonSurveyAnswersModel> {
     const repo = em
-      ? em.getRepository(PatientSurveyAnswers)
+      ? em.getRepository(PersonSurveyAnswers)
       : this.surveyQPAEntity;
     const entity = this.toCreate(data);
     const dataSaved = await repo.save(entity);
@@ -41,13 +41,12 @@ export class DatabasePatientSurveyAnswersRepository
     return this.toModel(dataSaved);
   }
 
-  private toCreate(
-    model: PatientSurveyAnswersCreateModel,
-  ): PatientSurveyAnswers {
-    const entity = new PatientSurveyAnswers();
+  private toCreate(model: PersonSurveyAnswersCreateModel): PersonSurveyAnswers {
+    const entity = new PersonSurveyAnswers();
 
-    entity.patientId = model.patientId;
+    entity.personId = model.personId;
     entity.surveyId = model.surveyId;
+    entity.personSurveyId = model.personSurveyId;
     entity.surveyQuestionId = model.surveyQuestionId;
     entity.surveyQuestionAnswerId = model.surveyQuestionAnswerId;
 
@@ -55,17 +54,19 @@ export class DatabasePatientSurveyAnswersRepository
   }
 
   private async cleanCacheData({
-    patientId,
+    personId,
     surveyId,
+    personSurveyId,
     surveyQuestionId,
     surveyQuestionAnswerId,
   }: {
-    patientId: number;
+    personId: number;
     surveyId: number;
+    personSurveyId: number;
     surveyQuestionId: number;
     surveyQuestionAnswerId: number;
   }) {
-    const cacheKey = `${this.cacheKey}${patientId}:${surveyId}:${surveyQuestionId}:${surveyQuestionAnswerId}`;
+    const cacheKey = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}:${surveyQuestionId}:${surveyQuestionAnswerId}`;
     await this.redisService.del(cacheKey);
   }
 
@@ -73,8 +74,9 @@ export class DatabasePatientSurveyAnswersRepository
     return this.surveyQPAEntity
       .createQueryBuilder('psa')
       .select([
-        'psa.patient_id as "patientId"',
+        'psa.person_id as "personId"',
         'psa.survey_id as "surveyId"',
+        'psa.person_survey_id as "personSurveyId"',
         'psa.survey_question_id as "surveyQuestionId"',
         'psa.survey_question_answer_id as "surveyQuestionAnswerId"',
         'psa.created_at as "createdAt"',
@@ -83,16 +85,23 @@ export class DatabasePatientSurveyAnswersRepository
   }
 
   async getByIdForPanel(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
-  ): Promise<PatientSurveyAnswersModel> {
+  ): Promise<PersonSurveyAnswersModel> {
     const query = this.getBasicQuery();
     query.where(
-      `patientId = :patientId and surveyId = :surveyId and
+      `personId = :personId and surveyId = :surveyId and personSurveyId = :personSurveyId and
         surveyQuestionId = :surveyQuestionId and surveyQuestionAnswerId = :surveyQuestionAnswerId`,
-      { patientId, surveyId, surveyQuestionId, surveyQuestionAnswerId },
+      {
+        personId,
+        surveyId,
+        personSurveyId,
+        surveyQuestionId,
+        surveyQuestionAnswerId,
+      },
     );
     const survey = await query.getRawOne();
     if (!survey) {
@@ -103,10 +112,10 @@ export class DatabasePatientSurveyAnswersRepository
 
   async getByQuery(
     queryDto: GetGenericAllDto,
-  ): Promise<PageDto<PatientSurveyAnswersModel>> {
+  ): Promise<PageDto<PersonSurveyAnswersModel>> {
     const queryList = this.getBasicQuery();
 
-    const query = await super.getByQueryBase<PatientSurveyAnswersModel>(
+    const query = await super.getByQueryBase<PersonSurveyAnswersModel>(
       queryDto,
       'psa',
       null,
@@ -128,35 +137,39 @@ export class DatabasePatientSurveyAnswersRepository
   }
 
   async ensureExistOrFail(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
   ) {
     await this.getByIdOrFail(
-      patientId,
+      personId,
       surveyId,
+      personSurveyId,
       surveyQuestionId,
       surveyQuestionAnswerId,
     );
   }
 
   async getByIdOrFail(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
-  ): Promise<PatientSurveyAnswersModel> {
+  ): Promise<PersonSurveyAnswersModel> {
     const survey = await this.getById(
-      patientId,
+      personId,
       surveyId,
+      personSurveyId,
       surveyQuestionId,
       surveyQuestionAnswerId,
     );
     if (!survey) {
       throw new NotFoundException({
         message: [
-          `validation.patient_survey_answer.NOT_FOUND|{"surveyId":"${surveyId}","surveyQuestionId":"${surveyQuestionId}","surveyQuestionAnswerId":"${surveyQuestionAnswerId}"}`,
+          `validation.person_survey_answer.NOT_FOUND|{"surveyId":"${surveyId}","surveyQuestionId":"${surveyQuestionId}","surveyQuestionAnswerId":"${surveyQuestionAnswerId}"}`,
         ],
       });
     }
@@ -164,66 +177,73 @@ export class DatabasePatientSurveyAnswersRepository
   }
 
   async getById(
-    patientId: number,
+    personId: number,
     surveyId: number,
+    personSurveyId: number,
     surveyQuestionId: number,
     surveyQuestionAnswerId: number,
     useCache = true,
-  ): Promise<PatientSurveyAnswersModel> {
+  ): Promise<PersonSurveyAnswersModel> {
     let cacheKey = null;
-    let patientSurvAns: PatientSurveyAnswersModel = null;
+    let personSurvAns: PersonSurveyAnswersModel = null;
     if (useCache) {
-      cacheKey = `${this.cacheKey}${patientId}:${surveyId}:${surveyQuestionId}:${surveyQuestionAnswerId}`;
-      patientSurvAns =
-        await this.redisService.get<PatientSurveyAnswersModel>(cacheKey);
-      if (patientSurvAns) {
-        return patientSurvAns;
+      cacheKey = `${this.cacheKey}${personId}:${surveyId}:${surveyQuestionId}:${surveyQuestionAnswerId}`;
+      personSurvAns =
+        await this.redisService.get<PersonSurveyAnswersModel>(cacheKey);
+      if (personSurvAns) {
+        return personSurvAns;
       }
     }
     const query = await this.getBasicQuery();
     const survQPAQry = await query
       .where(
-        `patientId = :patientId and surveyId = :surveyId and
+        `personId = :personId and surveyId = :surveyId and personSurveyId = :personSurveyId and
           surveyQuestionId = :surveyQuestionId and surveyQuestionAnswerId = :surveyQuestionAnswerId`,
-        { patientId, surveyId, surveyQuestionId, surveyQuestionAnswerId },
+        {
+          personId,
+          surveyId,
+          personSurveyId,
+          surveyQuestionId,
+          surveyQuestionAnswerId,
+        },
       )
       .getRawOne();
     if (!survQPAQry) {
       return null;
     }
-    patientSurvAns = this.toModel(survQPAQry);
+    personSurvAns = this.toModel(survQPAQry);
     if (cacheKey) {
-      await this.redisService.set<PatientSurveyAnswersModel>(
+      await this.redisService.set<PersonSurveyAnswersModel>(
         cacheKey,
-        patientSurvAns,
+        personSurvAns,
         this.cacheTime,
       );
     }
-    return patientSurvAns;
+    return personSurvAns;
   }
 
   private toModelPanel(
-    entity: PatientSurveyAnswersModel,
-  ): PatientSurveyAnswersModel {
-    const model = new PatientSurveyAnswersModel();
+    entity: PersonSurveyAnswersModel,
+  ): PersonSurveyAnswersModel {
+    const model = new PersonSurveyAnswersModel();
 
-    model.patientId = Number(entity.patientId);
+    model.personId = Number(entity.personId);
     model.surveyId = Number(entity.surveyId);
-    model.surveyQuestionId = Number(model.surveyQuestionId);
-    model.surveyQuestionAnswerId = Number(model.surveyQuestionAnswerId);
+    model.personSurveyId = Number(entity.personSurveyId);
+    model.surveyQuestionId = Number(entity.surveyQuestionId);
+    model.surveyQuestionAnswerId = Number(entity.surveyQuestionAnswerId);
 
     model.createdAt = entity.createdAt;
 
     return model;
   }
 
-  private toModel(
-    entity: PatientSurveyAnswersModel,
-  ): PatientSurveyAnswersModel {
-    const model = new PatientSurveyAnswersModel();
+  private toModel(entity: PersonSurveyAnswersModel): PersonSurveyAnswersModel {
+    const model = new PersonSurveyAnswersModel();
 
-    model.patientId = Number(entity.patientId);
+    model.personId = Number(entity.personId);
     model.surveyId = Number(entity.surveyId);
+    model.personSurveyId = Number(entity.personSurveyId);
     model.surveyQuestionId = Number(model.surveyQuestionId);
     model.surveyQuestionAnswerId = Number(model.surveyQuestionAnswerId);
 

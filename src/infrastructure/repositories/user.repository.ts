@@ -33,13 +33,6 @@ import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 import { DatabasePersonRepository } from './person.repository';
 
-/*
-interface IBuyBalanceME {
-  event: EAppEvents;
-  balance: number;
-}
-*/
-
 export enum EUserMetaAttributes {
   paymentVerifyPending = 'paymentVerifyPending',
   defaultLan = 'defaultLan',
@@ -73,7 +66,7 @@ export class DatabaseUserRepository
     user: UserUpdateModel,
     em: EntityManager,
   ): Promise<boolean> {
-    await this.personRepo.updateIfExistOrFail(id, user, em);
+    await this.personRepo.update(id, user, em);
     const repo = em ? em.getRepository(User) : this.userEntity;
     const userEntity = await repo.findOne({ where: { id: id } });
     if (!user) {

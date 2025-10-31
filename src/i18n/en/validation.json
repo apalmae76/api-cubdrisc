@@ -152,8 +152,11 @@
     "TOKENS_NOT_FOUND": "The selected user has no registered devices. No notifications have been sent",
     "SAME_VALUE": "The value sent ({value}) is the same as it is already, please check"
   },
+  "state": {
+    "NOT_FOUND": "The province sent is not found or has not been registered, please check"
+  },
   "patient": {
-    "PATIENT_NOT_FOUND": "Patient is not found or has not been registered, please check"
+    "NOT_FOUND": "Patient is not found or has not been registered, please check"
   },
   "survey": {
     "NOT_FOUND": "Survey is not found or has not been registered, please check",
@@ -181,7 +184,11 @@
   "survey_risk_calculation_range": {
     "NOT_FOUND": "The range for the risk calculation is not found or has not been recorded, please check"
   },
-  "patient_survey_answer": {
+  "person_survey_answer": {
     "NOT_FOUND": "The answer to a survey question is missing or has not been recorded, please check"
+  },
+  "person_survey": {
+    "HAS_VALID_TEST": "You have a valid test (taken less than a year ago). The next test can be taken from {date}",
+    "HAS_ALREADY_STARTED": "The test has already started; you need to modify it. Please check"
   }
 }
