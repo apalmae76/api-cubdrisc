@@ -65,7 +65,23 @@ export class DatabasePersonRepository
     em: EntityManager,
   ): Promise<boolean> {
     const repo = em ? em.getRepository(Person) : this.personEntity;
-    await repo.update({ id }, person);
+    const entity = await repo.findOne({ where: { id: id } });
+    if (!person) {
+      throw new NotFoundException({
+        message: [`messages.common.USER_NOT_FOUND|{"userId":"${id}"}`],
+      });
+    }
+    entity.ci = person.ci;
+    entity.firstName = person.firstName;
+    entity.middleName = person.middleName;
+    entity.lastName = person.lastName;
+    entity.secondLastName = person.secondLastName;
+    entity.fullName = this.getFullName(entity);
+
+    entity.dateOfBirth = person.dateOfBirth;
+    entity.gender = person.gender;
+
+    await repo.save(entity);
     await this.cleanCacheData(id);
     return true;
   }
@@ -151,7 +167,7 @@ export class DatabasePersonRepository
     const person = await this.getById(id);
     if (!person) {
       throw new NotFoundException({
-        message: [`validation.profile.USER_NOT_FOUND|{"userId":"${id}"}`],
+        message: [`messages.common.USER_NOT_FOUND|{"userId":"${id}"}`],
       });
     }
     return person;

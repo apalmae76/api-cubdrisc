@@ -1,6 +1,8 @@
 {
   "properties": {
     "id": "Id",
+    "entityName": "entityName",
+    "role": "role",
     "address": "Datos de la dirección",
     "user": "Datos del usuario",
     "countryId": "País ID",
@@ -140,7 +142,9 @@
     "MAX_FAILED_ATTEMPS_EXCEEDED": "Número máximo de intentos fallidos exedido. Solicite un nuevo código y reintente",
     "BAD_OR_EXPIRED_OTP": "Código OTP incorrecto o vencido",
     "USER_NOT_REGISTERED": "El usuario validado no se encuentra registrado",
-    "EMAIL_NOT_REGISTERED": "La dirección de correo enviada no se encuentra registrada"
+    "EMAIL_NOT_REGISTERED": "La dirección de correo enviada no se encuentra registrada",
+    "OTP_IS_BLOCKED_MINS": "Ha realizado muchos intentos de acceso en poco tiempo. Espere unos {time} minutes antes de volver a intentarlo",
+    "OTP_IS_BLOCKED_SECS": "Ha realizado muchos intentos de acceso en poco tiempo. Espere {time} segundos antes de volver a intentarlo"
   },
   "admin": {
     "USER_ID_EXPECTED": "Se requiere enviar el ID de usuario (userId), por favor verifique",

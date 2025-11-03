@@ -52,11 +52,7 @@ export class UpdateSurveyQuestionDto {
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, {
-    message: i18nValidationMessage(
-      'validation.INVALID_LENGTH, maximum:100, minimum:1',
-    ),
-  })
+  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
   question: string;
 
   @ApiProperty({

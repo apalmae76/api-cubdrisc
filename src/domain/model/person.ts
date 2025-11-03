@@ -8,6 +8,7 @@ export class PersonCreateModel {
   gender: string;
 }
 export class PersonUpdateModel {
+  ci?: string;
   firstName?: string;
   middleName?: string;
   lastName?: string;

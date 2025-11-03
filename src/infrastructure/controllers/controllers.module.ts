@@ -5,10 +5,8 @@ import { ApiLoggerModule } from '../services/logger/logger.module';
 import { EmailConsumerModule } from '../services/queue-consumers/email-consumer.module';
 import { ApiRedisModule } from '../services/redis/redis.module';
 import { UsecasesProxyModule } from '../usecases-proxy/usecases-proxy.module';
-import { AuthController } from './auth/auth.controller';
 import { NomencladoresController } from './nomenclatures/nomenclatures.controller';
 import { ManagePatientController } from './patient/managePatientSurvey.controller';
-import { ProfileController } from './profile/profile.controller';
 
 @Module({
   imports: [
@@ -19,11 +17,6 @@ import { ProfileController } from './profile/profile.controller';
     RepositoriesModule,
     ApiRedisModule,
   ],
-  controllers: [
-    AuthController,
-    ProfileController,
-    NomencladoresController,
-    ManagePatientController,
-  ],
+  controllers: [NomencladoresController, ManagePatientController],
 })
 export class ControllersModule { }

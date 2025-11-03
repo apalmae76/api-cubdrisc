@@ -8,7 +8,7 @@ import {
   IsOptional,
   IsString,
   Length,
-  Min
+  Min,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { RE_INT_NUMBER } from 'src/infrastructure/common/utils/constants';
@@ -30,11 +30,7 @@ export class CreateSurveyDto {
   })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, {
-    message: i18nValidationMessage(
-      'validation.INVALID_LENGTH, maximum:100, minimum:1',
-    ),
-  })
+  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
   name: string;
 
   @ApiProperty({
@@ -43,11 +39,7 @@ export class CreateSurveyDto {
   })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, {
-    message: i18nValidationMessage(
-      'validation.INVALID_LENGTH, maximum:100, minimum:1',
-    ),
-  })
+  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
   description: string;
 
   @ApiProperty({
@@ -67,11 +59,7 @@ export class UpdateSurveyDto {
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, {
-    message: i18nValidationMessage(
-      'validation.INVALID_LENGTH, maximum:100, minimum:1',
-    ),
-  })
+  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
   name: string;
 
   @ApiProperty({
@@ -81,11 +69,7 @@ export class UpdateSurveyDto {
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, {
-    message: i18nValidationMessage(
-      'validation.INVALID_LENGTH, maximum:100, minimum:1',
-    ),
-  })
+  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
   description: string;
 
   @ApiProperty({

@@ -1,5 +1,6 @@
 {
   "common": {
+    "INVALID_HEADER_VALUE_APP": "Unauthorized access",
     "INVALID_HEADER_VALUE": "Incorrect value for the {prop} header, check",
     "VALUES_NOT_CHANGED": "The sent values do not contain any changes",
     "USER_LOGGED": "User logged successfully",

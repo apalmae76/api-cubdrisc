@@ -1,5 +1,6 @@
 {
   "common": {
+    "INVALID_HEADER_VALUE_APP": "Acceso no autorizado",
     "INVALID_HEADER_VALUE": "Valor incorrecto para el header {prop}, verifique",
     "VALUES_NOT_CHANGED": "Los valores enviados no contienen cambios",
     "USER_LOGGED": "Usuario autenticado con éxito",

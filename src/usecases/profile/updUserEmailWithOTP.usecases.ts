@@ -209,11 +209,7 @@ export class UpdUserEmailWithOtpUseCases extends JwtGetToken {
         EAppRoles.MEDIC,
       ]);
       const refreshToken = await super.getJwtRefreshToken(userId, app);
-      const response = new GetAuthTokensPresenter(
-        accessToken,
-        refreshToken,
-        true,
-      );
+      const response = new GetAuthTokensPresenter(accessToken, refreshToken);
       const message = 'messages.common.USER_MAIL_REGISTRY_SUCESS';
       return new BaseResponsePresenter(message, response);
     } catch (er: unknown) {

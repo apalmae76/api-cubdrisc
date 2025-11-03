@@ -12,7 +12,7 @@ import { EAppTypes } from 'src/infrastructure/common/utils/constants';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
 import { JwtGetToken } from 'src/infrastructure/common/utils/jwt-get-token';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { LogginEmailOTPDto } from 'src/infrastructure/controllers/auth/auth-dto.class';
+import { LogginEmailOTPVerifyDto } from 'src/infrastructure/controllers/auth/auth-dto.class';
 import {
   GetAuthTokensPresenter,
   RefreshTokenPresenter,
@@ -175,7 +175,7 @@ export class LoginUseCases extends JwtGetToken {
   }
 
   async authenticateUserByOtpEmail(
-    userData: LogginEmailOTPDto,
+    userData: LogginEmailOTPVerifyDto,
     app: EAppTypes,
   ): Promise<BaseResponsePresenter<GetAuthTokensPresenter>> {
     const context = `${this.context}authenticateUserByOtpEmail`;
@@ -192,7 +192,6 @@ export class LoginUseCases extends JwtGetToken {
       const response = new GetAuthTokensPresenter(
         accessToken,
         refreshToken,
-        true,
         user.fullName,
         user.id,
         user.email,

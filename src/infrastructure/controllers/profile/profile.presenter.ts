@@ -8,6 +8,10 @@ import { formatDateToIsoString } from 'src/infrastructure/common/utils/format-da
 export class ProfileUserPresenter {
   @ApiProperty()
   @IsString()
+  ci: string;
+
+  @ApiProperty()
+  @IsString()
   fullName: string;
 
   @ApiProperty()
@@ -44,6 +48,7 @@ export class ProfileUserPresenter {
   email: string;
 
   constructor(user: UserModel) {
+    this.ci = user.ci;
     this.fullName = user.fullName;
     this.firstName = user.firstName;
     this.middleName = user.middleName || null;

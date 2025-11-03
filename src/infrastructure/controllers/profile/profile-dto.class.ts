@@ -49,6 +49,12 @@ export class ProfileUserDto {
   readonly firstName: string;
 
   @IsTextParam('middleName', null, false)
+  @Transform(({ value }) =>
+    (value?.trim() ?? '') === '' ||
+      (value?.trim()?.toUpperCase() ?? '') === 'NULL'
+      ? null
+      : value?.trim(),
+  )
   @IsOptional()
   readonly middleName?: string | null;
 
@@ -99,7 +105,12 @@ export class ProfileUserDto {
     example: '+5358052791',
     description: 'Phone number with country code',
   })
-  @Transform(({ value }) => value.replace(/[\s]/g, ''))
+  @Transform(({ value }) => {
+    if ((value?.trim() ?? '') === '') {
+      return null;
+    }
+    return value.replace(/[^+\d]/g, '');
+  })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @Matches(RE_PHONE_CU, {

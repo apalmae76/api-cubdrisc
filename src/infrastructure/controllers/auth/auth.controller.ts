@@ -17,6 +17,7 @@ import {
   ExpirationTimePresenter,
   GetOtpPresenter,
   LogginEmailOTPDto,
+  LogginEmailOTPVerifyDto,
 } from './auth-dto.class';
 import {
   GetAuthTokensPresenter,
@@ -68,7 +69,7 @@ export class AuthController {
 
   @Post('mail-login/otp')
   @ApiCreatedResponse({ type: BaseResponsePresenter<GetAuthTokensPresenter> })
-  @ApiBody({ type: GetOtpPresenter })
+  @ApiBody({ type: LogginEmailOTPDto })
   @ApiOperation({
     description: `Recommended regular expression for validating email 
     is: /^[-a-z0-9~!$%^&\\*\\*=+}{'?]+(.[-a-z0-9~!$%^&\\*\\*=+}{\\'?]+)*@([a-z0-9_][-a-z0-9_]\\*(\\.[-a-z0-9_]+)\\*/
@@ -97,7 +98,7 @@ export class AuthController {
 
   @Post('mail-login/token')
   @ApiCreatedResponse({ type: BaseResponsePresenter<GetAuthTokensPresenter> })
-  @ApiBody({ type: LogginEmailOTPDto })
+  @ApiBody({ type: LogginEmailOTPVerifyDto })
   @ApiOperation({
     description: `
     \nOTP code is a 6-digit number (/[0-9]{6}$/)\n
@@ -107,7 +108,7 @@ export class AuthController {
     operationId: 'postMailLoginTokens',
   })
   async postMailLoginTokens(
-    @Body() auth: LogginEmailOTPDto,
+    @Body() auth: LogginEmailOTPVerifyDto,
     @CurrentApp() app: EAppTypes,
   ): Promise<BaseResponsePresenter<GetAuthTokensPresenter>> {
     const response = await this.loginUC
@@ -150,8 +151,6 @@ export class AuthController {
     @CurrentUser() user: AuthUser,
     @CurrentApp() app: EAppTypes,
   ): Promise<BaseResponsePresenter<RefreshTokenPresenter>> {
-    console.log(user);
-    console.log(app);
     return await this.refreshToken(user, app);
   }
 

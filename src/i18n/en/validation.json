@@ -1,6 +1,8 @@
 {
   "properties": {
     "id": "Id",
+    "entityName": "entityName",
+    "role": "role",
     "user": "User data",
     "countryId": "Country ID",
     "country": "Country",
@@ -139,7 +141,9 @@
     "MAX_FAILED_ATTEMPS_EXCEEDED": "Maximum number of failed attempts exceeded. Request a new code and try again",
     "BAD_OR_EXPIRED_OTP": "Incorrect or expired OTP code",
     "USER_NOT_REGISTERED": "The provided user is not registered",
-    "EMAIL_NOT_REGISTERED": "The provided email address is not registered"
+    "EMAIL_NOT_REGISTERED": "The provided email address is not registered",
+    "OTP_IS_BLOCKED_MINS": "You have made many access attempts in a short time. Wait about {time} minutes before trying again",
+    "OTP_IS_BLOCKED_SECS": "You have made many access attempts in a short time. Wait {time} seconds before trying again"
   },
   "admin": {
     "USER_ID_EXPECTED": "It is required to send the user ID (userId), please check",

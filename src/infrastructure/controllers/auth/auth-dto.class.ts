@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsString,
   Matches,
-  Validate
+  Validate,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
@@ -89,7 +89,7 @@ export class UserDto extends PhoneDto {
 }
 
 export class EmailDto {
-  @ApiProperty({ example: 'pepe@tesis.edu', description: 'E-Mail adress' })
+  @ApiProperty({ example: 'pepe88@tesis.edu', description: 'E-Mail adress' })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsEmail({}, { message: i18nValidationMessage('validation.IS_EMAIL') })
@@ -118,9 +118,11 @@ export class GetOtpPresenter extends BaseResponsePresenter<ExpirationTimePresent
     super(message, data);
   }
 }
-export class LogginEmailOTPDto extends EmailDto {
+export class LogginEmailOTPDto extends EmailDto { }
+
+export class LogginEmailOTPVerifyDto extends EmailDto {
   @ApiProperty({
-    example: '567890',
+    example: '535805',
     description: 'OTP code',
     required: true,
   })

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNumber, IsString, IsUUID } from 'class-validator';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 
 export class IsAuthPresenter {
@@ -19,10 +19,6 @@ export class GetAuthTokensPresenter {
   refreshToken: string;
 
   @ApiProperty()
-  @IsBoolean()
-  isEmailVerified: boolean;
-
-  @ApiProperty()
   @IsString()
   userName?: string;
 
@@ -37,14 +33,12 @@ export class GetAuthTokensPresenter {
   constructor(
     accesToken: string,
     refreshToken: string,
-    isEmailVerified: boolean,
     userName: string = null,
     userId: number = null,
     email: string = null,
   ) {
     this.accessToken = accesToken;
     this.refreshToken = refreshToken;
-    this.isEmailVerified = isEmailVerified;
     if (userName) {
       this.userName = userName;
     }

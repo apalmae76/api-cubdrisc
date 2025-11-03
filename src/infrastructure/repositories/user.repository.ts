@@ -23,6 +23,7 @@ import {
 } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
+import { KeyValueObjectList } from '../common/interfaces/common';
 import { EAppTypes, SYSTEM_USER_ID } from '../common/utils/constants';
 import { EAppRoles } from '../controllers/auth/role.enum';
 import { OperatorsActions } from '../entities/operatorsActions.entity';
@@ -71,7 +72,7 @@ export class DatabaseUserRepository
     const userEntity = await repo.findOne({ where: { id: id } });
     if (!user) {
       throw new NotFoundException({
-        message: [`validation.profile.USER_NOT_FOUND|{"userId":"${id}"}`],
+        message: [`messages.common.USER_NOT_FOUND|{"userId":"${id}"}`],
       });
     }
 
@@ -171,7 +172,7 @@ export class DatabaseUserRepository
     if (!user) {
       return null;
     }
-    return this.toModelPanel(user, true);
+    return this.toModelPanel(user);
   }
 
   async getByQuery(queryDto: GetGenericAllDto): Promise<PageDto<UserModel>> {
@@ -218,15 +219,26 @@ export class DatabaseUserRepository
       queryList.andWhere(':rolesValue = ANY(roles)', { rolesValue });
     }
 
+    const addAtrs: KeyValueObjectList<string> = {
+      ci: 'varchar',
+      firstName: 'varchar',
+      middleName: 'varchar',
+      lastName: 'varchar',
+      secondLastName: 'varchar',
+      fullName: 'varchar',
+      dateOfBirth: 'date',
+      gender: 'varchar',
+    };
     const query = await super.getByQueryBase<User>(
       queryDto,
       'user',
       queryCount,
       queryList,
       false,
+      addAtrs,
     );
 
-    const users = query.entities.map((user) => this.toModelPanel(user, true));
+    const users = query.entities.map((user) => this.toModelPanel(user));
 
     const pageMetaDto = new PageMetaDto({
       total: query.itemCount,
@@ -252,13 +264,13 @@ export class DatabaseUserRepository
 
     if (user === null) {
       throw new NotFoundException({
-        message: [`validation.profile.USER_NOT_FOUND|{"detail":" (${phone})"}`],
+        message: [`messages.common.USER_NOT_FOUND|{"detail":" (${phone})"}`],
       });
     }
     if (role && !user.roles.includes(role)) {
       throw new NotFoundException({
         message: [
-          `validation.profile.USER_NOT_FOUND|{"detail":" (${phone})","rol":"${user.roles}"}`,
+          `messages.common.USER_NOT_FOUND|{"detail":" (${phone})","rol":"${user.roles}"}`,
         ],
       });
     }
@@ -276,13 +288,13 @@ export class DatabaseUserRepository
 
     if (user === null) {
       throw new NotFoundException({
-        message: [`validation.profile.USER_NOT_FOUND|{"detail":" (${email})"}`],
+        message: [`messages.common.USER_NOT_FOUND|{"detail":" (${email})"}`],
       });
     }
     if (role && !user.roles.includes(role)) {
       throw new ForbiddenException({
         message: [
-          `validation.profile.USER_NOT_FOUND|{"detail":" (${email})","rol":"${user.roles}"}`,
+          `messages.common.USER_NOT_FOUND|{"detail":" (${email})","rol":"${user.roles}"}`,
         ],
       });
     }
@@ -293,7 +305,7 @@ export class DatabaseUserRepository
     const user = await this.getById(id);
     if (!user) {
       throw new NotFoundException({
-        message: [`validation.profile.USER_NOT_FOUND|{"userId":"${id}"}`],
+        message: [`messages.common.USER_NOT_FOUND|{"userId":"${id}"}`],
       });
     }
     return user;
@@ -600,7 +612,7 @@ export class DatabaseUserRepository
     });
     if (!user) {
       throw new NotFoundException({
-        message: [`validation.profile.USER_NOT_FOUND|{"userId":"${id}"}`],
+        message: [`messages.common.USER_NOT_FOUND|{"userId":"${id}"}`],
       });
     }
     return user.phone;
@@ -763,18 +775,16 @@ export class DatabaseUserRepository
       .execute();
   }
 
-  private toModelPanel(entity: User, isForDetails = false): UserModel {
+  private toModelPanel(entity: User): UserModel {
     const model: UserModel = new UserModel();
 
-    if (isForDetails) {
-      model.ci = entity['ci'];
-      model.firstName = entity['firstName'];
-      model.middleName = entity['middleName'];
-      model.lastName = entity['lastName'];
-      model.secondLastName = entity['secondLastName'];
-    } else {
-      model.id = Number(entity.id);
-    }
+    model.id = Number(entity.id);
+
+    model.ci = entity['ci'];
+    model.firstName = entity['firstName'];
+    model.middleName = entity['middleName'];
+    model.lastName = entity['lastName'];
+    model.secondLastName = entity['secondLastName'];
 
     model.fullName = entity['fullName'];
 
@@ -785,9 +795,7 @@ export class DatabaseUserRepository
     model.roles = entity.roles;
     model.medicalSpecialtyId = entity.medicalSpecialtyId;
 
-    if (isForDetails) {
-      model.meta = entity.meta;
-    }
+    model.meta = entity.meta;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
