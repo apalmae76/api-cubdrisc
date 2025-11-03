@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "0.1.20251026",
+  "version": "0.1.20251103",
   "description": "CUBDRISC api backend",
   "author": "PAVA developer team",
   "private": true,

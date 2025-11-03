@@ -17,7 +17,6 @@ export type IEnv = {
   SEQ_SERVER_URL: string;
   SEQ_API_KEY: string;
 
-  OTP_SMS_EXPIRATION_TIME: number;
   OTP_EMAIL_EXPIRATION_TIME: number;
   OTP_BLOCKING_TIME: number;
   LINK_EMAIL_EXPIRATION_TIME: number;
@@ -36,9 +35,6 @@ export type IEnv = {
 
   DATABASE_SLOW_QUERY_MAX_TIME: number;
 
-  SMS_INNOVERIT_API_URL: string;
-  SMS_INNOVERIT_API_KEY: string;
-
   REDIS_HOST: string;
   REDIS_PORT: number;
 
@@ -55,8 +51,6 @@ export type IEnv = {
   SMTP_PASSWORD: string;
   SMTP_FROM_ADDRESS: string;
   SMTP_FROM_USER: string;
-
-  MAX_DAYS_WITHOUT_REGISTERING_ACTIVITY: number;
 
   JOB_LIDER: boolean;
 };
@@ -77,7 +71,6 @@ export const validationSchema = Joi.object({
   SEQ_SERVER_URL: Joi.string().required(),
   SEQ_API_KEY: Joi.string().required(),
 
-  OTP_SMS_EXPIRATION_TIME: Joi.number().default(300),
   OTP_EMAIL_EXPIRATION_TIME: Joi.number().default(350),
   OTP_BLOCKING_TIME: Joi.number().default(30),
   OTP_MAX_ALLOWED_COUNT: Joi.number().default(3),
@@ -96,9 +89,6 @@ export const validationSchema = Joi.object({
     .pattern(/^\d+$/)
     .empty('')
     .default('2000'),
-  // INNOVERIT
-  SMS_INNOVERIT_API_URL: Joi.string().required(),
-  SMS_INNOVERIT_API_KEY: Joi.string().required(),
   // REDIS
   REDIS_HOST: Joi.string().hostname().required(),
   REDIS_PORT: Joi.string().pattern(/^\d+$/).empty('').default('6379'),
@@ -117,8 +107,6 @@ export const validationSchema = Joi.object({
   SMTP_FROM_USER: Joi.string().required(),
   SMTP_DEBUG: Joi.boolean().default(false),
   SMTP_LOGGER: Joi.boolean().default(false),
-
-  MAX_DAYS_WITHOUT_REGISTERING_ACTIVITY: Joi.number().default(90),
   // SENTRY
   SENTRY_DSN: Joi.string().default('NONE'),
   // SET JOB LIDER POD (Optional)

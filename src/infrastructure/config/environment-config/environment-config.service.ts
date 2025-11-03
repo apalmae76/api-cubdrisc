@@ -13,7 +13,7 @@ export class EnvironmentConfigService
 
   // Aplication data --------------------------------------------
   getAppVersion(): string {
-    return '0.1.20251026';
+    return '0.1.20251103';
   }
   getAppName(): string {
     return 'CUBDRISC api';
@@ -111,10 +111,6 @@ export class EnvironmentConfigService
   }
 
   // - OTP -----------------------------------------------------
-  getOtpSmsExpirationTime(): number {
-    return this.configService.get<number>('OTP_SMS_EXPIRATION_TIME');
-  }
-
   getOtpEmailExpirationTime(): number {
     return this.configService.get<number>('OTP_EMAIL_EXPIRATION_TIME');
   }
@@ -125,13 +121,6 @@ export class EnvironmentConfigService
 
   getOtpMaxAllowedCount(): number {
     return this.configService.get<number>('OTP_MAX_ALLOWED_COUNT');
-  }
-
-  // ACTIVITY SETTINGS  -----------------------------------------
-  getMaxDaysWithoutRegisteringActivity(): number {
-    return this.configService.get<number>(
-      'MAX_DAYS_WITHOUT_REGISTERING_ACTIVITY',
-    );
   }
 
   // JWT -------------------------------------------------------
@@ -174,15 +163,6 @@ export class EnvironmentConfigService
 
   getDatabaseSlowQueryMaxTime(): number {
     return this.configService.get<number>('DATABASE_SLOW_QUERY_MAX_TIME');
-  }
-
-  // SMS -------------------------------------------------------
-  getInnoveritApiUrl(): string {
-    return this.configService.get<string>('SMS_INNOVERIT_API_URL');
-  }
-
-  getInnoveritApiKey(): string {
-    return this.configService.get<string>('SMS_INNOVERIT_API_KEY');
   }
 
   // REDIS -----------------------------------------------------

@@ -104,10 +104,7 @@ export class JwtGetToken extends UseCaseBase {
       failedAttempts,
     });
     failedAttempts = failedAttempts ? failedAttempts + 1 : 1;
-    const isPhoneAuth = RE_PHONE.test(user);
-    const cacheTime = isPhoneAuth
-      ? this.appConfig.getOtpSmsExpirationTime()
-      : this.appConfig.getOtpEmailExpirationTime();
+    const cacheTime = this.appConfig.getOtpEmailExpirationTime();
     await this.redisService.set<number>(
       cacheKeyFail,
       failedAttempts,
@@ -202,11 +199,11 @@ export class JwtGetToken extends UseCaseBase {
       : isNotProdEnv
         ? await this.getOtpForDevEnv(user, isPhoneAuth)
         : otpGenerator.generate(6, {
-            digits: true,
-            lowerCaseAlphabets: false,
-            upperCaseAlphabets: false,
-            specialChars: false,
-          });
+          digits: true,
+          lowerCaseAlphabets: false,
+          upperCaseAlphabets: false,
+          specialChars: false,
+        });
 
     if (isNotProdEnv) {
       this.logger.debug('->>>> OTP View OTP -{otpCode}-', {
