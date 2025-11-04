@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray } from 'class-validator';
-import { CityModel } from 'src/domain/model/city';
 import { CountryModel } from 'src/domain/model/country';
+import { MedicalSpecialtyModel } from 'src/domain/model/medicalSpecialty';
 import { StateModel } from 'src/domain/model/state';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 export class CountriesPresenter {
@@ -79,37 +79,37 @@ export class GetStatesPresenter extends BaseResponsePresenter<AStatesPresenter> 
   data: AStatesPresenter;
 }
 
-export class CitiesPresenter {
+export class MedicalSpecialtiesPresenter {
   @ApiProperty()
   key: string;
   @ApiProperty()
   value: string;
 
-  constructor(data: CityModel) {
+  constructor(data: MedicalSpecialtyModel) {
     this.key = `${data.id}`;
     this.value = data.name;
   }
 }
 
-class ACitiesPresenter {
+class AMedicalSpecialtiesPresenter {
   @ApiProperty({
     description: 'Cities list data',
-    type: () => CitiesPresenter,
+    type: () => MedicalSpecialtiesPresenter,
     isArray: true,
   })
   @IsArray()
-  @Type(() => CitiesPresenter)
-  cities: CitiesPresenter[];
+  @Type(() => MedicalSpecialtiesPresenter)
+  medSpecialties: MedicalSpecialtiesPresenter[];
 
   @ApiProperty()
   total: number;
 }
 
-export class GetCitiesPresenter extends BaseResponsePresenter<ACitiesPresenter> {
+export class GetMedicalSpecialtiesPresenter extends BaseResponsePresenter<AMedicalSpecialtiesPresenter> {
   @ApiProperty({
-    description: 'Cities data',
-    type: ACitiesPresenter,
+    description: 'Medical specialties data',
+    type: AMedicalSpecialtiesPresenter,
   })
-  @Type(() => ACitiesPresenter)
-  data: ACitiesPresenter;
+  @Type(() => AMedicalSpecialtiesPresenter)
+  data: AMedicalSpecialtiesPresenter;
 }

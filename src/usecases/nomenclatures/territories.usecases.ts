@@ -1,5 +1,9 @@
 import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decorator';
-import { StatesPresenter } from 'src/infrastructure/controllers/nomenclatures/nomenclatures.presenter';
+import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
+import {
+  GetStatesPresenter,
+  StatesPresenter,
+} from 'src/infrastructure/controllers/nomenclatures/nomenclatures.presenter';
 import { DatabaseStateRepository } from 'src/infrastructure/repositories/state.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
@@ -16,8 +20,10 @@ export class TerritoriesUseCases extends UseCaseBase {
   }
 
   @UseCaseLogger()
-  async getStates(): Promise<StatesPresenter[]> {
+  async getStates(): Promise<GetStatesPresenter> {
     const response = await this.stateRepo.getAll();
-    return response.map((item) => new StatesPresenter(item));
+    const states = response.map((item) => new StatesPresenter(item));
+    const total = states.length ?? 0;
+    return new BaseResponsePresenter('AUTO', { states, total });
   }
 }

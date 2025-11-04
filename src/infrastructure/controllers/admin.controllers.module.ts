@@ -10,7 +10,7 @@ import { AdminConfigSystemController } from './admin/adminConfigSystem.controlle
 import { AdminUsersController } from './admin/adminUsers.controller';
 import { AdminSurveysController } from './admin/manageSurveys.controller';
 import { AuthController } from './auth/auth.controller';
-import { NomencladoresController } from './nomenclatures/nomenclatures.controller';
+import { NomenclaturesController } from './nomenclatures/nomenclatures.controller';
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { NomencladoresController } from './nomenclatures/nomenclatures.controlle
   ],
   controllers: [
     AuthController,
-    NomencladoresController,
+    NomenclaturesController,
     AdminConfigSystemController,
     AdminUsersController,
     AdminSurveysController,

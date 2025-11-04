@@ -13,13 +13,12 @@ export class MedicalSpecialty {
   @PrimaryGeneratedColumn({ type: 'smallint', comment: 'id column' })
   id: number;
 
-  @Column({ name: 'name', type: 'varchar', length: 120, nullable: false })
+  @Column({ name: 'name', type: 'varchar', length: 120 })
   @Index({ unique: true })
   name: string;
 
   @CreateDateColumn({
     type: 'timestamp',
-    nullable: false,
     name: 'created_at',
     comment: 'Entity create',
   })
@@ -27,7 +26,6 @@ export class MedicalSpecialty {
 
   @UpdateDateColumn({
     type: 'timestamp',
-    nullable: false,
     name: 'updated_at',
     comment: 'Entity update',
   })

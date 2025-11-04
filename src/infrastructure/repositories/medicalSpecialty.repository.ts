@@ -1,9 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  MedicalSpecialtyCreateModel,
-  MedicalSpecialtyModel,
-} from 'src/domain/model/medicalSpecialty';
+import { MedicalSpecialtyModel } from 'src/domain/model/medicalSpecialty';
 import {
   IMedicalSpecialtyRepository,
   MedicalSpecialtyQueryParams,
@@ -26,15 +23,6 @@ export class DatabaseMedicalSpecialtyRepository
     private readonly logger: ApiLoggerService,
   ) { }
 
-  private toCreate(model: MedicalSpecialtyCreateModel): MedicalSpecialty {
-    const entity = new MedicalSpecialty();
-
-    entity.id = model.id;
-    entity.name = model.name;
-
-    return entity;
-  }
-
   async ensureExistOrFail(id: number) {
     const medicalSpecialty = await this.get(id, false);
 
@@ -51,11 +39,8 @@ export class DatabaseMedicalSpecialtyRepository
     }
   }
 
-  async get(
-    id: number,
-    failIfNotExist = false,
-  ): Promise<MedicalSpecialtyModel> {
-    const medicalSpecialty = await this.medicalSpecialtyEntity
+  private getBasicQuery() {
+    return this.medicalSpecialtyEntity
       .createQueryBuilder('me')
       .select([
         'me.id as "id"',
@@ -63,7 +48,14 @@ export class DatabaseMedicalSpecialtyRepository
         'me.created_at as "createdAt"',
         'me.updated_at as "updatedAt"',
         'me.deleted_at as "deletedAt"',
-      ])
+      ]);
+  }
+
+  async get(
+    id: number,
+    failIfNotExist = false,
+  ): Promise<MedicalSpecialtyModel> {
+    const medicalSpecialty = await this.getBasicQuery()
       .where('me.id = :id', { id })
       .getRawOne();
     if (medicalSpecialty) {
@@ -133,20 +125,11 @@ export class DatabaseMedicalSpecialtyRepository
         return await this.redisService.get<MedicalSpecialtyModel[]>(cacheKey);
       }
     }
-    const query = this.medicalSpecialtyEntity
-      .createQueryBuilder('me')
-      .select([
-        'me.id as "id"',
-        'me.name as "name"',
-        'me.created_at as "createdAt"',
-        'me.updated_at as "updatedAt"',
-        'me.deleted_at as "deletedAt"',
-      ])
-      .orderBy('me.name', 'ASC');
-    const countries = await query.getRawMany();
+    const query = this.getBasicQuery().orderBy('me.name', 'ASC');
+    const medSpecs = await query.getRawMany();
 
-    if (countries && countries.length > 0) {
-      const data: MedicalSpecialtyModel[] = countries.map((obj) =>
+    if (medSpecs && medSpecs.length > 0) {
+      const data: MedicalSpecialtyModel[] = medSpecs.map((obj) =>
         this.toModel(obj),
       );
       await this.redisService.set<MedicalSpecialtyModel[]>(
@@ -169,17 +152,5 @@ export class DatabaseMedicalSpecialtyRepository
     model.deletedAt = entity.deletedAt;
 
     return model;
-  }
-
-  private toEntity(model: MedicalSpecialtyModel): MedicalSpecialty {
-    const entity = new MedicalSpecialty();
-
-    entity.id = model.id;
-    entity.name = model.name;
-    entity.createdAt = model.createdAt;
-    entity.updatedAt = model.updatedAt;
-    entity.deletedAt = model.deletedAt;
-
-    return entity;
   }
 }
