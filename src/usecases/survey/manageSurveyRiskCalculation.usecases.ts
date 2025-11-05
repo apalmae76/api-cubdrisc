@@ -50,7 +50,7 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     dataDto: CreateSurveyRiskCalculationDto;
   }): Promise<BaseResponsePresenter<SurveyRiskCalculationPresenter>> {
     // validate if survey exist
-    await this.surveyRepo.getByIdOrFail(surveyId);
+    await this.validate(surveyId, dataDto);
     const newData: SurveyRiskCalculationRulesCreateModel = {
       ...dataDto,
       surveyId,
@@ -74,6 +74,27 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
       `messages.survey_risk_calculation.CREATED_SUCESSFULLY|{"description":"${dataDto.description}"}`,
       new SurveyRiskCalculationPresenter(rule),
     );
+  }
+
+  private async validate(
+    surveyId: number,
+    dataDto: CreateSurveyRiskCalculationDto,
+  ) {
+    await Promise.all([
+      this.surveyRepo.ensureExistOrFail(surveyId),
+      this.surveyRiscCRepo.ensureMinMaxDoNotOverlap(
+        surveyId,
+        dataDto.minRange,
+        dataDto.maxRange,
+      ),
+    ]);
+    if (dataDto.minRange >= dataDto.maxRange) {
+      throw new BadRequestException({
+        message: [
+          `validation.survey_risk_calculation.MIN_MOST_BE_LESS_THAN_MAX`,
+        ],
+      });
+    }
   }
 
   @UseCaseLogger()
@@ -122,7 +143,7 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     newData: SurveyRiskCalculationRulesUpdateModel | null;
     rule: SurveyRiskCalculationRulesModel;
   }> {
-    await this.surveyRepo.getByIdOrFail(surveyId);
+    await this.surveyRepo.ensureExistOrFail(surveyId);
     const rule = await this.surveyRiscCRepo.canUpdate(surveyId, ruleId);
 
     const newData: SurveyRiskCalculationRulesUpdateModel = {};
@@ -144,6 +165,32 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
 
     if (Object.keys(newData).length === 0) {
       return { newData: null, rule };
+    }
+    // ensure both where sended if once exist
+    if (
+      (dataDto.minRange >= 0 && dataDto.maxRange === undefined) ||
+      (dataDto.minRange === undefined && dataDto.maxRange >= 0)
+    ) {
+      throw new BadRequestException({
+        message: [
+          `validation.survey_risk_calculation.UPDATE_MIN_MAX_REQUIRED_TOGETHER`,
+        ],
+      });
+    }
+    if (dataDto.minRange >= 0 && dataDto.maxRange >= 0) {
+      if (dataDto.minRange >= dataDto.maxRange) {
+        throw new BadRequestException({
+          message: [
+            `validation.survey_risk_calculation.MIN_MOST_BE_LESS_THAN_MAX`,
+          ],
+        });
+      }
+      await this.surveyRiscCRepo.ensureMinMaxDoNotOverlap(
+        surveyId,
+        newData.minRange,
+        newData.maxRange,
+        ruleId,
+      );
     }
     return { newData, rule };
   }

@@ -42,6 +42,7 @@ export class CreateSurveyRiskCalculationDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(0, { message: i18nValidationMessage('validation.MIN') })
   readonly minRange: number;
 
   @ApiProperty({
@@ -52,6 +53,7 @@ export class CreateSurveyRiskCalculationDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(0, { message: i18nValidationMessage('validation.MIN') })
   readonly maxRange: number;
 
   @ApiProperty({
@@ -62,6 +64,7 @@ export class CreateSurveyRiskCalculationDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(1, { message: i18nValidationMessage('validation.MIN') })
   readonly percent: number;
 }
 
@@ -85,6 +88,7 @@ export class UpdateSurveyRiskCalculationDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(0, { message: i18nValidationMessage('validation.MIN') })
   readonly minRange: number;
 
   @ApiProperty({
@@ -96,6 +100,7 @@ export class UpdateSurveyRiskCalculationDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(0, { message: i18nValidationMessage('validation.MIN') })
   readonly maxRange: number;
 
   @ApiProperty({
@@ -107,5 +112,6 @@ export class UpdateSurveyRiskCalculationDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(1, { message: i18nValidationMessage('validation.MIN') })
   readonly percent: number;
 }

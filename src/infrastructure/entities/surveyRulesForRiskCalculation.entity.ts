@@ -14,6 +14,7 @@ import { Survey } from './survey.entity';
 
 @Entity('survey_risk_calculation_rules')
 @Index(['order'], { where: 'deleted_at IS NULL' })
+@Index(['description'], { unique: true })
 export class SurveyRiskCalculationRules {
   @ManyToOne(() => Survey, (survey) => survey.id, {
     nullable: false,

@@ -203,7 +203,7 @@ export class DatabaseSurveyRepository
     const survey = await this.getByIdOrFail(id);
     if (survey.active && onErrorFail) {
       throw new NotFoundException({
-        message: [`validation.raffle.NOT_FOUND|{"id":"${id}"}`],
+        message: [`validation.survey.ALREADY_ACTIVE|{"id":"${id}"}`],
       });
     }
     return survey;

@@ -44,7 +44,7 @@ export class SurveyQuestionsPossibleAnswers {
   @Column({ type: 'text' })
   answer: string;
 
-  @Column({ type: 'text', name: 'educational_tip' })
+  @Column({ type: 'text', name: 'educational_tip', nullable: true })
   educationalTip: string;
 
   @Column({

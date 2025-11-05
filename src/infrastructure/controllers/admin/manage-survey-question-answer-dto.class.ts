@@ -39,12 +39,13 @@ export class CreateSurveyQuestionAnswerDto {
 
   @ApiProperty({
     example: '',
-    required: true,
+    required: false,
   })
+  @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @MinLength(10, { message: i18nValidationMessage('validation.MIN_LENGTH') })
-  educationalTip: string;
+  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
+  educationalTip?: string | null;
 
   @Transform(({ value }) =>
     value && RE_INT_NUMBER_INCLUDE_0.test(value) ? parseInt(value) : value,
@@ -75,7 +76,7 @@ export class UpdateSurveyQuestionAnswerDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
-  educationalTip?: string;
+  educationalTip?: string | null;
 
   @Transform(({ value }) =>
     value && RE_INT_NUMBER_INCLUDE_0.test(value) ? parseInt(value) : value,

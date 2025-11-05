@@ -27,6 +27,10 @@ export class SurveyRiskCalculationPresenter {
 
   @ApiProperty({ type: 'integer' })
   @IsInt()
+  percent: number;
+
+  @ApiProperty({ type: 'integer' })
+  @IsInt()
   order: number;
 
   @ApiProperty()
@@ -47,6 +51,7 @@ export class SurveyRiskCalculationPresenter {
     this.description = rule.description;
     this.minRange = rule.minRange;
     this.maxRange = rule.maxRange;
+    this.percent = rule.percent;
     this.order = rule.order;
 
     this.createdAt = rule.createdAt;

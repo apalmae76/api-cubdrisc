@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ListToUpdOrderModel } from 'src/domain/model/surveyQuestion';
 import {
@@ -11,6 +15,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
+import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { SurveyRiskCalculationRules } from '../entities/surveyRulesForRiskCalculation.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
@@ -35,12 +40,38 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     data: SurveyRiskCalculationRulesCreateModel,
     em: EntityManager,
   ): Promise<SurveyRiskCalculationRulesModel> {
-    const repo = em
-      ? em.getRepository(SurveyRiskCalculationRules)
-      : this.surveyRCRulesEntity;
-    const entity = await this.toCreate(data);
-    const dataSaved = await repo.save(entity);
-    return this.toModel(dataSaved);
+    try {
+      const repo = em
+        ? em.getRepository(SurveyRiskCalculationRules)
+        : this.surveyRCRulesEntity;
+      const entity = await this.toCreate(data);
+      const dataSaved = await repo.save(entity);
+      return this.toModel(dataSaved);
+    } catch (er: unknown) {
+      await this.manageErrors(data, er);
+      throw er;
+    }
+  }
+
+  private async manageErrors(
+    newData:
+      | SurveyRiskCalculationRulesCreateModel
+      | SurveyRiskCalculationRulesUpdateModel,
+    er: unknown,
+  ) {
+    const { message } = extractErrorDetails(er);
+
+    if (message && message.includes('IDX_7e114a679a15b70ebc600962ac')) {
+      const addInfo = {
+        technicalError: `Rule name must be unique (${newData.description}), check`,
+        description: newData.description,
+      };
+      throw new BadRequestException({
+        message: [
+          `validation.survey_risk_calculation.DESCRIPTION_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+        ],
+      });
+    }
   }
 
   private async toCreate(
@@ -67,26 +98,57 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     return maxQuery ? maxQuery.maxOrder + 1 : 1;
   }
 
+  async ensureMinMaxDoNotOverlap(
+    surveyId: number,
+    minRange: number,
+    maxRange: number,
+    id: number | null = null,
+  ): Promise<void> {
+    const query = this.surveyRCRulesEntity
+      .createQueryBuilder('srcr')
+      .select('count(1) as total')
+      .where('survey_id = :surveyId', { surveyId })
+      .andWhere(
+        `(:minRange between min_range and max_range or :maxRange between min_range and max_range)`,
+        { minRange, maxRange },
+      );
+
+    if (id) {
+      query.andWhere('id <> :id', { id });
+    }
+    const overlap = await query.getRawOne();
+    if (overlap?.total && Number(overlap?.total) > 0) {
+      throw new BadRequestException({
+        message: [`validation.survey_risk_calculation.RULE_OVERLAP_EXISTING`],
+      });
+    }
+  }
+
   async update(
     surveyId: number,
     id: number,
     survey: SurveyRiskCalculationRulesUpdateModel,
     em: EntityManager,
   ): Promise<boolean> {
-    const repo = em
-      ? em.getRepository(SurveyRiskCalculationRules)
-      : this.surveyRCRulesEntity;
-    const entity = await repo.findOne({ where: { id: id } });
-    if (!entity) {
-      throw new NotFoundException({
-        message: [`validation.survey.NOT_FOUND|{"id":"${id}"}`],
-      });
+    try {
+      const repo = em
+        ? em.getRepository(SurveyRiskCalculationRules)
+        : this.surveyRCRulesEntity;
+      const entity = await repo.findOne({ where: { id: id } });
+      if (!entity) {
+        throw new NotFoundException({
+          message: [`validation.survey.NOT_FOUND|{"id":"${id}"}`],
+        });
+      }
+      const update = await repo.update({ surveyId, id }, survey);
+      if (update.affected > 0) {
+        await this.cleanCacheData(surveyId);
+      }
+      return true;
+    } catch (er: unknown) {
+      await this.manageErrors(survey, er);
+      throw er;
     }
-    const update = await repo.update({ surveyId, id }, survey);
-    if (update.affected > 0) {
-      await this.cleanCacheData(surveyId);
-    }
-    return true;
   }
 
   async softDelete(
@@ -321,6 +383,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     model.description = entity.description;
     model.minRange = entity.minRange;
     model.maxRange = entity.maxRange;
+    model.percent = entity.percent;
     model.order = entity.order;
 
     model.createdAt = entity.createdAt;
@@ -344,6 +407,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     model.description = entity.description;
     model.minRange = entity.minRange;
     model.maxRange = entity.maxRange;
+    model.percent = entity.percent;
     model.order = entity.order;
 
     model.createdAt = entity.createdAt;
