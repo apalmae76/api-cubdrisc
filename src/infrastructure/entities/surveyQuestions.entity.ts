@@ -46,12 +46,6 @@ export class SurveyQuestions {
   })
   required: boolean;
 
-  @Column({
-    type: 'boolean',
-    default: false,
-  })
-  active: boolean;
-
   @CreateDateColumn({
     type: 'timestamp',
     name: 'created_at',

@@ -187,12 +187,6 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     ) {
       newData.description = dataDto.description;
     }
-    if (
-      dataDto.calcRisks !== undefined &&
-      dataDto.calcRisks !== survey.calcRisks
-    ) {
-      newData.calcRisks = dataDto.calcRisks;
-    }
     if (dataDto.active !== undefined && dataDto.active !== survey.active) {
       newData.active = dataDto.active;
     }

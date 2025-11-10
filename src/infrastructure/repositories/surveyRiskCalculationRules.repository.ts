@@ -61,16 +61,28 @@ export class DatabaseSurveyRiskCalculationRulesRepository
   ) {
     const { message } = extractErrorDetails(er);
 
-    if (message && message.includes('IDX_7e114a679a15b70ebc600962ac')) {
-      const addInfo = {
-        technicalError: `Rule name must be unique (${newData.description}), check`,
-        description: newData.description,
-      };
-      throw new BadRequestException({
-        message: [
-          `validation.survey_risk_calculation.DESCRIPTION_IS_UNIQUE|${JSON.stringify(addInfo)}`,
-        ],
-      });
+    if (message) {
+      if (message.includes('IDX_c892da8bf20579372c66af8d74')) {
+        const addInfo = {
+          technicalError: `Rule description must be unique (${newData.description}), check`,
+          description: newData.description,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_risk_calculation.DESCRIPTION_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      } else if (message.includes('IDX_74b959f9bf4fa4f86d9820fde7')) {
+        const addInfo = {
+          technicalError: `Rule label must be unique (${newData.label}), check`,
+          label: newData.label,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_risk_calculation.LABEL_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      }
     }
   }
 
@@ -80,6 +92,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     const entity = new SurveyRiskCalculationRules();
 
     entity.surveyId = model.surveyId;
+    entity.label = model.label;
     entity.description = model.description;
     entity.minRange = model.minRange;
     entity.maxRange = model.maxRange;
@@ -219,6 +232,13 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       return row.deletedAt !== null;
     }
     return null;
+  }
+
+  async getCount(surveyId: number): Promise<number> {
+    return await this.surveyRCRulesEntity
+      .createQueryBuilder()
+      .where('survey_id = :surveyId', { surveyId })
+      .getCount();
   }
 
   async cleanCacheData(surveyId: number) {

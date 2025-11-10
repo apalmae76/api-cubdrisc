@@ -24,14 +24,6 @@ export class Survey {
 
   @Column({
     type: 'boolean',
-    name: 'calc_risks',
-    comment: 'run risk calculation when responding',
-    default: false,
-  })
-  calcRisks: boolean;
-
-  @Column({
-    type: 'boolean',
     default: false,
   })
   active: boolean;

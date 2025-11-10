@@ -45,7 +45,6 @@ export class DatabaseSurveyRepository
 
     entity.name = model.name;
     entity.description = model.description;
-    entity.calcRisks = model.calcRisks;
     entity.active = false;
 
     return entity;
@@ -118,7 +117,6 @@ export class DatabaseSurveyRepository
         'survey.id as "id"',
         'survey.name as "name"',
         'survey.description as "description"',
-        'survey.calc_risks as "calcRisks"',
         'survey.active as "active"',
         'survey.created_at as "createdAt"',
         'survey.updated_at as "updatedAt"',
@@ -225,8 +223,6 @@ export class DatabaseSurveyRepository
       (survey2.name === undefined || survey1.name === survey2.name) &&
       (survey2.description === undefined ||
         survey1.description === survey2.description) &&
-      (survey2.calcRisks === undefined ||
-        survey1.calcRisks === survey2.calcRisks) &&
       (survey2.active === undefined || survey1.active === survey2.active)
     );
   }
@@ -240,7 +236,6 @@ export class DatabaseSurveyRepository
 
     model.name = entity.name;
     model.description = entity.description;
-    model.calcRisks = entity.calcRisks;
     model.active = entity.active;
 
     model.createdAt = entity.createdAt;
@@ -258,7 +253,6 @@ export class DatabaseSurveyRepository
     }
     model.name = entity.name;
     model.description = entity.description;
-    model.calcRisks = entity.calcRisks;
     model.active = entity.active;
 
     model.createdAt = entity.createdAt;

@@ -2,6 +2,7 @@
   "properties": {
     "id": "Id",
     "entityName": "entityName",
+    "toUserId": "toUserId",
     "role": "role",
     "address": "address",
     "user": "user",
@@ -40,7 +41,6 @@
     "medicalSpecialtyId": "medicalSpecialtyId",
     "surveyId": "surveyId",
     "name": "name",
-    "calcRisks": "calcRisks",
     "questionId": "questionId",
     "ruleId": "ruleId",
     "question": "question",
@@ -49,7 +49,8 @@
     "maxRange": "maxRange",
     "answer": "answer",
     "educationalTip": "educationalTip",
-    "percent": "percent"
+    "percent": "percent",
+    "label": "label"
   },
   "IS_REQUIRED": "Es un valor requerido",
   "IS_DEFINED": "Debe definirlo",
@@ -141,6 +142,9 @@
     "EMAIL_IN_USE": "La dirección de correo enviada ({email}) ya está en uso",
     "WRONG_MIN_APP_VERSION": "La versión actual en su dispositivo está limitada, le recomendamos que actualice"
   },
+  "user": {
+    "CI_IS_UNIQUE": "El número de identidad que intenta adicionar ya existe, por favor verifique"
+  },
   "login": {
     "BAD_OTP": "Código OTP incorrecto",
     "MAX_FAILED_ATTEMPS_EXCEEDED": "Número máximo de intentos fallidos exedido. Solicite un nuevo código y reintente",
@@ -169,7 +173,10 @@
   "survey": {
     "NOT_FOUND": "La encuesta no se encuentra o no ha sido registrada, por favor verifique",
     "ALREADY_ACTIVE": "La encuesta ya esta activa, no puede ser modificada, por favor verifique",
-    "ALREADY_DELETED": "La encuesta ya ha sido eliminada, por favor verifique"
+    "ALREADY_DELETED": "La encuesta ya ha sido eliminada, por favor verifique",
+    "CANT_ACTIVATE_MIN_RULES": "Para activar el test, debe tener definidas como mínimo, dos reglas para el cálculo de riesgo, por favor verifique",
+    "CANT_ACTIVATE_MIN_QUESTIONS": "Para activar el test, debe tener como mínimo una pregunta, por favor verifique",
+    "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "Para activar el test, cada pregunta debe tener como mínimo dos posibles respuestas, por favor verifique"
   },
   "survey_question": {
     "NOT_FOUND": "La pregunta no se encuentra o no ha sido registrada, por favor verifique",
@@ -182,6 +189,7 @@
     "NOT_FOUND": "La regla no se encuentra o no ha sido registrada, por favor verifique",
     "REF_NOT_FOUND": "La regla de referencia no se encuentra o no ha sido registrada, por favor verifique",
     "ALREADY_DELETED": "La regla ya ha sido eliminada, por favor verifique",
+    "LABEL_IS_UNIQUE": "Ya existe una regla con esa etiqueta y debe ser única, por favor verifique",
     "DESCRIPTION_IS_UNIQUE": "Ya existe una regla con esa descripción y debe ser única, por favor verifique",
     "MIN_MOST_BE_LESS_THAN_MAX": "El rango mínimo debe ser menor que el rago máximo, por favor verifique",
     "UPDATE_MIN_MAX_REQUIRED_TOGETHER": "Para modificar uno de los dos rangos, debe enviar ambos valores, por favor verifique",
@@ -191,7 +199,9 @@
     "NOT_FOUND": "La respuesta no se encuentra o no ha sido registrada, por favor verifique",
     "REF_NOT_FOUND": "La respuesta de referencia no se encuentra o no ha sido registrada, por favor verifique",
     "CANT_ACTIVATE_ALREADY_DELETED": "La respuesta ya ha sido eliminada, nos es posible activarla, por favor verifique",
-    "ALREADY_DELETED": "La respuesta ya ha sido eliminada, por favor verifique"
+    "ALREADY_DELETED": "La respuesta ya ha sido eliminada, por favor verifique",
+    "DESCRIPTION_IS_UNIQUE": "Ya existe una respuesta con esa descripción y debe ser única, por favor verifique",
+    "ORDER_IS_UNIQUE": "El número de orden debe ser único, verifique"
   },
   "survey_risk_calculation_range": {
     "NOT_FOUND": "El rango para el calculo de riesgo no se encuentra o no ha sido registrado, por favor verifique"

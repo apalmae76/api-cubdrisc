@@ -1,11 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 import { UserModel } from 'src/domain/model/user';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { formatDateToIsoString } from 'src/infrastructure/common/utils/format-date';
+import { EAppRoles } from '../auth/role.enum';
 
 export class ProfileUserPresenter {
+  @ApiProperty({ type: 'integer' })
+  @IsInt()
+  id: number;
+
   @ApiProperty()
   @IsString()
   ci: string;
@@ -47,7 +52,19 @@ export class ProfileUserPresenter {
   @IsString()
   email: string;
 
+  @ApiProperty()
+  roles: EAppRoles[];
+
+  @ApiProperty({ type: 'integer' })
+  @IsInt()
+  medicalSpecialtyId: number;
+
+  @ApiProperty()
+  @IsString()
+  medicalSpecialty: string;
+
   constructor(user: UserModel) {
+    this.id = user.id;
     this.ci = user.ci;
     this.fullName = user.fullName;
     this.firstName = user.firstName;
@@ -58,6 +75,9 @@ export class ProfileUserPresenter {
     this.gender = user.gender;
     this.phone = user.phone;
     this.email = user.email;
+    this.roles = user.roles;
+    this.medicalSpecialtyId = user.medicalSpecialtyId;
+    this.medicalSpecialty = user.medicalSpecialty;
   }
 }
 

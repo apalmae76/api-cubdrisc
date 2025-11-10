@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ListToUpdOrderModel } from 'src/domain/model/surveyQuestion';
 import {
@@ -11,6 +15,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
+import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { SurveyQuestionsPossibleAnswers } from '../entities/surveyQuestionsPossibleAnswers.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
@@ -37,9 +42,57 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     const repo = em
       ? em.getRepository(SurveyQuestionsPossibleAnswers)
       : this.surveyQPAEntity;
-    const entity = await this.toCreate(data);
-    const dataSaved = await repo.save(entity);
-    return this.toModel(dataSaved);
+    try {
+      const entity = await this.toCreate(data);
+      const dataSaved = await repo.save(entity);
+      return this.toModel(dataSaved);
+    } catch (er: unknown) {
+      await this.manageErrors(data, er);
+      throw er;
+    }
+  }
+
+  private async manageErrors(
+    newData:
+      | SurveyQuestionPossibleAnswerCreateModel
+      | SurveyQuestionPossibleAnswerUpdateModel,
+    er: unknown,
+  ) {
+    const { message } = extractErrorDetails(er);
+
+    if (message) {
+      if (message.includes('IDX_1e7ddf3829548c991a08fbe9d6')) {
+        const addInfo = {
+          technicalError: `Answer exists, text must be unique (${newData.answer}), check`,
+          answer: newData.answer,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_question_answer.DESCRIPTION_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      } else if (message.includes('IDX_1d6ea7fdd9673934ff83bd61a1')) {
+        const addInfo = {
+          technicalError: `Order number must be unique (${newData.order}), check`,
+          order: newData.order,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_question_answer.ORDER_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      } else if (message.includes('FK_39fbfa087ef7fbf9718a6dbe8b6')) {
+        const addInfo = {
+          technicalError: `Survey question most exists (${newData.surveyQuestionId}), check`,
+          answer: newData.answer,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_question_answer.NOT_FOUND|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      }
+    }
   }
 
   private async toCreate(
@@ -56,7 +109,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
       model.surveyId,
       model.surveyQuestionId,
     );
-    entity.active = false;
 
     return entity;
   }
@@ -155,6 +207,20 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     return null;
   }
 
+  async getCount(surveyId: number): Promise<number[]> {
+    const questionsPACount = await this.surveyQPAEntity
+      .createQueryBuilder('sqans')
+      .select([
+        'survey_question_id as "surveyQuestionId"',
+        'count(1) as "count"',
+      ])
+      .where('survey_id = :surveyId', { surveyId })
+      .groupBy('survey_question_id')
+      .orderBy('survey_question_id', 'ASC')
+      .getRawMany();
+    return questionsPACount.map((answer) => Number(answer.count));
+  }
+
   async cleanCacheData(surveyId: number, surveyQuestionId: number) {
     const keyPattern = `${this.cacheKey}${surveyId}:${surveyQuestionId}*`;
     await this.redisService.removeAllKeysWithPattern(keyPattern);
@@ -171,7 +237,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
         'sqa.educational_tip as "educationalTip"',
         'sqa.value as "value"',
         'sqa.order as "order"',
-        'sqa.active as "active"',
         'sqa.created_at as "createdAt"',
         'sqa.updated_at as "updatedAt"',
         'sqa.deleted_at as "deletedAt"',
@@ -313,35 +378,9 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     surveyId: number,
     questionId: number,
     id: number,
-    toSetActive = false,
   ): Promise<SurveyQuestionPossibleAnswerModel> {
     const answer = await this.getByIdOrFail(surveyId, questionId, id);
-    if (toSetActive && answer.active === false && answer.deletedAt) {
-      throw new NotFoundException({
-        message: [
-          `validation.survey_question_answer.CANT_ACTIVATE_ALREADY_DELETED|{"surveyId":"${surveyId}","surveyQuestionId":"${questionId}","id":"${id}"}`,
-        ],
-      });
-    }
     return answer;
-  }
-
-  async setActive(
-    surveyId: number,
-    surveyQuestionId: number,
-    id: number,
-    active: boolean,
-    em: EntityManager,
-  ): Promise<boolean> {
-    const repo = em
-      ? em.getRepository(SurveyQuestionsPossibleAnswers)
-      : this.surveyQPAEntity;
-    const result = await repo.update(
-      { surveyId, surveyQuestionId, id },
-      { active },
-    );
-    await this.cleanCacheData(surveyId, surveyQuestionId);
-    return result.affected > 0;
   }
 
   async setOrder(
@@ -373,7 +412,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     model.educationalTip = entity.educationalTip;
     model.value = entity.value;
     model.order = entity.order;
-    model.active = entity.active;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
@@ -398,7 +436,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     model.educationalTip = entity.educationalTip;
     model.value = entity.value;
     model.order = entity.order;
-    model.active = entity.active;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

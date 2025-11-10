@@ -15,6 +15,9 @@ import {
 import { SurveyPresenter } from 'src/infrastructure/controllers/admin/manageSurvey.presenter';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
+import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/surveyQuestions.repository';
+import { DatabaseSurveyQuestionsPossibleAnswersRepository } from 'src/infrastructure/repositories/surveyQuestionsPossibleAnswers.repository';
+import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRules.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
@@ -24,6 +27,9 @@ import { UseCaseBase } from '../usecases.base';
 export class ManageSurveyUseCases extends UseCaseBase {
   constructor(
     private readonly surveyRepo: DatabaseSurveyRepository,
+    private readonly surveyRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
+    private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
+    private readonly surveyQuestionPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     private readonly appConfig: EnvironmentConfigService,
     protected readonly dataSource: DataSource,
@@ -103,12 +109,6 @@ export class ManageSurveyUseCases extends UseCaseBase {
     ) {
       newData.description = dataDto.description;
     }
-    if (
-      dataDto.calcRisks !== undefined &&
-      dataDto.calcRisks !== survey.calcRisks
-    ) {
-      newData.calcRisks = dataDto.calcRisks;
-    }
     if (dataDto.active !== undefined && dataDto.active !== survey.active) {
       newData.active = dataDto.active;
     }
@@ -156,7 +156,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
     surveyId: number,
     action: boolean,
   ): Promise<BaseResponsePresenter<SurveyPresenter>> {
-    const survey = await this.surveyRepo.getByIdOrFail(surveyId);
+    const survey = await this.validateToActive(surveyId);
     const actionMsg = action
       ? 'ACTIVATED_SUCCESSFULLY'
       : 'DISABLED_SUCCESSFULLY';
@@ -195,6 +195,44 @@ export class ManageSurveyUseCases extends UseCaseBase {
       `messages.survey.${actionMsg}|{"name":"${survey.name}"}`,
       new SurveyPresenter(survey),
     );
+  }
+
+  private async validateToActive(surveyId: number): Promise<SurveyModel> {
+    const survey = await this.surveyRepo.getByIdOrFail(surveyId);
+    const errors: string[] = [];
+    const rulesCount = await this.surveyRulesRepo.getCount(surveyId);
+    if (rulesCount < 2) {
+      errors.push(
+        `validation.survey.CANT_ACTIVATE_MIN_RULES|{"id":"${surveyId}"}`,
+      );
+    }
+
+    const questionsCount = await this.surveyQuestionRepo.getCount(surveyId);
+    if (questionsCount < 1) {
+      errors.push(
+        `validation.survey.CANT_ACTIVATE_MIN_QUESTIONS|{"id":"${surveyId}"}`,
+      );
+    }
+
+    if (questionsCount > 0) {
+      const questionsPACount =
+        await this.surveyQuestionPARepo.getCount(surveyId);
+      const isAnyWithMin =
+        questionsPACount.length > 0
+          ? questionsPACount.filter((count) => count < 2).length > 0
+          : true;
+      if (isAnyWithMin) {
+        errors.push(
+          `validation.survey.CANT_ACTIVATE_MIN_QUESTIONS_ANSWER|{"id":"${surveyId}"}`,
+        );
+      }
+    }
+
+    if (errors.length > 0) {
+      throw new BadRequestException({ message: errors });
+    }
+
+    return survey;
   }
 
   @UseCaseLogger()

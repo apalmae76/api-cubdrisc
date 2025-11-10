@@ -51,7 +51,6 @@ export class DatabaseSurveyQuestionsRepository
     entity.question = model.question;
     entity.order = await this.getLastOrder(model.surveyId);
     entity.required = model.required ?? false;
-    entity.active = model.active ?? false;
 
     return entity;
   }
@@ -132,6 +131,13 @@ export class DatabaseSurveyQuestionsRepository
     return null;
   }
 
+  async getCount(surveyId: number): Promise<number> {
+    return await this.surveyQuestionEntity
+      .createQueryBuilder()
+      .where('survey_id = :surveyId', { surveyId })
+      .getCount();
+  }
+
   async cleanCacheData(surveyId: number) {
     const keyPattern = `${this.cacheKey}${surveyId}*`;
     await this.redisService.removeAllKeysWithPattern(keyPattern);
@@ -146,7 +152,6 @@ export class DatabaseSurveyQuestionsRepository
         'sq.question as "question"',
         'sq.order as "order"',
         'sq.required as "required"',
-        'sq.active as "active"',
         'sq.created_at as "createdAt"',
         'sq.updated_at as "updatedAt"',
         'sq.deleted_at as "deletedAt"',
@@ -244,19 +249,8 @@ export class DatabaseSurveyQuestionsRepository
     return survQuestion;
   }
 
-  async canUpdate(
-    surveyId: number,
-    id: number,
-    toSetActive = false,
-  ): Promise<SurveyQuestionModel> {
+  async canUpdate(surveyId: number, id: number): Promise<SurveyQuestionModel> {
     const question = await this.getByIdOrFail(surveyId, id);
-    if (toSetActive && question.active === false && question.deletedAt) {
-      throw new NotFoundException({
-        message: [
-          `validation.survey_question.CANT_ACTIVATE_ALREADY_DELETED|{"surveyId":"${surveyId}","id":"${id}"}`,
-        ],
-      });
-    }
     return question;
   }
 
@@ -277,20 +271,6 @@ export class DatabaseSurveyQuestionsRepository
       .getRawMany();
 
     return questions.map((question) => this.toModel(question, true));
-  }
-
-  async setActive(
-    surveyId: number,
-    id: number,
-    active: boolean,
-    em: EntityManager,
-  ): Promise<boolean> {
-    const repo = em
-      ? em.getRepository(SurveyQuestions)
-      : this.surveyQuestionEntity;
-    const result = await repo.update({ surveyId, id }, { active });
-    await this.cleanCacheData(surveyId);
-    return result.affected > 0;
   }
 
   async setOrder(
@@ -315,9 +295,7 @@ export class DatabaseSurveyQuestionsRepository
       (survey2.question === undefined ||
         survey1.question === survey2.question) &&
       (survey2.order === undefined || survey1.order === survey2.order) &&
-      (survey2.required === undefined ||
-        survey1.required === survey2.required) &&
-      (survey2.active === undefined || survey1.active === survey2.active)
+      (survey2.required === undefined || survey1.required === survey2.required)
     );
   }
 
@@ -336,7 +314,6 @@ export class DatabaseSurveyQuestionsRepository
     model.question = entity.question;
     model.order = entity.order;
     model.required = entity.required;
-    model.active = entity.active;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
@@ -360,7 +337,6 @@ export class DatabaseSurveyQuestionsRepository
     model.question = entity.question;
     model.order = Number(entity.order);
     model.required = entity.required;
-    model.active = entity.active;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

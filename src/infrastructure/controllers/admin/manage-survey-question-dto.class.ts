@@ -63,25 +63,6 @@ export class UpdateSurveyQuestionDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsBoolean({ message: i18nValidationMessage('validation.INVALID_BOOLEAN') })
   required: boolean;
-
-  @ApiProperty({
-    example: '',
-    required: false,
-  })
-  @IsOptional()
-  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
-  @IsBoolean({ message: i18nValidationMessage('validation.INVALID_BOOLEAN') })
-  active: boolean;
-}
-
-export class SetActiveSurveyQuestionDto {
-  @ApiProperty({
-    example: '',
-    required: true,
-  })
-  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
-  @IsBoolean({ message: i18nValidationMessage('validation.INVALID_BOOLEAN') })
-  active: boolean;
 }
 
 export class MoveRowDto {

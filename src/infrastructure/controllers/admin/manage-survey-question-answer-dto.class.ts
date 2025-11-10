@@ -34,7 +34,7 @@ export class CreateSurveyQuestionAnswerDto {
   })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @MinLength(10, { message: i18nValidationMessage('validation.MIN_LENGTH') })
+  @MinLength(2, { message: i18nValidationMessage('validation.MIN_LENGTH') })
   answer: string;
 
   @ApiProperty({
@@ -65,7 +65,7 @@ export class UpdateSurveyQuestionAnswerDto {
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
+  @Length(2, 200, { message: i18nValidationMessage('validation.LENGTH') })
   answer?: string;
 
   @ApiProperty({

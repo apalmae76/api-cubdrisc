@@ -75,6 +75,14 @@ export class DatabaseMedicalSpecialtyRepository
     return null;
   }
 
+  async getDenomById(
+    id: number,
+    failIfNotExist = false,
+  ): Promise<string | null> {
+    const medicalSpecialty = await this.get(id, failIfNotExist);
+    return medicalSpecialty ? medicalSpecialty.name : null;
+  }
+
   async getByQuery(
     query: MedicalSpecialtyQueryParams,
   ): Promise<MedicalSpecialtyModel[]> {

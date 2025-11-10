@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -15,7 +16,12 @@ import {
   Not,
   Repository,
 } from 'typeorm';
-import { MetaData, UserModel, UserUpdateModel } from '../../domain/model/user';
+import {
+  MetaData,
+  UserCreateModel,
+  UserModel,
+  UserUpdateModel,
+} from '../../domain/model/user';
 import { IUserRepository } from '../../domain/repositories/userRepository.interface';
 import {
   EQueryOperators,
@@ -25,13 +31,16 @@ import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { KeyValueObjectList } from '../common/interfaces/common';
 import { EAppTypes, SYSTEM_USER_ID } from '../common/utils/constants';
+import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { EAppRoles } from '../controllers/auth/role.enum';
+import { MedicalSpecialty } from '../entities/medicalSpecialty.entity';
 import { OperatorsActions } from '../entities/operatorsActions.entity';
 import { Person } from '../entities/person.entity';
 import { User } from '../entities/user.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
+import { DatabaseMedicalSpecialtyRepository } from './medicalSpecialty.repository';
 import { DatabasePersonRepository } from './person.repository';
 
 export enum EUserMetaAttributes {
@@ -48,18 +57,47 @@ export class DatabaseUserRepository
     @InjectRepository(User)
     private readonly userEntity: Repository<User>,
     private readonly personRepo: DatabasePersonRepository,
+    private readonly medSpecRepo: DatabaseMedicalSpecialtyRepository,
     private readonly redisService: ApiRedisService,
     protected readonly logger: ApiLoggerService,
   ) {
     super(userEntity, logger);
   }
 
-  async create(user: UserModel, em: EntityManager): Promise<UserModel> {
-    const person = await this.personRepo.create(user, em);
-    const repo = em ? em.getRepository(User) : this.userEntity;
-    const userEntity = this.toCreate({ ...user, id: person.id });
-    const userSaved = await repo.save(userEntity);
-    return this.toModel(userSaved, person);
+  async create(data: UserCreateModel, em: EntityManager): Promise<UserModel> {
+    try {
+      const person = await this.personRepo.create(data, em);
+      const repo = em ? em.getRepository(User) : this.userEntity;
+      const userEntity = this.toCreate({ ...data, id: person.id });
+      const userSaved = await repo.save(userEntity);
+      const newUser = this.toModel(userSaved, person);
+      newUser.medicalSpecialty = await this.medSpecRepo.getDenomById(
+        userSaved.medicalSpecialtyId,
+      );
+      return newUser;
+    } catch (er: unknown) {
+      await this.manageErrors(data, er);
+      throw er;
+    }
+  }
+
+  private async manageErrors(
+    newData: UserCreateModel | UserUpdateModel,
+    er: unknown,
+  ) {
+    const { message } = extractErrorDetails(er);
+
+    if (message) {
+      if (message.includes('IDX_9b9f58872a0563fc0bb5ab53be')) {
+        const addInfo = {
+          technicalError: `Identity card exists, must be unique (${newData.ci}), check`,
+          ci: newData.ci,
+        };
+        throw new BadRequestException({
+          message: [`validation.user.CI_IS_UNIQUE|${JSON.stringify(addInfo)}`],
+        });
+      }
+    }
   }
 
   async updateIfExistOrFail(
@@ -155,6 +193,7 @@ export class DatabaseUserRepository
         'user.email as "email"',
         'user.roles as "roles"',
         'user.medical_specialty_id as "medicalSpecialtyId"',
+        'mspec.name as "medicalSpecialty"',
         'user.meta as "meta"',
         'user.created_at as "createdAt"',
         'user.updated_at as "updatedAt"',
@@ -162,6 +201,11 @@ export class DatabaseUserRepository
       ])
       .withDeleted()
       .innerJoin(Person, 'pers', 'pers.id = user.id')
+      .innerJoin(
+        MedicalSpecialty,
+        'mspec',
+        'user.medical_specialty_id = mspec.id',
+      )
       .withDeleted();
   }
 
@@ -326,7 +370,7 @@ export class DatabaseUserRepository
     if (!user) {
       return null;
     }
-    userData = this.toModel(user, user, true);
+    userData = this.toModel(user, user);
     if (cacheKey) {
       await this.redisService.set<UserModel>(
         cacheKey,
@@ -422,7 +466,7 @@ export class DatabaseUserRepository
     if (!user) {
       return null;
     }
-    return this.toModel(user, user, true);
+    return this.toModel(user, user);
   }
 
   async getIdByPhone(phone: string): Promise<number> {
@@ -794,6 +838,7 @@ export class DatabaseUserRepository
     model.email = entity.email;
     model.roles = entity.roles;
     model.medicalSpecialtyId = entity.medicalSpecialtyId;
+    model.medicalSpecialty = entity['medicalSpecialty'];
 
     model.meta = entity.meta;
 
@@ -804,16 +849,10 @@ export class DatabaseUserRepository
     return model;
   }
 
-  private toModel(
-    entity: User,
-    person: PersonModel,
-    isForPanel = false,
-  ): UserModel {
+  private toModel(entity: User, person: PersonModel): UserModel {
     const model: UserModel = new UserModel();
 
-    if (!isForPanel) {
-      model.id = Number(entity.id);
-    }
+    model.id = Number(entity.id);
     model.ci = person.ci;
     model.firstName = person.firstName;
     model.middleName = person.middleName;
@@ -827,6 +866,7 @@ export class DatabaseUserRepository
     model.email = entity.email;
     model.roles = entity.roles;
     model.medicalSpecialtyId = entity.medicalSpecialtyId;
+    model.medicalSpecialty = entity['medicalSpecialty'];
 
     model.meta = entity.meta ? <MetaData>entity.meta : null;
 

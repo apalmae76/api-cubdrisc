@@ -19,10 +19,6 @@ export class SurveyPresenter {
 
   @ApiProperty()
   @IsBoolean()
-  calcRisk: boolean;
-
-  @ApiProperty()
-  @IsBoolean()
   active: boolean;
 
   @ApiProperty()
@@ -41,7 +37,6 @@ export class SurveyPresenter {
     this.id = survey.id;
     this.name = survey.name;
     this.description = survey.description;
-    this.calcRisk = survey.calcRisks;
     this.active = survey.active;
 
     this.createdAt = survey.createdAt;

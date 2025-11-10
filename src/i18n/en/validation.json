@@ -2,6 +2,7 @@
   "properties": {
     "id": "Id",
     "entityName": "entityName",
+    "toUserId": "toUserId",
     "role": "role",
     "address": "address",
     "user": "user",
@@ -40,7 +41,6 @@
     "medicalSpecialtyId": "medicalSpecialtyId",
     "surveyId": "surveyId",
     "name": "name",
-    "calcRisks": "calcRisks",
     "questionId": "questionId",
     "ruleId": "ruleId",
     "question": "question",
@@ -49,7 +49,8 @@
     "maxRange": "maxRange",
     "answer": "answer",
     "educationalTip": "educationalTip",
-    "percent": "percent"
+    "percent": "percent",
+    "label": "label"
   },
   "IS_REQUIRED": "Required value",
   "IS_DEFINED": "Most be defined",
@@ -141,6 +142,9 @@
     "EMAIL_IN_USE": "Email address sent ({email}) is already in use",
     "WRONG_MIN_APP_VERSION": "The current version on your device is limited, we recommend that you update"
   },
+  "user": {
+    "CI_IS_UNIQUE": "The ID number you are trying to add already exists, please verify"
+  },
   "login": {
     "BAD_OTP": "Incorrect OTP code",
     "MAX_FAILED_ATTEMPS_EXCEEDED": "Maximum number of failed attempts exceeded. Request a new code and try again",
@@ -169,8 +173,11 @@
   },
   "survey": {
     "NOT_FOUND": "Survey is not found or has not been registered, please check",
-    "ALREADY_ACTIVE": "The survey is already active and cannot be modified. Please verify.",
-    "ALREADY_DELETED": "Survey is already deleted, please check"
+    "ALREADY_ACTIVE": "The survey is already active and cannot be modified. Please check",
+    "ALREADY_DELETED": "Survey is already deleted, please check",
+    "CANT_ACTIVATE_MIN_RULES": "To activate the test, you must have defined at least, two risk calculation rules; please check",
+    "CANT_ACTIVATE_MIN_QUESTIONS": "To activate the test, you must have at least one question; please check",
+    "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "To activate the test, each question must have at least two possible answers, please check"
   },
   "survey_question": {
     "NOT_FOUND": "Question is not found or has not been registered, please check",
@@ -183,6 +190,7 @@
     "NOT_FOUND": "Rule is not found or has not been registered, please check",
     "REF_NOT_FOUND": "The reference rule is not found or has not been registered, please check",
     "ALREADY_DELETED": "Rule is already deleted, please check",
+    "LABEL_IS_UNIQUE": "A rule with that label already exists and it must be unique; please check",
     "DESCRIPTION_IS_UNIQUE": "A rule with that description already exists and it must be unique; please check",
     "MIN_MOST_BE_LESS_THAN_MAX": "The minimum range must be less than the maximum range, please check",
     "UPDATE_MIN_MAX_REQUIRED_TOGETHER": "To modify one of the two ranges, you must send both values, please check",
@@ -192,7 +200,9 @@
     "NOT_FOUND": "Answer is not found or has not been registered, please check",
     "REF_NOT_FOUND": "The reference answer is not found or has not been registered, please check",
     "CANT_ACTIVATE_ALREADY_DELETED": "The answer has already been deleted, we are unable to activate it, please check",
-    "ALREADY_DELETED": "Answer is already deleted, please check"
+    "ALREADY_DELETED": "Answer is already deleted, please check",
+    "DESCRIPTION_IS_UNIQUE": "An answer with that description already exists and it must be unique; please check",
+    "ORDER_IS_UNIQUE": "The order number must be unique, please verify"
   },
   "survey_risk_calculation_range": {
     "NOT_FOUND": "The range for the risk calculation is not found or has not been recorded, please check"

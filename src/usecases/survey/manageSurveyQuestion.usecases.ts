@@ -136,9 +136,6 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
     ) {
       newData.required = dataDto.required;
     }
-    if (dataDto.active !== undefined && dataDto.active !== question.active) {
-      newData.active = dataDto.active;
-    }
 
     if (Object.keys(newData).length === 0) {
       return { newData: null, question: question };
@@ -185,63 +182,6 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
       questionId,
     );
     return new SurveyQuestionPresenter(question);
-  }
-
-  @UseCaseLogger()
-  async setActive(
-    operatorId: number,
-    surveyId: number,
-    questionId: number,
-    action: boolean,
-  ): Promise<BaseResponsePresenter<SurveyQuestionPresenter>> {
-    const question = await this.surveyQuestionRepo.canUpdate(
-      surveyId,
-      questionId,
-      action,
-    );
-    const actionMsg = action
-      ? 'ACTIVATED_SUCCESSFULLY'
-      : 'DISABLED_SUCCESSFULLY';
-    if (question.active === action) {
-      const addInfo = {
-        question: question.question,
-        technicalError: `Survey question active attribute has same value you send: ${action}; please check`,
-      };
-      const response = new BaseResponsePresenter(
-        `messages.survey_question.${actionMsg}|${JSON.stringify(addInfo)}`,
-        new SurveyQuestionPresenter(question),
-      );
-      return this.handleNoChangedValuesOnUpdate(
-        `${this.context}setActive`,
-        response,
-        this.appConfig.isProductionEnv(),
-      );
-    }
-
-    await this.dataSource.transaction(async (em) => {
-      const updSurvey = await this.surveyQuestionRepo.setActive(
-        surveyId,
-        questionId,
-        action,
-        em,
-      );
-      if (updSurvey) {
-        question.active = action;
-      }
-      const opPayload: OperatorsActionCreateModel = {
-        operatorId: operatorId,
-        toUserId: null,
-        actionId: EOperatorsActions.SURVEY_QUESTION_ACTIVE,
-        reason: `Poner pregunta como ${action ? 'habilitada' : 'deshabilitada'}`,
-        details: question,
-      };
-      await this.operActionRepo.create(opPayload, em);
-    });
-
-    return new BaseResponsePresenter(
-      `messages.survey_question.${actionMsg}|{"surveyId":"${surveyId}","questionId":"${questionId}"}`,
-      new SurveyQuestionPresenter(question),
-    );
   }
 
   @UseCaseLogger()

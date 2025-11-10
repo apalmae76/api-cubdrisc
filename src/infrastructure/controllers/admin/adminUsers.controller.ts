@@ -1,6 +1,14 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
@@ -17,6 +25,7 @@ import { EnvironmentConfigService } from 'src/infrastructure/config/environment-
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
 import { CurrentFreeUser } from 'src/infrastructure/common/decorators/current-user.decorator';
+import RoleGuard from 'src/infrastructure/common/guards/role.guard';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { CreateUserUseCases } from 'src/usecases/admin/createUser.usecases';
 import { ManageUsersRole } from 'src/usecases/admin/manageUsersRole.usecases';
@@ -39,10 +48,8 @@ import {
 
 @ApiTags('Users')
 @Controller('user')
-/*** TODO Enable this after testing routes !!
- * @ApiBearerAuth('JWT')
- * @UseGuards(RoleGuard(EAppRoles.ADMIN))
- * */
+@ApiBearerAuth('JWT')
+@UseGuards(RoleGuard(EAppRoles.ADMIN))
 @ApiBadRequestResponse({ description: 'Bad request' })
 @ApiUnauthorizedResponse({ description: 'No authorization token was found' })
 @ApiNotFoundResponse({

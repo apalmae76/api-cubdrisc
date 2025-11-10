@@ -16,6 +16,7 @@ import { SurveyQuestions } from './surveyQuestions.entity';
 
 @Entity('survey_questions_possible_answers')
 @Index(['order'], { where: 'deleted_at IS NULL' })
+@Index(['surveyId', 'surveyQuestionId', 'answer'], { unique: true })
 export class SurveyQuestionsPossibleAnswers {
   @ManyToOne(() => SurveyQuestions, (question) => question.possibleAnswers, {
     nullable: false,
@@ -59,12 +60,6 @@ export class SurveyQuestionsPossibleAnswers {
     type: 'smallint',
   })
   order: number;
-
-  @Column({
-    type: 'boolean',
-    default: false,
-  })
-  active: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',

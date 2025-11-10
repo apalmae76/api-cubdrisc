@@ -41,14 +41,6 @@ export class CreateSurveyDto {
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
   description: string;
-
-  @ApiProperty({
-    example: '',
-    required: true,
-  })
-  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
-  @IsBoolean({ message: i18nValidationMessage('validation.INVALID_BOOLEAN') })
-  calcRisks: boolean;
 }
 
 export class UpdateSurveyDto {
@@ -71,15 +63,6 @@ export class UpdateSurveyDto {
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
   description: string;
-
-  @ApiProperty({
-    example: '',
-    required: false,
-  })
-  @IsOptional()
-  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
-  @IsBoolean({ message: i18nValidationMessage('validation.INVALID_BOOLEAN') })
-  calcRisks: boolean;
 
   @ApiProperty({
     example: '',

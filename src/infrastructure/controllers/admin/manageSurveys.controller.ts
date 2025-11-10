@@ -237,36 +237,6 @@ export class AdminSurveysController {
       .update(user.id, surveyId, questionId, dataDto);
   }
 
-  @Put('/:surveyId/question/:questionId/active')
-  @ApiOkResponse({ type: GetSurveyQuestionPresenter })
-  @ApiOperation({
-    description: '',
-    summary: 'Allows admins, to set survey question as active',
-    operationId: 'setActiveQuestion',
-  })
-  @ApiParam({
-    name: 'surveyId',
-    type: 'number',
-    example: 34,
-    description: 'Survey ID that will be affected',
-  })
-  @ApiParam({
-    name: 'questionId',
-    type: 'number',
-    example: 34,
-    description: 'Question ID that will be affected',
-  })
-  async setActiveQuestion(
-    @Param() { surveyId }: ValidSurveyIdDto,
-    @Param() { questionId }: ValidQuestionIdDto,
-    @Body() { active }: SetActiveSurveyDto,
-    @CurrentUser() user: AuthUser,
-  ): Promise<GetSurveyQuestionPresenter> {
-    return await this.manageSurveyQuestionProxyUC
-      .getInstance()
-      .setActive(user.id, surveyId, questionId, active);
-  }
-
   @Patch('/:surveyId/question/:questionId/move')
   @ApiOkResponse({ type: BooleanDataResponsePresenter })
   @ApiOperation({
@@ -395,43 +365,6 @@ export class AdminSurveysController {
     return await this.manageSurveyQAnsProxyUC
       .getInstance()
       .update(user.id, surveyId, questionId, answerId, dataDto);
-  }
-
-  @Put('/:surveyId/question/:questionId/answer/:answerId/active')
-  @ApiOkResponse({ type: GetSurveyQuestionAnswerPresenter })
-  @ApiOperation({
-    description: '',
-    summary: 'Allows admins, to set survey question answer as active',
-    operationId: 'setActiveQuestionAnswer',
-  })
-  @ApiParam({
-    name: 'surveyId',
-    type: 'number',
-    example: 34,
-    description: 'Survey ID that will be affected',
-  })
-  @ApiParam({
-    name: 'questionId',
-    type: 'number',
-    example: 34,
-    description: 'Question ID that will be affected',
-  })
-  @ApiParam({
-    name: 'answerId',
-    type: 'number',
-    example: 34,
-    description: 'Answer ID that will be affected',
-  })
-  async setActiveQuestionAnswer(
-    @Param() { surveyId }: ValidSurveyIdDto,
-    @Param() { questionId }: ValidQuestionIdDto,
-    @Param() { answerId }: ValidAnswerIdDto,
-    @Body() { active }: SetActiveSurveyDto,
-    @CurrentUser() user: AuthUser,
-  ): Promise<GetSurveyQuestionAnswerPresenter> {
-    return await this.manageSurveyQAnsProxyUC
-      .getInstance()
-      .setActive(user.id, surveyId, questionId, answerId, active);
   }
 
   @Patch('/:surveyId/question/:questionId/answer/:answerId/move')

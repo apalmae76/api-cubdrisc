@@ -1,11 +1,13 @@
 export class SurveyRiskCalculationRulesCreateModel {
   surveyId: number;
+  label: string;
   description: string;
   minRange: number;
   maxRange: number;
   percent: number;
 }
 export class SurveyRiskCalculationRulesUpdateModel {
+  label?: string;
   description?: string;
   minRange?: number;
   maxRange?: number;

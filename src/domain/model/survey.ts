@@ -1,12 +1,10 @@
 export class SurveyCreateModel {
   name: string;
   description: string;
-  calcRisks: boolean;
 }
 export class SurveyUpdateModel {
   name?: string;
   description?: string;
-  calcRisks?: boolean;
   active?: boolean;
 }
 

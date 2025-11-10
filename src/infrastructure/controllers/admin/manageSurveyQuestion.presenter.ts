@@ -26,10 +26,6 @@ export class SurveyQuestionPresenter {
   required: boolean;
 
   @ApiProperty()
-  @IsBoolean()
-  active: boolean;
-
-  @ApiProperty()
   @IsDate()
   createdAt: Date;
 
@@ -47,7 +43,6 @@ export class SurveyQuestionPresenter {
     this.question = survey.question;
     this.order = survey.order;
     this.required = survey.required;
-    this.active = survey.active;
 
     this.createdAt = survey.createdAt;
     this.updatedAt = survey.updatedAt;

@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { UserModel } from 'src/domain/model/user';
+import { UserCreateModel } from 'src/domain/model/user';
 import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decorator';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
@@ -41,7 +41,7 @@ export class CreateUserUseCases extends UseCaseBase {
   private async validateUser(
     adminUser: AuthUser,
     userData: ProfileUserDto,
-  ): Promise<UserModel | null> {
+  ): Promise<UserCreateModel | null> {
     const arePhoneAndEmailValids = await this.userRepo.areCiOrPhoneOrEmailInUse(
       userData.ci,
       userData.phone,
@@ -70,9 +70,8 @@ export class CreateUserUseCases extends UseCaseBase {
       throw new BadRequestException({ message: errors });
     }
 
-    const newUser: UserModel = {
+    const newUser: UserCreateModel = {
       ...userData,
-      id: 0,
       roles: [EAppRoles.MEDIC],
     };
     return newUser;

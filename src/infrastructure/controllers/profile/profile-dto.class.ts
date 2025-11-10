@@ -17,6 +17,7 @@ import { IsTextParam } from 'src/infrastructure/common/dtos/isTextParam-dto';
 import {
   RE_EMAIL_LENGTHS,
   RE_ID_CUBAN_ID,
+  RE_ISO_DATE,
   RE_OTP,
   RE_PHONE_CU,
 } from 'src/infrastructure/common/utils/constants';
@@ -70,7 +71,9 @@ export class ProfileUserDto {
     required: true,
     format: 'date',
   })
-  @Transform(({ value }) => formatIsoDate(value))
+  @Transform(({ value }) =>
+    value && RE_ISO_DATE.test(value) ? formatIsoDate(value, true) : value,
+  )
   @IsDefined({
     message: i18nValidationMessage('validation.IS_DEFINED'),
   })

@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
   Length,
+  Max,
   Min,
   MinLength,
 } from 'class-validator';
@@ -27,11 +28,20 @@ export class ValidRuleIdDto {
 export class CreateSurveyRiskCalculationDto {
   @ApiProperty({
     example: '',
+    required: false,
+  })
+  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
+  @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
+  @Length(2, 250, { message: i18nValidationMessage('validation.LENGTH') })
+  label: string;
+
+  @ApiProperty({
+    example: '',
     required: true,
   })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @MinLength(10, { message: i18nValidationMessage('validation.MIN_LENGTH') })
+  @MinLength(4, { message: i18nValidationMessage('validation.MIN_LENGTH') })
   description: string;
 
   @ApiProperty({
@@ -43,6 +53,7 @@ export class CreateSurveyRiskCalculationDto {
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
   @Min(0, { message: i18nValidationMessage('validation.MIN') })
+  @Max(100, { message: i18nValidationMessage('validation.MAX') })
   readonly minRange: number;
 
   @ApiProperty({
@@ -54,6 +65,7 @@ export class CreateSurveyRiskCalculationDto {
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
   @Min(0, { message: i18nValidationMessage('validation.MIN') })
+  @Max(100, { message: i18nValidationMessage('validation.MAX') })
   readonly maxRange: number;
 
   @ApiProperty({
@@ -76,7 +88,17 @@ export class UpdateSurveyRiskCalculationDto {
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
+  @Length(2, 250, { message: i18nValidationMessage('validation.LENGTH') })
+  label: string;
+
+  @ApiProperty({
+    example: '',
+    required: true,
+  })
+  @IsOptional()
+  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
+  @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
+  @MinLength(4, { message: i18nValidationMessage('validation.MIN_LENGTH') })
   description: string;
 
   @ApiProperty({
@@ -89,6 +111,7 @@ export class UpdateSurveyRiskCalculationDto {
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
   @Min(0, { message: i18nValidationMessage('validation.MIN') })
+  @Max(100, { message: i18nValidationMessage('validation.MAX') })
   readonly minRange: number;
 
   @ApiProperty({
@@ -101,6 +124,7 @@ export class UpdateSurveyRiskCalculationDto {
   @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
   @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
   @Min(0, { message: i18nValidationMessage('validation.MIN') })
+  @Max(100, { message: i18nValidationMessage('validation.MAX') })
   readonly maxRange: number;
 
   @ApiProperty({

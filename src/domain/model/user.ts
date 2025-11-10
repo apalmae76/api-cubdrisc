@@ -7,6 +7,14 @@ export class UserUpdateModel extends PersonCreateModel {
   medicalSpecialtyId?: number;
 }
 
+export class UserCreateModel extends PersonCreateModel {
+  phone: string;
+  email: string;
+  fullName?: string;
+  roles: EAppRoles[];
+  medicalSpecialtyId: number;
+}
+
 export enum EAppLan {
   es = 'es',
   en = 'en',
@@ -16,12 +24,11 @@ export class MetaData {
   defaultLan?: EAppLan | null;
 }
 
-export class UserModel extends UserUpdateModel {
+export class UserModel extends UserCreateModel {
   id: number;
-  fullName?: string;
-  roles: EAppRoles[];
   lastLogin?: Date;
   hashRefreshToken?: string;
+  medicalSpecialty?: string;
   meta?: MetaData;
   createdAt?: Date;
   updatedAt?: Date;

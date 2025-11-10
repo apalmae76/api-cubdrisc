@@ -5,7 +5,6 @@ export class SurveyQuestionPossibleAnswerCreateModel {
   educationalTip?: string | null;
   value: number;
   order?: number;
-  active?: boolean;
 }
 export class SurveyQuestionPossibleAnswerUpdateModel {
   surveyId?: number;
@@ -14,13 +13,11 @@ export class SurveyQuestionPossibleAnswerUpdateModel {
   educationalTip?: string | null;
   value?: number;
   order?: number;
-  active?: boolean;
 }
 
 export class SurveyQuestionPossibleAnswerModel extends SurveyQuestionPossibleAnswerCreateModel {
   id: number;
   order: number;
-  active: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;

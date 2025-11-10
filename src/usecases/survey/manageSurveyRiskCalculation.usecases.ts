@@ -147,6 +147,15 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     const rule = await this.surveyRiscCRepo.canUpdate(surveyId, ruleId);
 
     const newData: SurveyRiskCalculationRulesUpdateModel = {};
+    if (dataDto.label !== undefined && dataDto.label !== rule.label) {
+      newData.label = dataDto.label;
+    }
+    if (
+      dataDto.description !== undefined &&
+      dataDto.description !== rule.description
+    ) {
+      newData.description = dataDto.description;
+    }
     if (
       dataDto.description !== undefined &&
       dataDto.description !== rule.description

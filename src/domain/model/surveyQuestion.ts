@@ -3,14 +3,12 @@ export class SurveyQuestionCreateModel {
   question: string;
   order?: number;
   required?: boolean;
-  active?: boolean;
 }
 export class SurveyQuestionUpdateModel {
   surveyId?: number;
   question?: string;
   order?: number;
   required?: boolean;
-  active?: boolean;
 }
 
 export class SurveyQuestionModel extends SurveyQuestionCreateModel {
