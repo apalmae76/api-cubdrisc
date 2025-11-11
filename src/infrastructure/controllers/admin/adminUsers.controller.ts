@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Patch,
   Post,
@@ -20,11 +21,14 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
+import {
+  BaseResponsePresenter,
+  BooleanDataResponsePresenter,
+} from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
-import { CurrentFreeUser } from 'src/infrastructure/common/decorators/current-user.decorator';
+import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
 import RoleGuard from 'src/infrastructure/common/guards/role.guard';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { CreateUserUseCases } from 'src/usecases/admin/createUser.usecases';
@@ -78,7 +82,7 @@ export class AdminUsersController {
   })
   async createUser(
     @Body() dataDto: ProfileUserDto,
-    @CurrentFreeUser() user: AuthUser,
+    @CurrentUser() user: AuthUser,
   ): Promise<BaseResponsePresenter<ProfileUserPresenter>> {
     const newUser = await this.createUserProxyUC
       .getInstance()
@@ -102,7 +106,7 @@ export class AdminUsersController {
   async updateUser(
     @Body() dataDto: ProfileUserDto,
     @Param() { toUserId }: ValidUserIdDto,
-    @CurrentFreeUser() user: AuthUser,
+    @CurrentUser() user: AuthUser,
   ): Promise<BaseResponsePresenter<ProfileUserPresenter>> {
     return await this.updateUserProxyUC
       .getInstance()
@@ -129,7 +133,7 @@ export class AdminUsersController {
     description: `Aviable system roles. Possible values: ${cRolesAppGrantAccess.panel}`,
   })
   async userAssignRole(
-    @CurrentFreeUser() user: AuthUser,
+    @CurrentUser() user: AuthUser,
     @Param() { toUserId }: ValidUserIdDto,
     @Param() { role }: ValidRoleDto,
   ): Promise<BaseResponsePresenter<boolean>> {
@@ -158,12 +162,32 @@ export class AdminUsersController {
     description: `Aviable system roles. Possible values: ${cRolesAppGrantAccess.panel}`,
   })
   async userRemoveRole(
-    @CurrentFreeUser() user: AuthUser,
+    @CurrentUser() user: AuthUser,
     @Param() { toUserId }: ValidUserIdDto,
     @Param() { role }: ValidRoleDto,
   ): Promise<BaseResponsePresenter<boolean>> {
     return await this.manageUserRoleUC
       .getInstance()
       .removeUserRole(user, toUserId, role);
+  }
+
+  @Delete('/:toUserId')
+  @ApiOkResponse({ type: BooleanDataResponsePresenter })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows admins, to delete (soft) user registration data',
+    operationId: 'deleteRule',
+  })
+  @ApiParam({
+    name: 'toUserId',
+    type: 'number',
+    example: 34,
+    description: 'User ID that will be affected',
+  })
+  async deleteRule(
+    @CurrentUser() user: AuthUser,
+    @Param() { toUserId }: ValidUserIdDto,
+  ): Promise<BooleanDataResponsePresenter> {
+    return await this.updateUserProxyUC.getInstance().delete(user.id, toUserId);
   }
 }

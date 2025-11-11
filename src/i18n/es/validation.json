@@ -156,11 +156,12 @@
   },
   "admin": {
     "USER_ID_EXPECTED": "Se requiere enviar el ID de usuario (userId), por favor verifique",
+    "USER_HAS_ROL": "El usuario ya posee el rol {role}. No es posible adicionarlo, por favor verifique",
+    "USER_NOT_HAVE_ROL": "El usuario no tiene el rol {role} asignado. No es posible eliminarlo, por favor verifique",
+    "USER_ALREADY_DELETED": "Usuario {email}, ya ha sido deshabilitado, por favor verifique",
     "SERVICE_NOT_CONFIGURED": "El servicio {serviceKey}, no existe o no ha sido configurado todavía, por favor verifique",
     "SERVICE_NOT_AVAILABLE_RETRY": "El servicio {service} no está disponible, por favor verifique",
     "OP_ACTION_NOT_FOUND": "La acción del operador, no se encuentra o no está disponible, por favor verifique",
-    "USER_HAS_ROL": "El usuario ya posee el rol {role}. No es posible adicionarlo, por favor verifique",
-    "USER_NOT_HAVE_ROL": "El usuario no tiene el rol {role} asignado. No es posible eliminarlo, por favor verifique",
     "TOKENS_NOT_FOUND": "El usuario seleccionado no posee dispositivos registrados. No se han enviado notificaciones",
     "SAME_VALUE": "El valor enviado ({value}) es el mismo que ya está, por favor verifique"
   },

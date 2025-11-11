@@ -23,9 +23,6 @@
     "TESTING": "Just testing...",
     "WORKING": "Still workin on it..."
   },
-  "registry": {
-    "SEND_EMAIL_OTP_CODE_SUBJECT": "Registry OTP Code"
-  },
   "profile": {
     "SEND_EMAIL_OTP_CODE_SUBJECT": "Verification OTP Code",
     "EMAIL_VERIFIED": "Email address, has been verified successfully"
@@ -40,6 +37,8 @@
   "admin": {
     "USER_UPDATED_SUCESSFULLY": "User {email}, has been updated successfully",
     "USER_CREATED_SUCESSFULLY": "User {email}, has been created successfully",
+    "USER_DELETED": "User {email}, has been permanently disabled",
+    "USER_NOT_DELETED": "User {email} could not be disabled, please check",
     "SERVICE_CONF_SAVED": "Configuration saved successfully",
     "SERVICE_CONF_NOT_SAVED": "Configuration has not been saved, retry, and if it persists, contact specialized technical support",
     "NOT_PROVIDE_SERVICE_TYPE": "Decorator ServiceIsAvailable: Service ID is needed to continue, please check",

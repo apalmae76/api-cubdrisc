@@ -23,9 +23,6 @@
     "TESTING": "Solo haciendo una prueba...",
     "WORKING": "Todavía trabajando en ello..."
   },
-  "registry": {
-    "SEND_EMAIL_OTP_CODE_SUBJECT": "Código OTP de registro"
-  },
   "profile": {
     "SEND_EMAIL_OTP_CODE_SUBJECT": "Código OTP de verificación",
     "EMAIL_VERIFIED": "Correo verificado con éxito"
@@ -40,6 +37,8 @@
   "admin": {
     "USER_UPDATED_SUCESSFULLY": "Datos del usuario {email}, modificados con éxito",
     "USER_CREATED_SUCESSFULLY": "Usuario {email}, creado con éxito",
+    "USER_DELETED": "Usuario {email}, ha sido deshabilitado permanentemente",
+    "USER_NOT_DELETED": "Usuario {email}, no ha podido ser deshabilitado, por favor verifique",
     "SERVICE_CONF_SAVED": "Configuración guardada con éxito",
     "SERVICE_CONF_NOT_SAVED": "Configuración no se ha guardado, reintente, y si persiste, contacte a soporte técnico especializado",
     "NOT_PROVIDE_SERVICE_TYPE": "Decorador ServiceIsAvailable: Se necesita el ID del servicio para continuar, por favor verifique",

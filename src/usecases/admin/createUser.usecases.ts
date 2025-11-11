@@ -1,11 +1,14 @@
 import { BadRequestException } from '@nestjs/common';
+import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
 import { UserCreateModel } from 'src/domain/model/user';
 import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decorator';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
+import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
 import { EAppRoles } from 'src/infrastructure/controllers/auth/role.enum';
 import { ProfileUserDto } from 'src/infrastructure/controllers/profile/profile-dto.class';
 import { ProfileUserPresenter } from 'src/infrastructure/controllers/profile/profile.presenter';
+import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
@@ -16,6 +19,7 @@ import { UseCaseBase } from '../usecases.base';
 export class CreateUserUseCases extends UseCaseBase {
   constructor(
     private readonly userRepo: DatabaseUserRepository,
+    private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     protected readonly dataSource: DataSource,
     protected readonly logger: ApiLoggerService,
   ) {
@@ -30,10 +34,20 @@ export class CreateUserUseCases extends UseCaseBase {
   ): Promise<BaseResponsePresenter<ProfileUserPresenter>> {
     const toCreateUser = await this.validateUser(adminUser, userData);
     const ceatedUser = await this.dataSource.transaction(async (em) => {
-      return await this.userRepo.create(toCreateUser, em);
+      const result = await this.userRepo.create(toCreateUser, em);
+      const opPayload: OperatorsActionCreateModel = {
+        operatorId: adminUser.id,
+        toUserId: result.id,
+        actionId: EOperatorsActions.USER_CREATE,
+        reason: `Eliminar registro de usuario: ${result}`,
+        details: result,
+      };
+      await this.operActionRepo.create(opPayload, em);
+      return result;
     });
+    const jsonIds = `{"userId":"${ceatedUser.id}","email":"${ceatedUser.email}"}`;
     return new BaseResponsePresenter(
-      `messages.admin.USER_CREATED_SUCESSFULLY|{"email":"${userData.email}"}`,
+      `messages.admin.USER_CREATED_SUCESSFULLY|${jsonIds}`,
       new ProfileUserPresenter(ceatedUser),
     );
   }

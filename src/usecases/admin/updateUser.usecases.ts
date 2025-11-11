@@ -1,8 +1,16 @@
 import { BadRequestException } from '@nestjs/common';
-import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
+import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
+import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decorator';
+import {
+  BaseResponsePresenter,
+  BooleanDataResponsePresenter,
+} from 'src/infrastructure/common/dtos/baseResponse.dto';
+import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
+import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
 import { ProfileUserDto } from 'src/infrastructure/controllers/profile/profile-dto.class';
 import { ProfileUserPresenter } from 'src/infrastructure/controllers/profile/profile.presenter';
+import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
@@ -13,6 +21,8 @@ import { UseCaseBase } from '../usecases.base';
 export class UpdateUserUseCases extends UseCaseBase {
   constructor(
     private readonly userRepo: DatabaseUserRepository,
+    private readonly operActionRepo: DatabaseOperatorsActionsRepository,
+    private readonly appConfig: EnvironmentConfigService,
     protected readonly dataSource: DataSource,
     protected readonly logger: ApiLoggerService,
   ) {
@@ -20,44 +30,44 @@ export class UpdateUserUseCases extends UseCaseBase {
     this.context = `${UpdateUserUseCases.name}.`;
   }
 
+  @UseCaseLogger()
   async execute(
     adminUser: AuthUser,
     toUserId: number,
     userData: ProfileUserDto,
   ): Promise<BaseResponsePresenter<ProfileUserPresenter>> {
-    const context = `${this.context}execute`;
-    this.logger.debug(`Starting`, {
-      context,
-      adminUserId: adminUser ? adminUser.id : 'NULL',
-      data: userData,
-    });
-    try {
-      await this.validateUser(adminUser, toUserId, userData);
+    await this.validateUser(adminUser, toUserId, userData);
 
-      const updUser = await this.dataSource.transaction(async (em) => {
-        return await this.userRepo.updateIfExistOrFail(toUserId, userData, em);
-      });
-      this.logger.debug(`Ends after save`, {
-        context,
-        adminUserId: adminUser ? adminUser.id : 'NULL',
-        result: updUser,
-      });
-
-      const response = await this.getUserProfileInfo(toUserId);
-      return new BaseResponsePresenter(
-        `messages.admin.USER_UPDATED_SUCESSFULLY|{"email":"${response.email}"}`,
-        response,
+    await this.dataSource.transaction(async (em) => {
+      const result = await this.userRepo.updateIfExistOrFail(
+        toUserId,
+        userData,
+        em,
       );
-    } catch (er: unknown) {
-      await this.personalizeError(er, context);
-    }
+      const opPayload: OperatorsActionCreateModel = {
+        operatorId: adminUser.id,
+        toUserId,
+        actionId: EOperatorsActions.USER_UPDATE,
+        reason: `Modificar registro de usuario: ${result}`,
+        details: {
+          id: toUserId,
+          ...userData,
+        },
+      };
+      await this.operActionRepo.create(opPayload, em);
+    });
+    const response = await this.getUserProfileInfo(toUserId);
+    return new BaseResponsePresenter(
+      `messages.admin.USER_UPDATED_SUCESSFULLY|{"email":"${response.email}"}`,
+      response,
+    );
   }
 
   private async validateUser(
     adminUser: AuthUser,
     toUserId: number,
     userData: ProfileUserDto,
-  ): Promise<string | null> {
+  ): Promise<void> {
     const userInBd = await this.userRepo.getByIdOrFail(toUserId);
     const theyAreTheSame = this.userRepo.usersAreSame(userInBd, userData);
     if (userInBd && theyAreTheSame) {
@@ -92,7 +102,6 @@ export class UpdateUserUseCases extends UseCaseBase {
     if (errors.length) {
       throw new BadRequestException({ message: errors });
     }
-    return null;
   }
 
   async getUserProfileInfo(userId: number): Promise<ProfileUserPresenter> {
@@ -103,5 +112,48 @@ export class UpdateUserUseCases extends UseCaseBase {
     } catch (er: unknown) {
       await this.personalizeError(er, context);
     }
+  }
+
+  @UseCaseLogger()
+  async delete(
+    operatorId: number,
+    toUserId: number,
+  ): Promise<BooleanDataResponsePresenter> {
+    const user = await this.userRepo.getByIdOrFail(toUserId);
+    const jsonIds = `{"userId":"${toUserId}","email":"${user.email}"}`;
+    if (user.deletedAt) {
+      const response = new BooleanDataResponsePresenter(
+        `messages.admin.USER_DELETED|${jsonIds}`,
+        true,
+      );
+      const error = new BadRequestException({
+        message: [`validation.admin.USER_ALREADY_DELETED|${jsonIds}`],
+      });
+      return this.handleNoChangedValuesOnUpdate(
+        `${this.context}delete`,
+        response,
+        this.appConfig.isProductionEnv(),
+        error,
+      );
+    }
+
+    const result = await this.dataSource.transaction(async (em) => {
+      const result = await this.userRepo.softDelete(toUserId, em);
+      const opPayload: OperatorsActionCreateModel = {
+        operatorId,
+        toUserId,
+        actionId: EOperatorsActions.USER_DELETE,
+        reason: `Eliminar registro de usuario: ${result}`,
+        details: user,
+      };
+      await this.operActionRepo.create(opPayload, em);
+      return result;
+    });
+
+    const actionMsg = result ? 'DELETED' : 'NOT_DELETED';
+    return new BooleanDataResponsePresenter(
+      `messages.admin.USER_${actionMsg}|${jsonIds}`,
+      result,
+    );
   }
 }
