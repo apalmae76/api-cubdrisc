@@ -15,15 +15,14 @@ import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { KeyValueObjectList } from '../common/interfaces/common';
 import { EOperatorsActions } from '../common/utils/constants';
 import { OperatorsActions } from '../entities/operatorsActions.entity';
-import { User } from '../entities/user.entity';
+import { Person } from '../entities/person.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { BaseRepository } from './base.repository';
 
 @Injectable()
 export class DatabaseOperatorsActionsRepository
   extends BaseRepository
-  implements IOperatorsActionsRepository
-{
+  implements IOperatorsActionsRepository {
   constructor(
     @InjectRepository(OperatorsActions)
     private readonly operActionsEntity: Repository<OperatorsActions>,
@@ -111,19 +110,19 @@ export class DatabaseOperatorsActionsRepository
       const opUserId = opUserName.value;
       queryCount = this.operActionsEntity.createQueryBuilder('oa');
       queryCount.innerJoin(
-        User,
+        Person,
         'opuser',
         `oa.operator_id = opuser.id and opuser.full_name ${opUserName.condition}`,
         { opUserId },
       );
       queryList.innerJoin(
-        User,
+        Person,
         'opuser',
         `oa.operator_id = opuser.id and opuser.full_name ${opUserName.condition}`,
         { opUserId },
       );
     } else {
-      queryList.innerJoin(User, 'opuser', 'oa.operator_id = opuser.id');
+      queryList.innerJoin(Person, 'opuser', 'oa.operator_id = opuser.id');
     }
 
     const userName = super.atrIsIncludedAndGetValOp(
@@ -138,19 +137,19 @@ export class DatabaseOperatorsActionsRepository
         queryCount = this.operActionsEntity.createQueryBuilder('oa');
       }
       queryCount.innerJoin(
-        User,
+        Person,
         'user',
         `oa.to_user_id = user.id and user.full_name ${userName.condition}`,
         { toUser },
       );
       queryList.innerJoin(
-        User,
+        Person,
         'user',
         `oa.to_user_id = user.id and user.full_name ${userName.condition}`,
         { toUser },
       );
     } else {
-      queryList.leftJoin(User, 'user', 'oa.to_user_id = user.id');
+      queryList.leftJoin(Person, 'user', 'oa.to_user_id = user.id');
     }
 
     const userId = super.atrIsIncludedAndGetValOp(

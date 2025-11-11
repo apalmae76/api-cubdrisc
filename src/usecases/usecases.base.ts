@@ -53,6 +53,27 @@ export class UseCaseBase {
         } else {
           return false;
         }
+      } else if (
+        message.includes(
+          `Cannot read properties of undefined (reading 'getByQuery')`,
+        )
+      ) {
+        const error =
+          'Repository for send entity has not been included, please check';
+        this.logger.warn(`Fails; ${error}`, {
+          context: `${context}.catch`,
+          marker: 'CHECK',
+          message,
+        });
+        if (failOnAllErrors) {
+          throw new UnprocessableEntityException({
+            message: [
+              `messages.common.SOMETHING_WRONG_RETRY|${JSON.stringify({ technicalError: error })}`,
+            ],
+          });
+        } else {
+          return false;
+        }
       } else if (message.includes('QueryFailedError')) {
         this.logger.warn('Fails; {message}', {
           context: `${context}.catch`,
