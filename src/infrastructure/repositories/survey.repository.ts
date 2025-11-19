@@ -118,6 +118,7 @@ export class DatabaseSurveyRepository
         'survey.name as "name"',
         'survey.description as "description"',
         'survey.active as "active"',
+        'survey.draft as "draft"',
         'survey.created_at as "createdAt"',
         'survey.updated_at as "updatedAt"',
         'survey.deleted_at as "deletedAt"',
@@ -199,7 +200,7 @@ export class DatabaseSurveyRepository
 
   async canUpdate(id: number, onErrorFail = true): Promise<SurveyModel> {
     const survey = await this.getByIdOrFail(id);
-    if (survey.active && onErrorFail) {
+    if (survey.draft === false && onErrorFail) {
       throw new NotFoundException({
         message: [`validation.survey.ALREADY_ACTIVE|{"id":"${id}"}`],
       });
@@ -210,12 +211,23 @@ export class DatabaseSurveyRepository
   async setActive(
     id: number,
     active: boolean,
+    isFirstActivation: boolean,
     em: EntityManager,
   ): Promise<boolean> {
     const repo = em ? em.getRepository(Survey) : this.surveyEntity;
-    const result = await repo.update({ id }, { active });
-    await this.cleanCacheData(id);
-    return result.affected > 0;
+    const payload = {
+      active,
+      draft: undefined,
+    };
+    if (isFirstActivation) {
+      payload.draft = false;
+    }
+    const result = await repo.update({ id }, payload);
+    if (result.affected > 0) {
+      await this.cleanCacheData(id);
+      return true;
+    }
+    return false;
   }
 
   areSame(survey1: SurveyModel, survey2: SurveyUpdateModel): boolean {
@@ -237,6 +249,7 @@ export class DatabaseSurveyRepository
     model.name = entity.name;
     model.description = entity.description;
     model.active = entity.active;
+    model.draft = entity.draft;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
@@ -254,6 +267,7 @@ export class DatabaseSurveyRepository
     model.name = entity.name;
     model.description = entity.description;
     model.active = entity.active;
+    model.draft = entity.draft;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

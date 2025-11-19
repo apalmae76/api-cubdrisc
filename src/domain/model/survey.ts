@@ -11,6 +11,7 @@ export class SurveyUpdateModel {
 export class SurveyModel extends SurveyCreateModel {
   id: number;
   active: boolean;
+  draft: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;

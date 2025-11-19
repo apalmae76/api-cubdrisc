@@ -24,6 +24,12 @@ export class Survey {
 
   @Column({
     type: 'boolean',
+    default: true,
+  })
+  draft: boolean;
+
+  @Column({
+    type: 'boolean',
     default: false,
   })
   active: boolean;

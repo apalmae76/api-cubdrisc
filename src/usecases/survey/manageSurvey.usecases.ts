@@ -177,9 +177,17 @@ export class ManageSurveyUseCases extends UseCaseBase {
     }
 
     await this.dataSource.transaction(async (em) => {
-      const updSurvey = await this.surveyRepo.setActive(surveyId, action, em);
+      const isFirstActivation =
+        survey.active === false && survey.draft === true;
+      const updSurvey = await this.surveyRepo.setActive(
+        surveyId,
+        action,
+        isFirstActivation,
+        em,
+      );
       if (updSurvey) {
         survey.active = action;
+        survey.draft = false;
       }
       const opPayload: OperatorsActionCreateModel = {
         operatorId,

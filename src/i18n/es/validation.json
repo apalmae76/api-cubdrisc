@@ -173,6 +173,7 @@
   },
   "survey": {
     "NOT_FOUND": "La encuesta no se encuentra o no ha sido registrada, por favor verifique",
+    "NOT_A_DRAFT": "Solo podrá modificar las  encuentras en estado BORRADOR, por favor verifique",
     "ALREADY_ACTIVE": "La encuesta ya esta activa, no puede ser modificada, por favor verifique",
     "ALREADY_DELETED": "La encuesta ya ha sido eliminada, por favor verifique",
     "CANT_ACTIVATE_MIN_RULES": "Para activar el test, debe tener definidas como mínimo, dos reglas para el cálculo de riesgo, por favor verifique",
