@@ -18,8 +18,8 @@ import {
   BooleanDataResponsePresenter,
 } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
-import { ManagePersonSurveyUseCases } from 'src/usecases/patient/managePersonSurvey.usecases';
-import { CreatePersonSurveyDto } from './patient-answer-dto.class';
+import { ManagePersonSurveyUseCases } from 'src/usecases/patient/manage-person-survey.usecases';
+import { PersonSurveyDto } from './patient-answer-dto.class';
 
 @ApiTags('Patient')
 @Controller('patient')
@@ -40,14 +40,14 @@ export class ManagePatientController {
   // Manage patients & patiens survey answers --------------------------------------------------------
   @Post('survey')
   @ApiCreatedResponse({ type: BooleanDataResponsePresenter })
-  @ApiBody({ type: CreatePersonSurveyDto })
+  @ApiBody({ type: PersonSurveyDto })
   @ApiOperation({
     description: '',
     summary: 'Allows persons to create new surveys',
     operationId: 'createSurvey',
   })
   async createSurvey(
-    @Body() dataDto: CreatePersonSurveyDto,
+    @Body() dataDto: PersonSurveyDto,
   ): Promise<BaseResponsePresenter<number>> {
     return await this.managePersonSurveyProxyUC.getInstance().create(dataDto);
   }

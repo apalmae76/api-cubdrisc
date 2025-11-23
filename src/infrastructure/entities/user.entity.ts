@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 import { Key2ValueObjectList } from '../common/interfaces/common';
 import { EAppRoles } from '../controllers/auth/role.enum';
-import { MedicalSpecialty } from './medicalSpecialty.entity';
+import { MedicalSpecialty } from './medical-specialty.entity';
 import { Person } from './person.entity';
 
 @Entity('users')

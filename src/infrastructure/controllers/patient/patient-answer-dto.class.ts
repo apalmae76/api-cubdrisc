@@ -8,6 +8,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   Matches,
   Min,
   Validate,
@@ -88,7 +89,20 @@ export class CreatePersonDto {
   readonly gender: string;
 }
 
-export class CreatePersonSurveyDto extends CreatePersonDto {
+export class PersonSurveyDto extends CreatePersonDto {
+  @ApiProperty({
+    description: `\n@IMPORTANT@\n
+    - Ignore this param on the first request to this endpoint; you will get it in the response body of that request
+    - Allways send this param as a reference of the user on consecutive request. Acts as respose test flow identifier
+    `,
+    required: false,
+    example: '9d77c4db-ccec-4434-9764-e86d685e7b86',
+  })
+  @IsOptional()
+  @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
+  @IsUUID('4', { message: i18nValidationMessage('validation.IS_UUID') })
+  readonly referenceId: string | null;
+
   @ApiProperty({
     description: 'Survey ID',
     type: 'integer',
@@ -148,6 +162,21 @@ export class CreatePersonSurveyDto extends CreatePersonDto {
 }
 
 export class CreateAnswerDto {
+  @ApiProperty({
+    description: `respose test flow identifier`,
+    required: true,
+    example: '9d77c4db-ccec-4434-9764-e86d685e7b86',
+  })
+  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
+  @IsUUID('4', { message: i18nValidationMessage('validation.IS_UUID') })
+  readonly referenceId: string;
+
+  @ApiProperty({
+    example: 34,
+    description: 'patient id',
+    required: true,
+  })
   @Transform(({ value }) =>
     value && RE_INT_NUMBER.test(value) ? parseInt(value) : value,
   )

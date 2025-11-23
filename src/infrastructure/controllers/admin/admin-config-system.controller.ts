@@ -17,13 +17,13 @@ import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
 import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
-import { GetGenericInfoUseCases } from 'src/usecases/admin/getGenericInfo.usecases';
+import { GetGenericInfoUseCases } from 'src/usecases/admin/get-generic-info.usecases';
 import {
   GetGenericAllDto,
   GetGenericDetailDto,
   operatorsList,
 } from '../../common/dtos/genericRepo-dto.class';
-import { AuthUser } from '../auth/authUser.interface';
+import { AuthUser } from '../auth/auth-user.interface';
 import { EAppRoles } from '../auth/role.enum';
 @ApiTags('System configuration')
 @Controller()

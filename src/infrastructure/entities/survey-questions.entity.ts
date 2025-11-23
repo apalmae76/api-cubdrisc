@@ -11,8 +11,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { SurveyQuestionsPossibleAnswers } from './survey-questions-possible-answers.entity';
 import { Survey } from './survey.entity';
-import { SurveyQuestionsPossibleAnswers } from './surveyQuestionsPossibleAnswers.entity';
 
 @Entity('survey_questions')
 @Index(['order'], { where: 'deleted_at IS NULL' })

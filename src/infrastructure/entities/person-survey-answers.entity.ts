@@ -6,7 +6,7 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import { PersonSurvey } from './personSurvey.entity';
-import { SurveyQuestionsPossibleAnswers } from './surveyQuestionsPossibleAnswers.entity';
+import { SurveyQuestionsPossibleAnswers } from './survey-questions-possible-answers.entity';
 
 @Entity('person_survey_answers')
 export class PersonSurveyAnswers {

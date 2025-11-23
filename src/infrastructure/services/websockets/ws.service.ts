@@ -18,7 +18,7 @@ import * as IORedis from 'ioredis';
 import * as os from 'os';
 import { EAppTypes } from 'src/infrastructure/common/utils/constants';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
-import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
+import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import { JwtTokenService } from '../jwt/jwt.service';
 import { ApiLoggerService } from '../logger/logger.service';
 import { ApiRedisService } from '../redis/redis.service';
@@ -95,8 +95,7 @@ export const appEventsValues = appEventsList.map((obj) => obj.key).join(', ');
   },
 })
 export class WSService
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   //* private readonly hostname = `${os.hostname()}1`; // just for local tests
   private readonly hostname = os.hostname(); // enable
@@ -111,7 +110,7 @@ export class WSService
     private readonly logger: ApiLoggerService,
     private readonly redisClient: ApiRedisService,
     @Inject('REDIS_ADAPTER') private redisAdapter: RedisAdapter,
-  ) {}
+  ) { }
 
   afterInit() {
     const context = `${this.context}afterInit`;

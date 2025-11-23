@@ -1,16 +1,16 @@
 import { UserEmails } from './emails.entity';
-import { MedicalSpecialty } from './medicalSpecialty.entity';
-import { OperatorsActions } from './operatorsActions.entity';
+import { MedicalSpecialty } from './medical-specialty.entity';
+import { OperatorsActions } from './operators-actions.entity';
 import { Patient } from './patient.entity';
+import { PersonSurveyAnswers } from './person-survey-answers.entity';
 import { Person } from './person.entity';
 import { PersonSurvey } from './personSurvey.entity';
-import { PersonSurveyAnswers } from './personSurveyAnswers.entity';
 import { UserPhones } from './phone.entity';
 import { State } from './state.entity';
+import { SurveyQuestionsPossibleAnswers } from './survey-questions-possible-answers.entity';
+import { SurveyQuestions } from './survey-questions.entity';
+import { SurveyRiskCalculationRules } from './survey-rules-for-risk-calculation.entity';
 import { Survey } from './survey.entity';
-import { SurveyQuestions } from './surveyQuestions.entity';
-import { SurveyQuestionsPossibleAnswers } from './surveyQuestionsPossibleAnswers.entity';
-import { SurveyRiskCalculationRules } from './surveyRulesForRiskCalculation.entity';
 import { User } from './user.entity';
 
 export const ENTITIES = [

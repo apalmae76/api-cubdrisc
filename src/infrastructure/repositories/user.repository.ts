@@ -33,14 +33,14 @@ import { KeyValueObjectList } from '../common/interfaces/common';
 import { EAppTypes, SYSTEM_USER_ID } from '../common/utils/constants';
 import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { EAppRoles } from '../controllers/auth/role.enum';
-import { MedicalSpecialty } from '../entities/medicalSpecialty.entity';
-import { OperatorsActions } from '../entities/operatorsActions.entity';
+import { MedicalSpecialty } from '../entities/medical-specialty.entity';
+import { OperatorsActions } from '../entities/operators-actions.entity';
 import { Person } from '../entities/person.entity';
 import { User } from '../entities/user.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
-import { DatabaseMedicalSpecialtyRepository } from './medicalSpecialty.repository';
+import { DatabaseMedicalSpecialtyRepository } from './medical-specialty.repository';
 import { DatabasePersonRepository } from './person.repository';
 
 export enum EUserMetaAttributes {

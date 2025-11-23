@@ -14,7 +14,7 @@ import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { KeyValueObjectList } from '../common/interfaces/common';
 import { EOperatorsActions } from '../common/utils/constants';
-import { OperatorsActions } from '../entities/operatorsActions.entity';
+import { OperatorsActions } from '../entities/operators-actions.entity';
 import { Person } from '../entities/person.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { BaseRepository } from './base.repository';

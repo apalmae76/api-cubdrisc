@@ -16,10 +16,10 @@ import {
   CreateSurveyRiskCalculationDto,
   UpdateSurveyRiskCalculationDto,
 } from 'src/infrastructure/controllers/admin/manage-survey-risk-calculation-dto.class';
-import { SurveyRiskCalculationPresenter } from 'src/infrastructure/controllers/admin/manageSurveyRiskCalculation.presenter';
-import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
+import { SurveyRiskCalculationPresenter } from 'src/infrastructure/controllers/admin/manage-survey-risk-calculation.presenter';
+import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
+import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/survey-risk-calculation-rules.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
-import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/surveyRiskCalculationRules.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';

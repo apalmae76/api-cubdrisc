@@ -10,7 +10,7 @@ import {
 } from '@nestjs/swagger';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
-import { MedicalSpecialtiesUseCases } from 'src/usecases/nomenclatures/medicalSpecialties.usecases';
+import { MedicalSpecialtiesUseCases } from 'src/usecases/nomenclatures/medical-specialties.usecases';
 import { TerritoriesUseCases } from 'src/usecases/nomenclatures/territories.usecases';
 import {
   GetMedicalSpecialtiesPresenter,

@@ -15,7 +15,7 @@ import { ApiRedisModule } from '../services/redis/redis.module';
 
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
 
-import { CronTasksModule } from '../services/cronjobs/cronTasks.module';
+import { CronTasksModule } from '../services/cronjobs/cron-tasks.module';
 import { ApiLoggerModule } from '../services/logger/logger.module';
 import { WSModule } from '../services/websockets/ws.module';
 import { IUseCaseProviderData } from './plugin/interface/use-case-provider.interface';

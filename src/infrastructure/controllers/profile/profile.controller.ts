@@ -1,11 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  UseGuards
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -27,9 +21,9 @@ import RoleGuard from 'src/infrastructure/common/guards/role.guard';
 import { EAppTypes } from 'src/infrastructure/common/utils/constants';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
-import { UpdateUserUseCases } from 'src/usecases/admin/updateUser.usecases';
-import { UpdUserEmailWithOtpUseCases } from 'src/usecases/profile/updUserEmailWithOTP.usecases';
-import { AuthUser } from '../auth/authUser.interface';
+import { UpdateUserUseCases } from 'src/usecases/admin/update-user.usecases';
+import { UpdUserEmailWithOtpUseCases } from 'src/usecases/profile/upd-user-email-with-otp.usecases';
+import { AuthUser } from '../auth/auth-user.interface';
 import { EAppRoles } from '../auth/role.enum';
 import { UpdateEmailOTPDto } from './profile-dto.class';
 import { GetUserPresenter, ProfileUserPresenter } from './profile.presenter';

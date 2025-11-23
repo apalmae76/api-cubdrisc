@@ -6,7 +6,7 @@ import {
   MedicalSpecialtyQueryParams,
 } from 'src/domain/repositories/medicalSpecialtyRepository.interface';
 import { Repository } from 'typeorm';
-import { MedicalSpecialty } from '../entities/medicalSpecialty.entity';
+import { MedicalSpecialty } from '../entities/medical-specialty.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 

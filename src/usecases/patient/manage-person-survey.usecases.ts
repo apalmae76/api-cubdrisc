@@ -9,11 +9,11 @@ import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseRespon
 import { formatDateTimeToIsoString } from 'src/infrastructure/common/utils/format-date';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { UpdateSurveyDto } from 'src/infrastructure/controllers/admin/manage-survey-dto.class';
-import { SurveyPresenter } from 'src/infrastructure/controllers/admin/manageSurvey.presenter';
-import { CreatePersonSurveyDto } from 'src/infrastructure/controllers/patient/patient-answer-dto.class';
+import { SurveyPresenter } from 'src/infrastructure/controllers/admin/manage-survey.presenter';
+import { PersonSurveyDto } from 'src/infrastructure/controllers/patient/patient-answer-dto.class';
+import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/person-survey-answers.repository';
+import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/person-survey.repository';
 import { DatabasePersonRepository } from 'src/infrastructure/repositories/person.repository';
-import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/personSurvey.repository';
-import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/personSurveyAnswers.repository';
 import { DatabaseStateRepository } from 'src/infrastructure/repositories/state.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
@@ -45,7 +45,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
 
   @UseCaseLogger()
   async create(
-    dataDto: CreatePersonSurveyDto,
+    dataDto: PersonSurveyDto,
   ): Promise<BaseResponsePresenter<number>> {
     const createData = await this.validateCreate(dataDto);
     const personId = await this.persistCreate(createData);
@@ -56,7 +56,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
   }
 
   private async validateCreate(
-    dataDto: CreatePersonSurveyDto,
+    dataDto: PersonSurveyDto,
   ): Promise<CreatePersonSurvey> {
     const [personDb] = await Promise.all([
       this.personRepo.getByCi(dataDto.ci),

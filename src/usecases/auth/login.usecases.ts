@@ -13,11 +13,11 @@ import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-err
 import { JwtGetToken } from 'src/infrastructure/common/utils/jwt-get-token';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { LogginEmailOTPVerifyDto } from 'src/infrastructure/controllers/auth/auth-dto.class';
+import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import {
   GetAuthTokensPresenter,
   RefreshTokenPresenter,
 } from 'src/infrastructure/controllers/auth/auth.presenter';
-import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
 import {
   EAppRoles,
   cRolesAppGrantAccess,

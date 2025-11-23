@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { PersonSurvey } from './personSurvey.entity';
-import { SurveyQuestions } from './surveyQuestions.entity';
-import { SurveyRiskCalculationRules } from './surveyRulesForRiskCalculation.entity';
+import { SurveyQuestions } from './survey-questions.entity';
+import { SurveyRiskCalculationRules } from './survey-rules-for-risk-calculation.entity';
 
 @Entity('survey')
 export class Survey {

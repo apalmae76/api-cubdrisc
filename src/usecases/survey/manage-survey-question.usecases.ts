@@ -16,10 +16,10 @@ import {
   CreateSurveyQuestionDto,
   UpdateSurveyQuestionDto,
 } from 'src/infrastructure/controllers/admin/manage-survey-question-dto.class';
-import { SurveyQuestionPresenter } from 'src/infrastructure/controllers/admin/manageSurveyQuestion.presenter';
-import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
+import { SurveyQuestionPresenter } from 'src/infrastructure/controllers/admin/manage-survey-question.presenter';
+import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
+import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/survey-questions.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
-import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/surveyQuestions.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';

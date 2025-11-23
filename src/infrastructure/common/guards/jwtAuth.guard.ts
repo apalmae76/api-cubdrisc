@@ -3,11 +3,11 @@
 import { CanActivate, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
+import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import { JwtTokenService } from 'src/infrastructure/services/jwt/jwt.service';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {}
+export class JwtAuthGuard extends AuthGuard('jwt') { }
 
 @Injectable()
 export class WsJwtAuthGuard implements CanActivate {

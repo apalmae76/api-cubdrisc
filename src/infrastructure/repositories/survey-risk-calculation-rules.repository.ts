@@ -16,7 +16,7 @@ import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { extractErrorDetails } from '../common/utils/extract-error-details';
-import { SurveyRiskCalculationRules } from '../entities/surveyRulesForRiskCalculation.entity';
+import { SurveyRiskCalculationRules } from '../entities/survey-rules-for-risk-calculation.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';

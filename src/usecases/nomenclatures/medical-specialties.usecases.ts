@@ -4,7 +4,7 @@ import {
   GetMedicalSpecialtiesPresenter,
   MedicalSpecialtiesPresenter,
 } from 'src/infrastructure/controllers/nomenclatures/nomenclatures.presenter';
-import { DatabaseMedicalSpecialtyRepository } from 'src/infrastructure/repositories/medicalSpecialty.repository';
+import { DatabaseMedicalSpecialtyRepository } from 'src/infrastructure/repositories/medical-specialty.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { UseCaseBase } from '../usecases.base';

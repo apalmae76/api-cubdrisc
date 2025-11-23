@@ -7,10 +7,10 @@ import {
 } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
+import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import { ProfileUserDto } from 'src/infrastructure/controllers/profile/profile-dto.class';
 import { ProfileUserPresenter } from 'src/infrastructure/controllers/profile/profile.presenter';
-import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
+import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';

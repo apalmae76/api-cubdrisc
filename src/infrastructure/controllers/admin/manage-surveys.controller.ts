@@ -29,14 +29,14 @@ import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
 import RoleGuard from 'src/infrastructure/common/guards/role.guard';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
-import { ManageSurveyUseCases } from 'src/usecases/survey/manageSurvey.usecases';
-import { ManageSurveyQuestionUseCases } from 'src/usecases/survey/manageSurveyQuestion.usecases';
-import { ManageSurveyQuestionAnswerUseCases } from 'src/usecases/survey/manageSurveyQuestionAnswer.usecases';
-import { ManageSurveyRiskCalculationUseCases } from 'src/usecases/survey/manageSurveyRiskCalculation.usecases';
-import { MoveSurveyQuestionUseCases } from 'src/usecases/survey/moveSurveyQuestion.usecases';
-import { MoveSurveyQuestionAnswerUseCases } from 'src/usecases/survey/moveSurveyQuestionAnswer.usecases';
-import { MoveSurveyRiskCalculationUseCases } from 'src/usecases/survey/moveSurveyRiskCalculation.usecases';
-import { AuthUser } from '../auth/authUser.interface';
+import { ManageSurveyQuestionAnswerUseCases } from 'src/usecases/survey/manage-survey-question-answer.usecases';
+import { ManageSurveyQuestionUseCases } from 'src/usecases/survey/manage-survey-question.usecases';
+import { ManageSurveyRiskCalculationUseCases } from 'src/usecases/survey/manage-survey-risk-calculation.usecases';
+import { ManageSurveyUseCases } from 'src/usecases/survey/manage-survey.usecases';
+import { MoveSurveyQuestionAnswerUseCases } from 'src/usecases/survey/move-survey-question-answer.usecases';
+import { MoveSurveyQuestionUseCases } from 'src/usecases/survey/move-survey-question.usecases';
+import { MoveSurveyRiskCalculationUseCases } from 'src/usecases/survey/move-survey-risk-calculation.usecases';
+import { AuthUser } from '../auth/auth-user.interface';
 import { EAppRoles } from '../auth/role.enum';
 import {
   CreateSurveyDto,
@@ -49,21 +49,21 @@ import {
   UpdateSurveyQuestionAnswerDto,
   ValidAnswerIdDto,
 } from './manage-survey-question-answer-dto.class';
+import { GetSurveyQuestionAnswerPresenter } from './manage-survey-question-answer.presenter';
 import {
   CreateSurveyQuestionDto,
   MoveRowDto,
   UpdateSurveyQuestionDto,
   ValidQuestionIdDto,
 } from './manage-survey-question-dto.class';
+import { GetSurveyQuestionPresenter } from './manage-survey-question.presenter';
 import {
   CreateSurveyRiskCalculationDto,
   UpdateSurveyRiskCalculationDto,
   ValidRuleIdDto,
 } from './manage-survey-risk-calculation-dto.class';
-import { GetSurveyPresenter } from './manageSurvey.presenter';
-import { GetSurveyQuestionPresenter } from './manageSurveyQuestion.presenter';
-import { GetSurveyQuestionAnswerPresenter } from './manageSurveyQuestionAnswer.presenter';
-import { GetSurveyRiskCalculationPresenter } from './manageSurveyRiskCalculation.presenter';
+import { GetSurveyRiskCalculationPresenter } from './manage-survey-risk-calculation.presenter';
+import { GetSurveyPresenter } from './manage-survey.presenter';
 
 @ApiTags('Survey')
 @Controller('survey')

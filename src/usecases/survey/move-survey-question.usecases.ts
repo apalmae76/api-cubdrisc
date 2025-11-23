@@ -4,8 +4,8 @@ import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decor
 import { BooleanDataResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { MoveRowDto } from 'src/infrastructure/controllers/admin/manage-survey-question-dto.class';
-import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
-import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/surveyQuestions.repository';
+import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
+import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/survey-questions.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';

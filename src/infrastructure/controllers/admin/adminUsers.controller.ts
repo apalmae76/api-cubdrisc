@@ -31,14 +31,14 @@ import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
 import RoleGuard from 'src/infrastructure/common/guards/role.guard';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
-import { CreateUserUseCases } from 'src/usecases/admin/createUser.usecases';
-import { ManageUsersRole } from 'src/usecases/admin/manageUsersRole.usecases';
-import { UpdateUserUseCases } from 'src/usecases/admin/updateUser.usecases';
+import { CreateUserUseCases } from 'src/usecases/admin/create-user.usecases';
+import { ManageUsersRole } from 'src/usecases/admin/manage-users-role.usecases';
+import { UpdateUserUseCases } from 'src/usecases/admin/update-user.usecases';
 import {
   ValidRoleDto,
   ValidUserIdDto,
 } from '../../common/dtos/admin-dto.class';
-import { AuthUser } from '../auth/authUser.interface';
+import { AuthUser } from '../auth/auth-user.interface';
 import {
   EAppRoles,
   EAppRolesForUpd,

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { I18nService } from 'nestjs-i18n';
 import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
 import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
-import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operatorsActions.repository';
+import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiLoggerService } from '../logger/logger.service';
 import { ApiRedisService } from '../redis/redis.service';

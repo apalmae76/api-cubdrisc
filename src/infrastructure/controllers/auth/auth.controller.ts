@@ -44,7 +44,7 @@ import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorato
 import { LoginUseCases } from '../../../usecases/auth/login.usecases';
 import { LogoutUseCases } from '../../../usecases/auth/logout.usecases';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
-import { AuthUser } from './authUser.interface';
+import { AuthUser } from './auth-user.interface';
 @ApiTags('Auth')
 @Controller('auth')
 @ApiBearerAuth('JWT')

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { SYSTEM_USER_ID } from 'src/infrastructure/common/utils/constants';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
-import { AuthUser } from 'src/infrastructure/controllers/auth/authUser.interface';
+import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import { EAppRoles } from 'src/infrastructure/controllers/auth/role.enum';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
 

@@ -13,7 +13,7 @@ export class EnvironmentConfigService
 
   // Aplication data --------------------------------------------
   getAppVersion(): string {
-    return '0.1.20251103';
+    return '0.1.20251121';
   }
   getAppName(): string {
     return 'CUBDRISC api';

@@ -4,7 +4,7 @@ import { RepositoriesModule } from 'src/infrastructure/repositories/repositories
 import { ApiLoggerModule } from '../logger/logger.module';
 import { ApiRedisModule } from '../redis/redis.module';
 
-import { CronTasksService } from './cronTasks.service';
+import { CronTasksService } from './cron-tasks.service';
 
 @Module({
   providers: [CronTasksService],
@@ -16,4 +16,4 @@ import { CronTasksService } from './cronTasks.service';
   ],
   exports: [CronTasksService],
 })
-export class CronTasksModule {}
+export class CronTasksModule { }
