@@ -277,7 +277,7 @@ export class PatchPersonSurveyDto extends PatchPersonDto {
   email: string;
 }
 
-export class CreateAnswerDto {
+export class PutAnswerDto {
   @ApiProperty({
     description: `respose test flow identifier`,
     required: true,
@@ -289,34 +289,10 @@ export class CreateAnswerDto {
   readonly referenceId: string;
 
   @ApiProperty({
-    example: 34,
-    description: 'patient id',
+    description: `answer id to save`,
+    example: 345,
     required: true,
   })
-  @Transform(({ value }) =>
-    value && RE_INT_NUMBER.test(value) ? parseInt(value) : value,
-  )
-  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
-  @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
-  @Min(1, { message: i18nValidationMessage('validation.MIN') })
-  readonly patientId: number;
-
-  @Transform(({ value }) =>
-    value && RE_INT_NUMBER.test(value) ? parseInt(value) : value,
-  )
-  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
-  @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
-  @Min(1, { message: i18nValidationMessage('validation.MIN') })
-  readonly surveyId: number;
-
-  @Transform(({ value }) =>
-    value && RE_INT_NUMBER.test(value) ? parseInt(value) : value,
-  )
-  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
-  @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
-  @Min(1, { message: i18nValidationMessage('validation.MIN') })
-  readonly questionId: number;
-
   @Transform(({ value }) =>
     value && RE_INT_NUMBER.test(value) ? parseInt(value) : value,
   )

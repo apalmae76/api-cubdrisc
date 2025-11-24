@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -15,14 +15,16 @@ import {
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
+import { BooleanDataResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
-import { GetSurveyUseCases } from 'src/usecases/patient/get-survey.usecases';
+import { ManagePersonSurveyAnswerUseCases } from 'src/usecases/patient/manage-person-survey-answer.usecases';
 import { ManagePersonSurveyUseCases } from 'src/usecases/patient/manage-person-survey.usecases';
 import { ValidSurveyIdDto } from '../admin/manage-survey-dto.class';
 import { ValidQuestionIdDto } from '../admin/manage-survey-question-dto.class';
 import {
   CreatePersonSurveyDto,
   PatchPersonSurveyDto,
+  PutAnswerDto,
   ReferenceIdDto,
 } from './person-answer-dto.class';
 import {
@@ -45,8 +47,8 @@ export class ManagePersonSurveyController {
     protected readonly appConfig: EnvironmentConfigService,
     @InjectUseCase(ManagePersonSurveyUseCases)
     private readonly managePersonSurveyProxyUC: UseCaseProxy<ManagePersonSurveyUseCases>,
-    @InjectUseCase(GetSurveyUseCases)
-    private readonly getSurveyProxyUC: UseCaseProxy<GetSurveyUseCases>,
+    @InjectUseCase(ManagePersonSurveyAnswerUseCases)
+    private readonly managePSAnswerProxyUC: UseCaseProxy<ManagePersonSurveyAnswerUseCases>,
   ) { }
 
   // Get active survey base data ---------------------------------------------------------------------
@@ -58,7 +60,7 @@ export class ManagePersonSurveyController {
     operationId: 'getSurvey',
   })
   async getSurvey(): Promise<GetPublicSurveyPresenter> {
-    return await this.getSurveyProxyUC.getInstance().getSurvey();
+    return await this.managePSAnswerProxyUC.getInstance().getSurvey();
   }
 
   @Get('survey/:surveyId/question/:questionId')
@@ -87,7 +89,7 @@ export class ManagePersonSurveyController {
     @Param() { questionId }: ValidQuestionIdDto,
     @Body() dataDto: ReferenceIdDto,
   ): Promise<GetPublicSurveyQuestionPresenter> {
-    return await this.getSurveyProxyUC
+    return await this.managePSAnswerProxyUC
       .getInstance()
       .getSurveyQuestion(surveyId, questionId, dataDto);
   }
@@ -121,5 +123,35 @@ export class ManagePersonSurveyController {
     @Body() dataDto: PatchPersonSurveyDto,
   ): Promise<GetPersonSurveyPresenter> {
     return await this.managePersonSurveyProxyUC.getInstance().update(dataDto);
+  }
+
+  @Put('survey/:surveyId/question/:questionId')
+  @ApiBody({ type: PutAnswerDto })
+  @ApiOkResponse({ type: BooleanDataResponsePresenter })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows admins, to update survey question data',
+    operationId: 'putAnswer',
+  })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  @ApiParam({
+    name: 'questionId',
+    type: 'number',
+    example: 34,
+    description: 'Question ID that will be affected',
+  })
+  async updateSurveyQuestion(
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Param() { questionId }: ValidQuestionIdDto,
+    @Body() dataDto: PutAnswerDto,
+  ): Promise<BooleanDataResponsePresenter> {
+    return await this.managePSAnswerProxyUC
+      .getInstance()
+      .putAnswer(surveyId, questionId, dataDto);
   }
 }

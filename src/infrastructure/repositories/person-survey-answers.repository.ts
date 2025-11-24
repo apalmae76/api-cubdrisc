@@ -41,6 +41,44 @@ export class DatabasePersonSurveyAnswersRepository
     return this.toModel(dataSaved);
   }
 
+  async setAnswer(
+    data: PersonSurveyAnswersCreateModel,
+    em: EntityManager,
+  ): Promise<boolean> {
+    const repo = em
+      ? em.getRepository(PersonSurveyAnswers)
+      : this.surveyQPAEntity;
+    const {
+      personId,
+      surveyId,
+      personSurveyId,
+      surveyQuestionId,
+      surveyQuestionAnswerId,
+    } = data;
+    const questionWasAnswered = await this.questionWasAnswered(
+      personId,
+      surveyId,
+      personSurveyId,
+      surveyQuestionId,
+    );
+
+    if (questionWasAnswered) {
+      await repo.update(
+        { personId, surveyId, personSurveyId, surveyQuestionId },
+        { surveyQuestionAnswerId },
+      );
+    } else {
+      await this.create(data, em);
+    }
+    await this.cleanCacheData({
+      personId,
+      surveyId,
+      personSurveyId,
+      surveyQuestionId,
+    });
+    return true;
+  }
+
   private toCreate(model: PersonSurveyAnswersCreateModel): PersonSurveyAnswers {
     const entity = new PersonSurveyAnswers();
 
@@ -58,14 +96,19 @@ export class DatabasePersonSurveyAnswersRepository
     surveyId,
     personSurveyId,
     surveyQuestionId,
-    surveyQuestionAnswerId,
+    surveyQuestionAnswerId = null,
   }: {
     personId: number;
     surveyId: number;
     personSurveyId: number;
     surveyQuestionId: number;
-    surveyQuestionAnswerId: number;
+    surveyQuestionAnswerId?: number | null;
   }) {
+    if (surveyQuestionAnswerId === null) {
+      const pattern = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}:${surveyQuestionId}:*`;
+      await this.redisService.removeAllKeysWithPattern(pattern);
+      return;
+    }
     const cacheKey = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}:${surveyQuestionId}:${surveyQuestionAnswerId}`;
     await this.redisService.del(cacheKey);
   }
@@ -208,9 +251,6 @@ export class DatabasePersonSurveyAnswersRepository
         },
       )
       .getRawOne();
-    console.log('----');
-    console.log(survQPAQry);
-    console.log('----');
     if (!survQPAQry) {
       return null;
     }
@@ -223,6 +263,41 @@ export class DatabasePersonSurveyAnswersRepository
       );
     }
     return personSurvAns;
+  }
+
+  async questionWasAnswered(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+    surveyQuestionId: number,
+    useCache = true,
+  ): Promise<boolean> {
+    let cacheKey = null;
+    if (useCache) {
+      cacheKey = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}:${surveyQuestionId}:wasAnswered`;
+      const wasAnswered = await this.redisService.get<boolean>(cacheKey);
+      if (wasAnswered === true || wasAnswered === false) {
+        return wasAnswered;
+      }
+    }
+    const query = await this.getBasicQuery();
+    const survQPAQry = await query
+      .where(
+        `psa.person_id = :personId and psa.survey_id = :surveyId and psa.person_survey_id = :personSurveyId and
+          psa.survey_question_id = :surveyQuestionId`,
+        {
+          personId,
+          surveyId,
+          personSurveyId,
+          surveyQuestionId,
+        },
+      )
+      .getRawOne();
+    const response = survQPAQry ? true : false;
+    if (cacheKey) {
+      await this.redisService.set<boolean>(cacheKey, response, this.cacheTime);
+    }
+    return response;
   }
 
   async isAnswer(

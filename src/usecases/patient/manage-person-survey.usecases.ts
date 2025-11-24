@@ -48,7 +48,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     private readonly stateRepo: DatabaseStateRepository,
     private readonly redisService: ApiRedisService,
     private readonly appConfig: EnvironmentConfigService,
-    protected readonly dataSource: DataSource,
+    private readonly dataSource: DataSource,
     protected readonly logger: ApiLoggerService,
   ) {
     super(logger);
