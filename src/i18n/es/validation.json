@@ -172,10 +172,11 @@
     "NOT_FOUND": "El paciente no se encuentra o no ha sido registrado, por favor verifique"
   },
   "survey": {
-    "NOT_FOUND": "La encuesta no se encuentra o no ha sido registrada, por favor verifique",
+    "NOT_FOUND": "El test no se encuentra o no ha sido registrado, por favor verifique",
     "NOT_A_DRAFT": "Solo podrá modificar las  encuentras en estado BORRADOR, por favor verifique",
-    "ALREADY_ACTIVE": "La encuesta ya esta activa, no puede ser modificada, por favor verifique",
-    "ALREADY_DELETED": "La encuesta ya ha sido eliminada, por favor verifique",
+    "ALREADY_ACTIVE": "El test ya esta activo, no puede ser modificada, por favor verifique",
+    "ALREADY_DELETED": "El test ya ha sido eliminado, por favor verifique",
+    "CANT_ACTIVATE_DELETED": "El test ha sido eliminado, no es posible activarlo, por favor verifique",
     "CANT_ACTIVATE_MIN_RULES": "Para activar el test, debe tener definidas como mínimo, dos reglas para el cálculo de riesgo, por favor verifique",
     "CANT_ACTIVATE_MIN_QUESTIONS": "Para activar el test, debe tener como mínimo una pregunta, por favor verifique",
     "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "Para activar el test, cada pregunta debe tener como mínimo dos posibles respuestas, por favor verifique"
@@ -213,6 +214,7 @@
   },
   "person_survey": {
     "HAS_VALID_TEST": "Cuenta con un test válido (realizado hace menos de un año). La próxima prueba podrá realizarse a partir del {date}",
-    "HAS_ALREADY_STARTED": "Ya ha iniciado el test, debe modificarlo, por favor verifique"
+    "HAS_ALREADY_STARTED": "Ya ha iniciado el test, debe modificarlo, por favor verifique",
+    "NOT_EXIST_OR_EXPIRED": "El test en curso no existe o los datos han expirado. Debe iniciarlo nuevamente, por favor verifique"
   }
 }

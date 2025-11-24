@@ -156,7 +156,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
     surveyId: number,
     action: boolean,
   ): Promise<BaseResponsePresenter<SurveyPresenter>> {
-    const survey = await this.validateToActive(surveyId);
+    const survey = await this.validateToActive(surveyId, action);
     const actionMsg = action
       ? 'ACTIVATED_SUCCESSFULLY'
       : 'DISABLED_SUCCESSFULLY';
@@ -205,8 +205,19 @@ export class ManageSurveyUseCases extends UseCaseBase {
     );
   }
 
-  private async validateToActive(surveyId: number): Promise<SurveyModel> {
+  private async validateToActive(
+    surveyId: number,
+    action: boolean,
+  ): Promise<SurveyModel> {
     const survey = await this.surveyRepo.getByIdOrFail(surveyId);
+    if (action === false) {
+      return survey;
+    }
+    if (survey.deletedAt) {
+      throw new BadRequestException({
+        message: `validation.survey.CANT_ACTIVATE_DELETED|{"id":"${surveyId}"}`,
+      });
+    }
     const errors: string[] = [];
     const rulesCount = await this.surveyRulesRepo.getCount(surveyId);
     if (rulesCount < 2) {

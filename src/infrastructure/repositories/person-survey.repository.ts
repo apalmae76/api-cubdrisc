@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   PersonSurveyCreateModel,
   PersonSurveyModel,
+  PersonSurveyUpdateModel,
 } from 'src/domain/model/personSurvey';
 import { IPersonSurveyRepository } from 'src/domain/repositories/personSurveyRepository.interface';
 import { EntityManager, Repository } from 'typeorm';
@@ -45,6 +46,24 @@ export class DatabasePersonSurveyRepository
       return this.toModel(dataSaved);
     } catch (er: unknown) {
       await this.manageErrors(data.personId, data.surveyId, data.stateId, er);
+      throw er;
+    }
+  }
+
+  async update(
+    personId: number,
+    surveyId: number,
+    id: number,
+    payload: PersonSurveyUpdateModel,
+    em: EntityManager,
+  ): Promise<boolean> {
+    const repo = em ? em.getRepository(PersonSurvey) : this.personSurveyEntity;
+    try {
+      const dataSaved = await repo.update({ personId, surveyId, id }, payload);
+      this.cleanCacheData({ personId, surveyId });
+      return dataSaved.affected > 0;
+    } catch (er: unknown) {
+      await this.manageErrors(personId, surveyId, payload.stateId, er);
       throw er;
     }
   }
@@ -110,6 +129,7 @@ export class DatabasePersonSurveyRepository
         'ps.person_id as "personId"',
         'ps.survey_id as "surveyId"',
         'ps.id as "id"',
+        'ps.state_id as "stateId"',
         'ps.age as "age"',
         'ps.total_score as "totalScore"',
         'ps.waist_perimeter as "waistPerimeter"',
@@ -131,11 +151,14 @@ export class DatabasePersonSurveyRepository
     id: number,
   ): Promise<PersonSurveyModel> {
     const query = this.getBasicQuery();
-    query.where(`personId = :personId and surveyId = :surveyId and id = :id`, {
-      personId,
-      surveyId,
-      id,
-    });
+    query.where(
+      `person_id = :personId and survey_id = :surveyId and id = :id`,
+      {
+        personId,
+        surveyId,
+        id,
+      },
+    );
     const survey = await query.getRawOne();
     if (!survey) {
       return null;
@@ -205,17 +228,17 @@ export class DatabasePersonSurveyRepository
       }
     }
     const query = await this.getBasicQuery();
-    const survQPAQry = await query
-      .where(`personId = :personId and surveyId = :surveyId and id = :id`, {
+    const personSAQry = await query
+      .where(`person_id = :personId and survey_id = :surveyId and id = :id`, {
         personId,
         surveyId,
         id,
       })
       .getRawOne();
-    if (!survQPAQry) {
+    if (!personSAQry) {
       return null;
     }
-    personSurvAns = this.toModel(survQPAQry);
+    personSurvAns = this.toModel(personSAQry);
     if (cacheKey) {
       await this.redisService.set<PersonSurveyModel>(
         cacheKey,
@@ -248,6 +271,7 @@ export class DatabasePersonSurveyRepository
     model.personId = Number(entity.personId);
     model.surveyId = Number(entity.surveyId);
     model.id = Number(entity.id);
+    model.stateId = Number(entity.stateId);
     model.age = Number(entity.age);
     model.totalScore = Number(entity.totalScore);
     model.waistPerimeter = Number(entity.waistPerimeter);
@@ -270,13 +294,18 @@ export class DatabasePersonSurveyRepository
     model.personId = Number(entity.personId);
     model.surveyId = Number(entity.surveyId);
     model.id = Number(entity.id);
+    model.stateId = Number(entity.stateId);
     model.age = Number(model.age);
-    model.totalScore = Number(model.totalScore);
-    model.waistPerimeter = Number(model.waistPerimeter);
-    model.weight = Number(model.weight);
-    model.size = Number(model.size);
-    model.imcc = Number(model.imcc);
-    model.estimatedRisk = Number(model.estimatedRisk);
+    model.totalScore = model.totalScore ? Number(model.totalScore) : null;
+    model.waistPerimeter = model.waistPerimeter
+      ? Number(model.waistPerimeter)
+      : null;
+    model.weight = model.weight ? Number(model.weight) : null;
+    model.size = model.size ? Number(model.size) : null;
+    model.imcc = model.imcc ? Number(model.imcc) : null;
+    model.estimatedRisk = model.estimatedRisk
+      ? Number(model.estimatedRisk)
+      : null;
     model.phone = entity.phone;
     model.email = entity.email;
 

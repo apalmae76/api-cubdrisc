@@ -92,7 +92,12 @@ export class DatabaseSurveyRepository
     }
   }
 
-  private async cleanCacheData(id: number) {
+  private async cleanCacheData(id: number, all = false) {
+    if (all) {
+      const pattern = `${this.cacheKey}*`;
+      await this.redisService.removeAllKeysWithPattern(pattern);
+      return;
+    }
     const cacheKey = `${this.cacheKey}${id}`;
     await this.redisService.del(cacheKey);
   }
@@ -198,6 +203,34 @@ export class DatabaseSurveyRepository
     return survey;
   }
 
+  async getActive(useCache = true): Promise<SurveyModel> {
+    const cacheKey = `${this.cacheKey}Active`;
+    let survey: SurveyModel = null;
+    if (useCache) {
+      survey = await this.redisService.get<SurveyModel>(cacheKey);
+      if (survey) {
+        return survey;
+      }
+    }
+    const query = await this.getBasicQuery();
+    const surveyQry = await query
+      .where('active = true and deleted_at is null')
+      .orderBy('updated_at', 'DESC')
+      .getRawOne();
+    if (!surveyQry) {
+      return null;
+    }
+    survey = this.toModel(surveyQry);
+    if (cacheKey) {
+      await this.redisService.set<SurveyModel>(
+        cacheKey,
+        survey,
+        this.cacheTime,
+      );
+    }
+    return survey;
+  }
+
   async canUpdate(id: number, onErrorFail = true): Promise<SurveyModel> {
     const survey = await this.getByIdOrFail(id);
     if (survey.draft === false && onErrorFail) {
@@ -222,9 +255,12 @@ export class DatabaseSurveyRepository
     if (isFirstActivation) {
       payload.draft = false;
     }
+    if (active) {
+      await repo.update({ active: true }, { active: false });
+    }
     const result = await repo.update({ id }, payload);
     if (result.affected > 0) {
-      await this.cleanCacheData(id);
+      await this.cleanCacheData(id, true);
       return true;
     }
     return false;

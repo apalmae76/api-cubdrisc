@@ -1,0 +1,125 @@
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+
+import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
+import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
+
+import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
+import { GetSurveyUseCases } from 'src/usecases/patient/get-survey.usecases';
+import { ManagePersonSurveyUseCases } from 'src/usecases/patient/manage-person-survey.usecases';
+import { ValidSurveyIdDto } from '../admin/manage-survey-dto.class';
+import { ValidQuestionIdDto } from '../admin/manage-survey-question-dto.class';
+import {
+  CreatePersonSurveyDto,
+  PatchPersonSurveyDto,
+  ReferenceIdDto,
+} from './person-answer-dto.class';
+import {
+  GetPersonSurveyPresenter,
+  GetPublicSurveyPresenter,
+  GetPublicSurveyQuestionPresenter,
+} from './person-survey.presenter';
+
+@ApiTags('Patient')
+@Controller('patient')
+@ApiBadRequestResponse({ description: 'Bad request' })
+@ApiUnauthorizedResponse({ description: 'No authorization token was found' })
+@ApiNotFoundResponse({
+  description:
+    'Attempt to access a resource that cannot be found or has not been registered',
+})
+@ApiInternalServerErrorResponse({ description: 'Internal error' })
+export class ManagePersonSurveyController {
+  constructor(
+    protected readonly appConfig: EnvironmentConfigService,
+    @InjectUseCase(ManagePersonSurveyUseCases)
+    private readonly managePersonSurveyProxyUC: UseCaseProxy<ManagePersonSurveyUseCases>,
+    @InjectUseCase(GetSurveyUseCases)
+    private readonly getSurveyProxyUC: UseCaseProxy<GetSurveyUseCases>,
+  ) { }
+
+  // Get active survey base data ---------------------------------------------------------------------
+  @Get('survey')
+  @ApiOkResponse({ type: GetPublicSurveyPresenter })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows persons to get active survey',
+    operationId: 'getSurvey',
+  })
+  async getSurvey(): Promise<GetPublicSurveyPresenter> {
+    return await this.getSurveyProxyUC.getInstance().getSurvey();
+  }
+
+  @Get('survey/:surveyId/question/:questionId')
+  @ApiOkResponse({ type: GetPublicSurveyQuestionPresenter })
+  @ApiBody({ type: ReferenceIdDto })
+  @ApiOperation({
+    description: '',
+    summary:
+      'Allows persons to get active survey question & possible answers data',
+    operationId: 'getSurveyQuestion',
+  })
+  @ApiParam({
+    name: 'questionId',
+    type: 'number',
+    example: 34,
+    description: 'Question ID that will be affected',
+  })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  async getSurveyQuestion(
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Param() { questionId }: ValidQuestionIdDto,
+    @Body() dataDto: ReferenceIdDto,
+  ): Promise<GetPublicSurveyQuestionPresenter> {
+    return await this.getSurveyProxyUC
+      .getInstance()
+      .getSurveyQuestion(surveyId, questionId, dataDto);
+  }
+
+  // Manage patients & patiens survey answers --------------------------------------------------------
+  @Post('survey')
+  @ApiCreatedResponse({ type: GetPersonSurveyPresenter })
+  @ApiBody({ type: CreatePersonSurveyDto })
+  @ApiOperation({
+    description: '',
+    summary:
+      'Allows persons to create new surveys. Use only in firt time, when referenceId its not available yet',
+    operationId: 'createSurvey',
+  })
+  async createSurvey(
+    @Body() dataDto: CreatePersonSurveyDto,
+  ): Promise<GetPersonSurveyPresenter> {
+    return await this.managePersonSurveyProxyUC.getInstance().create(dataDto);
+  }
+
+  @Patch('survey')
+  @ApiCreatedResponse({ type: GetPersonSurveyPresenter })
+  @ApiBody({ type: PatchPersonSurveyDto })
+  @ApiOperation({
+    description: '',
+    summary:
+      'Allows persons to update a survey. Use ones referenceId its available',
+    operationId: 'patchSurvey',
+  })
+  async patchSurvey(
+    @Body() dataDto: PatchPersonSurveyDto,
+  ): Promise<GetPersonSurveyPresenter> {
+    return await this.managePersonSurveyProxyUC.getInstance().update(dataDto);
+  }
+}

@@ -249,6 +249,34 @@ export class DatabaseSurveyQuestionsRepository
     return survQuestion;
   }
 
+  async getIds(surveyId: number, useCache = true): Promise<number[]> {
+    const cacheKey = `${this.cacheKey}${surveyId}:Ids`;
+    let questionIds: number[] = [];
+    if (useCache) {
+      questionIds = await this.redisService.get<number[]>(cacheKey);
+      if (questionIds) {
+        return questionIds;
+      }
+    }
+    const query = this.getBasicQuery();
+    const survQuestionQry = await query
+      .where('sq.survey_id = :surveyId and sq.deleted_at is null', { surveyId })
+      .orderBy('sq.order', 'ASC')
+      .getRawMany();
+    if (!survQuestionQry) {
+      return [];
+    }
+    questionIds = survQuestionQry.map((question) => question.id);
+    if (cacheKey) {
+      await this.redisService.set<number[]>(
+        cacheKey,
+        questionIds,
+        this.cacheTime,
+      );
+    }
+    return questionIds;
+  }
+
   async canUpdate(surveyId: number, id: number): Promise<SurveyQuestionModel> {
     const question = await this.getByIdOrFail(surveyId, id);
     return question;

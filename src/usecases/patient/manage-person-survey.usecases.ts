@@ -2,39 +2,51 @@ import { BadRequestException } from '@nestjs/common';
 import { addYears, differenceInYears, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { PersonCreateModel, PersonUpdateModel } from 'src/domain/model/person';
-import { PersonSurveyCreateModel } from 'src/domain/model/personSurvey';
-import { SurveyModel, SurveyUpdateModel } from 'src/domain/model/survey';
+import {
+  PersonSurveyCreateModel,
+  PersonSurveyUpdateModel,
+} from 'src/domain/model/personSurvey';
 import { UseCaseLogger } from 'src/infrastructure/common/decorators/logger.decorator';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { formatDateTimeToIsoString } from 'src/infrastructure/common/utils/format-date';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { UpdateSurveyDto } from 'src/infrastructure/controllers/admin/manage-survey-dto.class';
-import { SurveyPresenter } from 'src/infrastructure/controllers/admin/manage-survey.presenter';
-import { PersonSurveyDto } from 'src/infrastructure/controllers/patient/patient-answer-dto.class';
+import {
+  CreatePersonSurveyDto,
+  PatchPersonSurveyDto,
+} from 'src/infrastructure/controllers/patient/person-answer-dto.class';
+import {
+  GetPersonSurveyPresenter,
+  PersonSurveyPresenter,
+} from 'src/infrastructure/controllers/patient/person-survey.presenter';
 import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/person-survey-answers.repository';
 import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/person-survey.repository';
 import { DatabasePersonRepository } from 'src/infrastructure/repositories/person.repository';
 import { DatabaseStateRepository } from 'src/infrastructure/repositories/state.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { UseCaseBase } from '../usecases.base';
 
 type CreatePersonSurvey = {
   person?: PersonCreateModel;
   personUpd?: PersonUpdateModel;
   personSurvey: PersonSurveyCreateModel;
+  personCi: string;
 };
 
 @InjectableUseCase()
 export class ManagePersonSurveyUseCases extends UseCaseBase {
+  private readonly surveyTtl: number = 4 * 60 * 60; // 4 hours
   constructor(
     private readonly surveyRepo: DatabaseSurveyRepository,
     private readonly personRepo: DatabasePersonRepository,
     private readonly personSurveyRepo: DatabasePersonSurveyRepository,
     private readonly personSurveyAnsRepo: DatabasePersonSurveyAnswersRepository,
     private readonly stateRepo: DatabaseStateRepository,
+    private readonly redisService: ApiRedisService,
     private readonly appConfig: EnvironmentConfigService,
     protected readonly dataSource: DataSource,
     protected readonly logger: ApiLoggerService,
@@ -45,18 +57,18 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
 
   @UseCaseLogger()
   async create(
-    dataDto: PersonSurveyDto,
-  ): Promise<BaseResponsePresenter<number>> {
+    dataDto: CreatePersonSurveyDto,
+  ): Promise<GetPersonSurveyPresenter> {
     const createData = await this.validateCreate(dataDto);
-    const personId = await this.persistCreate(createData);
+    const patientSurvey = await this.persistCreate(createData);
     return new BaseResponsePresenter(
       `messages.person_survey.CREATED_SUCESSFULLY|{"identityCardNumber":"${dataDto.ci}"}`,
-      personId,
+      patientSurvey,
     );
   }
 
   private async validateCreate(
-    dataDto: PersonSurveyDto,
+    dataDto: CreatePersonSurveyDto,
   ): Promise<CreatePersonSurvey> {
     const [personDb] = await Promise.all([
       this.personRepo.getByCi(dataDto.ci),
@@ -111,6 +123,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
       age: differenceInYears(today, dataDto.dateOfBirth),
     };
     const response: CreatePersonSurvey = {
+      personCi: dataDto.ci,
       personSurvey,
     };
     if (personDb) {
@@ -123,8 +136,10 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     return response;
   }
 
-  private async persistCreate(data: CreatePersonSurvey): Promise<number> {
-    return await this.dataSource.transaction(async (em) => {
+  private async persistCreate(
+    data: CreatePersonSurvey,
+  ): Promise<PersonSurveyPresenter> {
+    const personSurvey = await this.dataSource.transaction(async (em) => {
       if (data.person !== null) {
         const person = await this.personRepo.create(data.person, em);
         data.personSurvey.personId = person.id;
@@ -139,23 +154,37 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
         data.personSurvey,
         em,
       );
-      return personSurvey.personId;
+      return personSurvey;
     });
+    const referenceId = uuidv4();
+    const cacheKey = this.getCacheKey(referenceId);
+    const surveyData = new PersonSurveyPresenter(
+      referenceId,
+      data.personCi,
+      personSurvey.personId,
+      personSurvey.surveyId,
+      personSurvey.id,
+    );
+    await this.redisService.set(cacheKey, surveyData, this.surveyTtl);
+    return surveyData;
+  }
+
+  private getCacheKey(referenceId: string): string {
+    return `PatientSurvey:${referenceId}`;
   }
 
   @UseCaseLogger()
   async update(
-    operatorId: number,
-    surveyId: number,
-    dataDto: UpdateSurveyDto,
-  ): Promise<BaseResponsePresenter<SurveyPresenter>> {
+    dataDto: PatchPersonSurveyDto,
+  ): Promise<GetPersonSurveyPresenter> {
     const context = `${this.context}update`;
-    const { newData, survey } = await this.validateUpdate(surveyId, dataDto);
+    const { personSurveyData, newPersonData, newPersonSurveyData } =
+      await this.validateUpdate(dataDto);
 
-    if (newData === null) {
+    if (newPersonData === null && newPersonSurveyData === null) {
       const response = new BaseResponsePresenter(
-        `messages.survey.CREATED_SUCESSFULLY|{"name":"${dataDto.name}"}`,
-        new SurveyPresenter(survey),
+        `messages.person_survey.UPDATED_SUCESSFULLY|{"identityCardNumber":"${dataDto.ci}"}`,
+        personSurveyData,
       );
       return this.handleNoChangedValuesOnUpdate(
         context,
@@ -164,61 +193,109 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
       );
     }
 
-    const updSurvey = await this.persistData(operatorId, surveyId, newData);
+    const updSurvey = await this.persistData(
+      personSurveyData,
+      newPersonData,
+      newPersonSurveyData,
+    );
     return new BaseResponsePresenter(
-      `messages.survey.UPDATED_SUCESSFULLY|{"name":"${dataDto.name}"}`,
+      `messages.person_survey.UPDATED_SUCESSFULLY|{"identityCardNumber":"${dataDto.ci}"}`,
       updSurvey,
     );
   }
 
-  private async validateUpdate(
-    surveyId: number,
-    dataDto: UpdateSurveyDto,
-  ): Promise<{ newData: SurveyUpdateModel | null; survey: SurveyModel }> {
-    const survey = await this.surveyRepo.canUpdate(surveyId);
+  private async validateUpdate(dataDto: PatchPersonSurveyDto): Promise<{
+    personSurveyData: PersonSurveyPresenter;
+    newPersonData: PersonUpdateModel | null;
+    newPersonSurveyData: PersonSurveyUpdateModel | null;
+  }> {
+    const referenceId = dataDto.referenceId;
+    const cacheKey = this.getCacheKey(referenceId);
+    const personSurveyData =
+      await this.redisService.get<PersonSurveyPresenter>(cacheKey);
 
-    const newData: SurveyUpdateModel = {};
-    if (dataDto.name !== undefined && dataDto.name !== survey.name) {
-      newData.name = dataDto.name;
+    if (!personSurveyData) {
+      const args = {
+        technicalError: `Patient survey relation (${referenceId}) does not exist or data expired`,
+      };
+      throw new BadRequestException({
+        message: [
+          `validation.person_survey.NOT_EXIST_OR_EXPIRED|${JSON.stringify(args)}`,
+        ],
+      });
     }
+    const { personId, surveyId, personSurveyId } = personSurveyData;
+    const [person, personSurvey] = await Promise.all([
+      this.personRepo.getByIdOrFail(personId),
+      this.personSurveyRepo.getByIdOrFail(surveyId, personId, personSurveyId),
+      this.surveyRepo.getByIdOrFail(surveyId),
+    ]);
+
+    const newPersonData = this.getForUpdate(person, dataDto);
+    const newPersonSurveyData: PersonSurveyUpdateModel = {};
+
+    if (newPersonData && newPersonData.dateOfBirth) {
+      const today = new Date();
+      newPersonSurveyData.age = differenceInYears(today, dataDto.dateOfBirth);
+    }
+    // person survey data
     if (
-      dataDto.description !== undefined &&
-      dataDto.description !== survey.description
+      dataDto.stateId !== undefined &&
+      dataDto.stateId !== personSurvey.stateId
     ) {
-      newData.description = dataDto.description;
+      newPersonSurveyData.stateId = dataDto.stateId;
     }
-    if (dataDto.active !== undefined && dataDto.active !== survey.active) {
-      newData.active = dataDto.active;
+    if (dataDto.phone !== undefined && dataDto.phone !== personSurvey.phone) {
+      newPersonSurveyData.phone = dataDto.phone;
+    }
+    if (dataDto.email !== undefined && dataDto.email !== personSurvey.email) {
+      newPersonSurveyData.email = dataDto.email;
     }
 
-    if (Object.keys(newData).length === 0) {
-      return { newData: null, survey };
-    }
-    return { newData, survey };
+    const updPersonSurvey =
+      Object.keys(newPersonSurveyData).length === 0
+        ? null
+        : newPersonSurveyData;
+
+    const response = {
+      personSurveyData,
+      newPersonData,
+      newPersonSurveyData: updPersonSurvey,
+    };
+
+    return response;
   }
 
   async persistData(
-    operatorId: number,
-    surveyId: number,
-    payload: SurveyUpdateModel,
-  ): Promise<SurveyPresenter> {
+    personSurveyData: PersonSurveyPresenter,
+    newPersonData: PersonUpdateModel | null,
+    newPersonSurveyData: PersonSurveyUpdateModel | null,
+  ): Promise<PersonSurveyPresenter> {
     const context = `${this.context}persistData`;
     this.logger.debug('Saving data', {
       context,
-      operatorId,
-      raffleId: surveyId,
-      payload,
+      personSurveyData,
+      newPersonData,
+      newPersonSurveyData,
     });
-
+    const { personId, surveyId, personSurveyId } = personSurveyData;
     await this.dataSource.transaction(async (em) => {
-      const updSurvey = await this.surveyRepo.update(surveyId, payload, em);
-      if (updSurvey) {
-        return false;
+      if (newPersonData) {
+        await this.personRepo.update(personId, newPersonData, em);
       }
-      return updSurvey;
+      if (newPersonSurveyData) {
+        await this.personSurveyRepo.update(
+          personId,
+          surveyId,
+          personSurveyId,
+          newPersonSurveyData,
+          em,
+        );
+      }
     });
-    const survey = await this.surveyRepo.getById(surveyId);
-    return new SurveyPresenter(survey);
+    const cacheKey = this.getCacheKey(personSurveyData.referenceId);
+    await this.redisService.set(cacheKey, personSurveyData, this.surveyTtl);
+    return personSurveyData;
   }
 
   private getForUpdate(personDb, dataDto): PersonUpdateModel {

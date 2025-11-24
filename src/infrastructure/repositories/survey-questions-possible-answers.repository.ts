@@ -311,6 +311,44 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     return survey;
   }
 
+  async getAnswers(
+    surveyId: number,
+    surveyQuestionId: number,
+    useCache = true,
+  ): Promise<SurveyQuestionPossibleAnswerModel[]> {
+    const cacheKey = `${this.cacheKey}${surveyId}:${surveyQuestionId}:answers`;
+    let answers: SurveyQuestionPossibleAnswerModel[] = [];
+    if (useCache) {
+      answers =
+        await this.redisService.get<SurveyQuestionPossibleAnswerModel[]>(
+          cacheKey,
+        );
+      if (answers) {
+        return answers;
+      }
+    }
+    const query = this.getBasicQuery();
+    const survQPAQry = await query
+      .where(
+        'sqa.survey_id = :surveyId and sqa.survey_question_id = :surveyQuestionId and sqa.deleted_at is null',
+        { surveyId, surveyQuestionId },
+      )
+      .orderBy('sqa.order', 'ASC')
+      .getRawMany();
+    if (!survQPAQry) {
+      return [];
+    }
+    answers = survQPAQry.map((answer) => this.toModel(answer));
+    if (cacheKey) {
+      await this.redisService.set<SurveyQuestionPossibleAnswerModel[]>(
+        cacheKey,
+        answers,
+        this.cacheTime,
+      );
+    }
+    return answers;
+  }
+
   async getById(
     surveyId: number,
     surveyQuestionId: number,

@@ -187,7 +187,7 @@ export class DatabasePersonSurveyAnswersRepository
     let cacheKey = null;
     let personSurvAns: PersonSurveyAnswersModel = null;
     if (useCache) {
-      cacheKey = `${this.cacheKey}${personId}:${surveyId}:${surveyQuestionId}:${surveyQuestionAnswerId}`;
+      cacheKey = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}:${surveyQuestionId}:${surveyQuestionAnswerId}`;
       personSurvAns =
         await this.redisService.get<PersonSurveyAnswersModel>(cacheKey);
       if (personSurvAns) {
@@ -197,8 +197,8 @@ export class DatabasePersonSurveyAnswersRepository
     const query = await this.getBasicQuery();
     const survQPAQry = await query
       .where(
-        `personId = :personId and surveyId = :surveyId and personSurveyId = :personSurveyId and
-          surveyQuestionId = :surveyQuestionId and surveyQuestionAnswerId = :surveyQuestionAnswerId`,
+        `psa.person_id = :personId and psa.survey_id = :surveyId and psa.person_survey_id = :personSurveyId and
+          psa.survey_question_id = :surveyQuestionId and psa.survey_question_answer_id = :surveyQuestionAnswerId`,
         {
           personId,
           surveyId,
@@ -208,6 +208,9 @@ export class DatabasePersonSurveyAnswersRepository
         },
       )
       .getRawOne();
+    console.log('----');
+    console.log(survQPAQry);
+    console.log('----');
     if (!survQPAQry) {
       return null;
     }
@@ -220,6 +223,26 @@ export class DatabasePersonSurveyAnswersRepository
       );
     }
     return personSurvAns;
+  }
+
+  async isAnswer(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+    surveyQuestionId: number,
+    surveyQuestionAnswerId: number,
+    useCache = true,
+  ): Promise<boolean> {
+    const survQPAQry = await this.getById(
+      personId,
+      surveyId,
+      personSurveyId,
+      surveyQuestionId,
+      surveyQuestionAnswerId,
+      useCache,
+    );
+
+    return survQPAQry ? true : false;
   }
 
   private toModelPanel(

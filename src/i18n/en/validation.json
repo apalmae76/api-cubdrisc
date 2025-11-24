@@ -175,8 +175,9 @@
   "survey": {
     "NOT_FOUND": "Survey is not found or has not been registered, please check",
     "NOT_A_DRAFT": "You can only modify those in DRAFT state, please check",
-    "ALREADY_ACTIVE": "The survey is already active and cannot be modified. Please check",
+    "ALREADY_ACTIVE": "The survey is already active and cannot be modified; please check",
     "ALREADY_DELETED": "Survey is already deleted, please check",
+    "CANT_ACTIVATE_DELETED": "The survey has been removed; we are unable to activate it; please check",
     "CANT_ACTIVATE_MIN_RULES": "To activate the test, you must have defined at least, two risk calculation rules; please check",
     "CANT_ACTIVATE_MIN_QUESTIONS": "To activate the test, you must have at least one question; please check",
     "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "To activate the test, each question must have at least two possible answers, please check"
@@ -214,6 +215,7 @@
   },
   "person_survey": {
     "HAS_VALID_TEST": "You have a valid test (taken less than a year ago). The next test can be taken from {date}",
-    "HAS_ALREADY_STARTED": "The test has already started; you need to modify it. Please check"
+    "HAS_ALREADY_STARTED": "The test has already started; you need to modify it. Please check",
+    "NOT_EXIST_OR_EXPIRED": "The test you are currently taking does not exist or the data has expired. You must start it again, please check"
   }
 }

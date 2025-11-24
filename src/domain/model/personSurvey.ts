@@ -8,6 +8,7 @@ export class PersonSurveyCreateModel {
 }
 
 export class PersonSurveyUpdateModel {
+  stateId?: number;
   age?: number;
   phone?: string;
   email?: string;
