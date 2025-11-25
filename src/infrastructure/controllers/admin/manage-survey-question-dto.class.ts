@@ -29,7 +29,8 @@ export class ValidQuestionIdDto {
 
 export class CreateSurveyQuestionDto {
   @ApiProperty({
-    example: '',
+    example:
+      '¿ Algún miembro de su familia ha sido diagnosticado con diabetes tipo 1 o tipo 2 ?',
     required: true,
   })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
@@ -38,7 +39,7 @@ export class CreateSurveyQuestionDto {
   readonly question: string;
 
   @ApiProperty({
-    example: '',
+    example: true,
     required: true,
   })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
@@ -66,7 +67,8 @@ export class CreateSurveyQuestionDto {
 
 export class UpdateSurveyQuestionDto {
   @ApiProperty({
-    example: '',
+    example:
+      '¿ Algún miembro de su familia ha sido diagnosticado con diabetes tipo 1 o tipo 2 ?',
     required: false,
   })
   @IsOptional()
@@ -76,7 +78,8 @@ export class UpdateSurveyQuestionDto {
   question: string;
 
   @ApiProperty({
-    example: '',
+    example: true,
+    default: false,
     required: false,
   })
   @IsOptional()
