@@ -315,13 +315,11 @@ export class DatabaseSurveyRiskCalculationRulesRepository
   ): Promise<PageDto<SurveyRiskCalculationRulesModel>> {
     const queryList = this.getBasicQuery();
 
-    const query = await super.getByQueryBase<SurveyRiskCalculationRules>(
+    const query = await super.getByQueryBase<SurveyRiskCalculationRules>({
       queryDto,
-      'srcr',
-      null,
+      alias: 'srcr',
       queryList,
-      false,
-    );
+    });
 
     const surveyRCRs = query.entities.map((surveyRCR) =>
       this.toModelPanel(surveyRCR),

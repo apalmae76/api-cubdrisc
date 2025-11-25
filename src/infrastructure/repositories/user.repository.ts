@@ -273,14 +273,13 @@ export class DatabaseUserRepository
       dateOfBirth: 'date',
       gender: 'varchar',
     };
-    const query = await super.getByQueryBase<User>(
+    const query = await super.getByQueryBase<User>({
       queryDto,
-      'user',
+      alias: 'user',
       queryCount,
       queryList,
-      false,
       addAtrs,
-    );
+    });
 
     const users = query.entities.map((user) => this.toModelPanel(user));
 

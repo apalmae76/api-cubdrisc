@@ -22,15 +22,31 @@ import { EAppRoles } from '../controllers/auth/role.enum';
 import { User } from '../entities/user.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 
-interface IBaseRepositoryQueryAllResponse<T> {
-  entities: T[];
-  itemCount: number;
-}
+export type UserData = { user: { name: string } };
+export type UserCountryData = {
+  userData: { fullName: string; countryId: number; country: string };
+};
+
+export type EntitiesWithUserData<T> = T & UserData;
+export type EntitiesWithUserCountryData<T> = T & UserCountryData;
+
+export type QueryBase<
+  T,
+  U extends boolean | undefined = false,
+  V extends boolean | undefined = false,
+> = V extends true
+  ? { entities: EntitiesWithUserCountryData<T>[]; itemCount: number }
+  : U extends true
+  ? { entities: EntitiesWithUserData<T>[]; itemCount: number }
+  : {
+    entities: T[];
+    itemCount: number;
+  };
 
 export interface IQueryFilter {
-  atr: string;
-  op: EQueryOperators;
-  value: string | string[];
+  atr: string | null;
+  op: EQueryOperators | null;
+  value: string | string[] | null;
 }
 
 export interface IQuerySort {
@@ -39,31 +55,31 @@ export interface IQuerySort {
 }
 
 interface IGetUserNameQuery {
-  queryCount: SelectQueryBuilder<unknown>;
-  queryList: SelectQueryBuilder<unknown>;
+  queryCount: SelectQueryBuilder<any> | null;
+  queryList: SelectQueryBuilder<any>;
   addAtrs: KeyValueObjectList<string>;
 }
 export class BaseRepository {
   constructor(
-    protected repo: Repository<unknown>,
+    protected repo: Repository<any>,
     protected readonly logger: ApiLoggerService,
-  ) {}
+  ) { }
 
   protected atrIsIncludedAndGetValOp(
-    filters: string,
+    filters: string | null,
     atributo: string,
     atrType: string,
     filterRef: string = 'value',
-  ): { condition: string; value: string; value1: string } {
+  ): { condition: string | null; value: string | null; value1: string | null } {
     const filterExist = filters && filters.length;
-    let aFilters = [];
+    let aFilters: IQueryFilter[] = [];
     if (filterExist) {
       try {
         aFilters = JSON.parse(filters);
       } catch (er) {
         const { message } = extractErrorDetails(er);
-        this.logger.warn(`Gen query, bad atr filter error: {message}`, {
-          message,
+        this.logger.warn(`Gen query, bad atr filter error: ${message}`, {
+          message: `${BaseRepository.name}: ${message}`,
         });
         throw new BadRequestException({
           message: [`validation.common.GEN_QUERY_BAD_FILTER`],
@@ -81,8 +97,8 @@ export class BaseRepository {
         let condition = convertToDate
           ? `${obj.op} DATE(:${filterRef})`
           : `${obj.op} :${filterRef}`;
-        let value = null;
-        let value1 = null;
+        let value: string | null = null;
+        let value1: string | null = null;
         switch (obj.op) {
           case EQueryOperators.CONTAINS:
             value = `%${obj.value}%`;
@@ -101,18 +117,18 @@ export class BaseRepository {
             condition = `ilike :${filterRef}`;
             break;
           case EQueryOperators.BETWEEN:
-            value = obj.value[0];
-            value1 = obj.value[1];
+            value = obj.value && obj.value[0] ? obj.value[0] : null;
+            value1 = obj.value && obj.value[1] ? obj.value[1] : null;
             condition = convertToDate
               ? `betteen DATE(:${filterRef}) and DATE(:${filterRef}1)`
               : `betteen :${filterRef} and :${filterRef}1`;
             break;
           case EQueryOperators.IN:
-            value = obj.value;
+            value = <string>obj.value;
             condition = `in (:...${filterRef})`;
             break;
           default:
-            value = obj.value;
+            value = <string>obj.value;
             break;
         }
         return { condition, value, value1 };
@@ -121,34 +137,34 @@ export class BaseRepository {
     return { condition: null, value: null, value1: null };
   }
 
-  protected atrIsIncludedInOrder(sort: string, atributo: string): boolean {
-    const sortExist = sort && sort.length;
-    let aSorts = [];
+  protected atrIsIncludedInOrder(
+    sort: string,
+    atrName: string,
+  ): boolean | null {
+    const sortExist = sort?.length ?? 0;
     if (sortExist) {
+      let aSorts: IQuerySort[] = [];
       try {
         aSorts = JSON.parse(sort);
       } catch (er) {
         const { message } = extractErrorDetails(er);
-        this.logger.warn(`Gen query, bad atr order error: {message}`, {
-          message,
+        this.logger.warn(`Gen query, bad atr order error: ${message}`, {
+          message: `${BaseRepository.name}: ${message}`,
         });
         throw new BadRequestException({
           message: [`validation.common.GEN_QUERY_BAD_SORT`],
         });
       }
-      const obj = aSorts.find((filter) => filter.selector === atributo);
-      if (obj) {
-        return obj.desc;
-      }
-      return null;
+      const obj = aSorts.find((sort) => sort.selector === atrName);
+      return obj?.desc ?? null;
     }
     return null;
   }
 
   protected convertEnumFilterValues(
-    filters: string,
+    filters: string | null,
     atributos: KeyValueObjectList<string>,
-  ): string {
+  ): string | null {
     function getEnumByName(enumName: string): any {
       switch (enumName) {
         case 'EOperatorsActions':
@@ -163,23 +179,24 @@ export class BaseRepository {
     }
 
     const filterExist = filters && filters.length > 0;
-    let oldFilters = [];
+    let oldFilters: IQueryFilter[] = [];
     if (filterExist) {
       try {
         oldFilters = JSON.parse(filters);
       } catch (er) {
         const { message } = extractErrorDetails(er);
         this.logger.warn(
-          `Gen query, bad atr filter (convert enum) error: {message}`,
-          { message },
+          `Gen query, bad atr filter (convert enum) error: ${message}`,
+          { message: `${BaseRepository.name}: ${message}` },
         );
         throw new BadRequestException({
           message: [`validation.common.GEN_QUERY_BAD_FILTER`],
         });
       }
       const newFilters = oldFilters.map((filter) => {
-        if (atributos[filter.atr]) {
-          const myEnum = getEnumByName(atributos[filter.atr]);
+        const atrKey = <string>filter.atr;
+        if (atributos[atrKey]) {
+          const myEnum = getEnumByName(atributos[atrKey]);
           if (myEnum) {
             let values: string[] = [];
             const transfValue: string[] = [];
@@ -197,7 +214,7 @@ export class BaseRepository {
               }
               values = filter.value;
             } else {
-              values = [filter.value];
+              values = [<string>filter.value];
             }
             values.map((value, index) => {
               const newValue = myEnum[value];
@@ -206,9 +223,7 @@ export class BaseRepository {
               } else {
                 throw new BadRequestException({
                   message: [
-                    `validation.common.GEN_QUERY_BAD_VAL_ENUM|{"atr":"${
-                      filter.atr
-                    }: ${atributos[filter.atr]}","value":"${filter.value}"}`,
+                    `validation.common.GEN_QUERY_BAD_VAL_ENUM|{"atr":"${atrKey}: ${atributos[atrKey]}","value":"${filter.value}"}`,
                   ],
                 });
               }
@@ -234,18 +249,16 @@ export class BaseRepository {
 
   protected getUserNameQuery(
     alias: string,
-    queryCount: SelectQueryBuilder<unknown> = null,
-    queryList: SelectQueryBuilder<unknown> = null,
-    filter: string,
+    queryCount: SelectQueryBuilder<any> | null = null,
+    queryList: SelectQueryBuilder<any>,
+    filter: string | null = null,
   ): IGetUserNameQuery {
-    queryList.addSelect([`user.full_name as "user.name"`]).withDeleted();
-    const userName = this.atrIsIncludedAndGetValOp(
-      filter,
-      'user.name',
-      'varchar',
-    );
+    const userName = filter
+      ? this.atrIsIncludedAndGetValOp(filter, 'user.name', 'varchar')
+      : null;
 
-    if (userName.condition) {
+    if (userName && userName.condition) {
+      queryList.addSelect([`user.full_name as "user.name"`]).withDeleted();
       const value = userName.value;
       if (!queryCount) {
         queryCount = this.repo.createQueryBuilder(alias);
@@ -263,7 +276,8 @@ export class BaseRepository {
         { value },
       );
     } else {
-      queryList.innerJoin(User, 'user', `${alias}.user_id = user.id`);
+      const fullNameSubQuery = `(select "user"."full_name" from "public"."users" "user" WHERE "${alias}"."user_id" = "user"."id")`;
+      queryList.addSelect(`${fullNameSubQuery} as "user.name"`);
     }
 
     const addAtrs: KeyValueObjectList<string> = {
@@ -273,14 +287,118 @@ export class BaseRepository {
     return { queryCount, queryList, addAtrs };
   }
 
-  protected async getByQueryBase<T>(
-    queryDto: GetGenericAllDto,
+  protected getUserNameCountryQuery(
     alias: string,
-    queryCount: SelectQueryBuilder<unknown> = null,
-    queryList: SelectQueryBuilder<unknown> = null,
-    hasUserName = false,
-    addAtrs: KeyValueObjectList<string> = null,
-  ): Promise<IBaseRepositoryQueryAllResponse<T>> {
+    queryCount: SelectQueryBuilder<any> | null = null,
+    queryList: SelectQueryBuilder<any>,
+    filter: string | null = null,
+    sort: string | null = null,
+  ): IGetUserNameQuery {
+    const userName = filter
+      ? this.atrIsIncludedAndGetValOp(filter, 'user.name', 'varchar')
+      : null;
+    const isSortedByCountry =
+      this.atrIsIncludedInOrder(sort, 'country') !== null;
+
+    const country = filter
+      ? this.atrIsIncludedAndGetValOp(
+        filter,
+        'countryId',
+        'smallint',
+        'countryId',
+      )
+      : null;
+
+    if (userName?.condition || country?.condition) {
+      queryList
+        .addSelect(['"user"."full_name" as "fullName"'])
+        .addSelect(
+          `json_build_object('fullName', "user"."full_name", 'countryId', "co"."id", 'country', "co"."iso2") as "userData"`,
+        )
+        .withDeleted();
+      if (isSortedByCountry) {
+        queryList
+          .addSelect(['"co"."id" as "countryId"', '"co"."iso2" as "country"'])
+          .withDeleted();
+      } else {
+        queryList.addSelect(`"co"."id" as "countryId"`).withDeleted();
+      }
+      if (!queryCount) {
+        queryCount = this.repo.createQueryBuilder(alias);
+      }
+      if (userName?.condition) {
+        const value = userName.value;
+        queryCount.innerJoin(
+          User,
+          'user',
+          `${alias}.user_id = user.id and user.full_name ${userName.condition}`,
+          { value },
+        );
+        queryList.innerJoin(
+          User,
+          'user',
+          `${alias}.user_id = user.id and user.full_name ${userName.condition}`,
+          { value },
+        );
+      }
+    } else {
+      if (isSortedByCountry) {
+        queryList
+          .addSelect(
+            `json_build_object('fullName', "user"."full_name", 'countryId', "co"."id", 'country', "co"."iso2") as "userData"`,
+          )
+          .addSelect(`"co"."iso2" as "country"`)
+          .withDeleted()
+          .innerJoin(User, 'user', `${alias}.user_id = user.id`)
+          .withDeleted();
+      } else {
+        const fullNameSubQuery = `(select json_build_object('fullName', "user"."full_name", 'countryId', "co"."id", 'country', "co"."iso2") as user
+          from "public"."users" "user" left outer join countries "co" ON "co"."iso2" = "user"."country_code"
+          WHERE "${alias}"."user_id" = "user"."id")`;
+        queryList.addSelect(`${fullNameSubQuery} as "userData"`).withDeleted();
+      }
+    }
+    if (isSortedByCountry) {
+      const addAtrs: KeyValueObjectList<string> = {
+        'user.name': 'varchar',
+        countryId: 'smallint',
+        country: 'varchar',
+      };
+      return { queryCount, queryList, addAtrs };
+    } else {
+      const addAtrs: KeyValueObjectList<string> = {
+        'user.name': 'varchar',
+        countryId: 'smallint',
+      };
+      return { queryCount, queryList, addAtrs };
+    }
+  }
+
+  protected async getByQueryBase<
+    T,
+    U extends boolean | undefined = false,
+    V extends boolean | undefined = false,
+  >({
+    queryDto,
+    alias,
+    queryCount = null,
+    queryList = null,
+    hasUserName,
+    hasUserCountry,
+    addAtrs = null,
+    useSortDefault = true,
+    analyticCount = false,
+  }: {
+    queryDto: GetGenericAllDto;
+    alias: string;
+    queryCount?: SelectQueryBuilder<any> | null;
+    queryList?: SelectQueryBuilder<any> | null;
+    hasUserName?: U;
+    hasUserCountry?: V;
+    addAtrs?: KeyValueObjectList<any> | null;
+    useSortDefault?: boolean;
+    analyticCount?: boolean;
+  }): Promise<QueryBase<T, U, V>> {
     let isPersonalized = false;
     if (queryCount) {
       isPersonalized = true;
@@ -292,7 +410,24 @@ export class BaseRepository {
     } else {
       queryList = this.repo.createQueryBuilder(alias);
     }
-    if (hasUserName) {
+    const includeUserName = hasUserName ?? false;
+    const includeUserNameCountry = hasUserCountry ?? false;
+    if (includeUserNameCountry) {
+      const userNameCountry = this.getUserNameCountryQuery(
+        alias,
+        queryCount,
+        queryList,
+        queryDto.filter,
+        queryDto.sort,
+      );
+      queryCount = userNameCountry.queryCount;
+      queryList = userNameCountry.queryList;
+      if (addAtrs) {
+        Object.assign(addAtrs, userNameCountry.addAtrs);
+      } else {
+        addAtrs = userNameCountry.addAtrs;
+      }
+    } else if (includeUserName) {
       const userName = this.getUserNameQuery(
         alias,
         queryCount,
@@ -309,14 +444,14 @@ export class BaseRepository {
     }
     const sortExists = queryDto.sort && queryDto.sort.length;
     let attributesTypes: KeyValueObjectList<string> = {};
-    let sort = [];
+    let sort: IQuerySort[] = [];
     if (sortExists) {
       try {
-        sort = JSON.parse(queryDto.sort);
+        sort = JSON.parse(<string>queryDto.sort);
       } catch (er) {
         const { message } = extractErrorDetails(er);
-        this.logger.warn(`Gen query, bad atr sort error: {message}`, {
-          message,
+        this.logger.warn(`Gen query, bad atr sort error: ${message}`, {
+          message: `${BaseRepository.name}: ${message}`,
         });
         throw new BadRequestException({
           message: [`validation.common.GEN_QUERY_BAD_SORT`],
@@ -325,14 +460,14 @@ export class BaseRepository {
       attributesTypes = this.validateOrderBy(sort, addAtrs);
     }
     const filterExist = queryDto.filter && queryDto.filter.length;
-    let filter = [];
+    let filter: IQueryFilter[] = [];
     if (filterExist) {
       try {
-        filter = JSON.parse(queryDto.filter);
+        filter = JSON.parse(<string>queryDto.filter);
       } catch (er) {
         const { message } = extractErrorDetails(er);
-        this.logger.warn(`Gen query, bad atr filter error: {message}`, {
-          message,
+        this.logger.warn(`Gen query, bad atr filter error: ${message}`, {
+          message: `${BaseRepository.name}: ${message}`,
         });
         throw new BadRequestException({
           message: [`validation.common.GEN_QUERY_BAD_FILTER`],
@@ -345,8 +480,9 @@ export class BaseRepository {
       );
 
       filter.forEach((obj, index) => {
-        const isPersonalizedAtr = addAtrs && addAtrs[obj.atr] !== undefined;
-        if (!isPersonalizedAtr) {
+        const isPersonalizedAtr =
+          !!addAtrs && !!obj.atr && addAtrs[obj.atr] !== undefined;
+        if (queryCount && obj.atr && !isPersonalizedAtr) {
           const { condition, val } = this.getCondition(
             attributesTypes[obj.atr],
             alias,
@@ -355,34 +491,51 @@ export class BaseRepository {
             index,
           );
           queryCount.andWhere(condition, val);
-          queryList.andWhere(condition, val);
+          queryList?.andWhere(condition, val);
         }
       });
     }
 
-    const itemCount = await queryCount.withDeleted().getCount();
-
+    let itemCount = 0;
+    if (queryCount) {
+      if (analyticCount) {
+        const subQuerySQL = queryList.getSql();
+        const subQueryParams = queryList.getParameters();
+        const subQueryParamsArray = Object.values(subQueryParams);
+        const finalSQL = `SELECT COUNT(1) AS "total" FROM (${subQuerySQL}) AS "temp"`;
+        const totalCountQuery = await this.repo.manager.query(
+          finalSQL,
+          subQueryParamsArray,
+        );
+        itemCount = parseInt(totalCountQuery[0].total);
+      } else {
+        itemCount = await queryCount.withDeleted().getCount();
+      }
+    }
     if (itemCount === 0) {
       return {
         entities: [],
         itemCount,
-      };
+      } as QueryBase<T, U, V>;
     }
     if (sortExists) {
       let orderMoreThanOne = false;
       sort.forEach((obj) => {
-        const order = obj.desc === 'true' || obj.desc ? 'DESC' : 'ASC';
+        const order =
+          obj.desc === true || `${obj.desc}` === 'true' || obj.desc
+            ? 'DESC'
+            : 'ASC';
         const selector = isPersonalized
           ? `"${obj.selector}"`
           : `${alias}.${obj.selector}`;
         if (orderMoreThanOne) {
-          queryList.addOrderBy(selector, order);
+          queryList?.addOrderBy(selector, order);
         } else {
-          queryList.orderBy(selector, order);
+          queryList?.orderBy(selector, order);
           orderMoreThanOne = true;
         }
       });
-    } else {
+    } else if (useSortDefault) {
       const hasOrderBy = Object.keys(queryList.expressionMap.orderBys).length;
       if (!hasOrderBy) {
         const isUpdatedAtInEntity =
@@ -402,17 +555,17 @@ export class BaseRepository {
     queryList.offset(queryDto.skip).limit(queryDto.take).withDeleted();
 
     if (isPersonalized) {
-      const raw = await queryList.getRawMany();
+      const raw = await queryList.getRawMany<T>();
       return {
-        entities: <T[]>raw,
+        entities: raw,
         itemCount,
-      };
+      } as QueryBase<T, U, V>;
     } else {
-      const { entities } = await queryList.getRawAndEntities();
+      const { entities } = await queryList.getRawAndEntities<T>();
       return {
-        entities: <T[]>entities,
+        entities: entities as T[],
         itemCount,
-      };
+      } as QueryBase<T, U, V>;
     }
   }
 
@@ -433,7 +586,9 @@ export class BaseRepository {
           obj.value[1].length === 10));
     let condition = convertToDate
       ? `DATE(${alias}${obj.atr}) ${obj.op} DATE(:${obj.atr}${index})`
-      : `${alias}${obj.atr} ${obj.op} :${obj.atr}${index}`;
+      : obj.value && obj.value.toUpperCase() === 'NULL'
+        ? `${alias}${obj.atr} ${obj.op === '<>' ? 'is not' : 'is'} null`
+        : `${alias}${obj.atr} ${obj.op} :${obj.atr}${index}`;
     const val: KeyValueObjectList<string>[] = [];
     switch (obj.op) {
       case EQueryOperators.CONTAINS:
@@ -473,7 +628,7 @@ export class BaseRepository {
   private validateAttributes(
     attributes: IQueryFilter[],
     entityAtrsAndTypes: KeyValueObjectList<string> = {},
-    addAtrs: KeyValueObjectList<string>,
+    addAtrs: KeyValueObjectList<string> | null,
   ): KeyValueObjectList<string> {
     const isEntityAtrsAndTypesEmpty =
       Object.keys(entityAtrsAndTypes).length === 0;
@@ -486,22 +641,29 @@ export class BaseRepository {
       }
     }
 
-    const invalidAtrs = [];
-    const invalidOps = [];
-    const invalidBooleanVal = [];
-    const invalidBooleanOp = [];
-    const invalidNumberVal = [];
-    const invalidNumberOp = [];
-    const invalidStringVal = [];
-    const invalidStringOp = [];
-    const invalidDateOp = [];
-    const invalidDateVal = [];
+    const invalidAtrs: string[] = [];
+    const invalidOps: string[] = [];
+    const invalidBooleanVal: string[] = [];
+    const invalidBooleanOp: string[] = [];
+    const invalidNumberVal: string[] = [];
+    const invalidNumberOp: string[] = [];
+    const invalidNumberSize: string[] = [];
+    const invalidStringVal: string[] = [];
+    const invalidStringOp: string[] = [];
+    const invalidDateOp: string[] = [];
+    const invalidDateVal: string[] = [];
     attributes.forEach((obj) => {
-      const isAtrOk = entityAtrsAndTypes[obj.atr] !== undefined;
-      if (!isAtrOk) {
+      const isAtrOk = obj.atr && entityAtrsAndTypes[obj.atr] !== undefined;
+      if (obj.atr && !isAtrOk) {
         invalidAtrs.push(obj.atr);
       }
-      const opIsOk = operatorsList.includes(obj.op);
+      const opIsOk =
+        typeof obj.value === 'string' &&
+          obj.value &&
+          obj.value.toUpperCase() === 'NULL'
+          ? obj.op &&
+          [EQueryOperators.EQUAL, EQueryOperators.NOT_EQUAL].includes(obj.op)
+          : obj.op && operatorsList.includes(obj.op);
       if (opIsOk) {
         if (
           obj.op === EQueryOperators.BETWEEN &&
@@ -527,8 +689,9 @@ export class BaseRepository {
         if (invalidOps.length === 0) {
           const strForOpTypeError = `"atr":"${obj.atr}","op":"${obj.op}"`;
           // boolean op ------------------
-          if (entityAtrsAndTypes[obj.atr] === 'boolean') {
-            const opIsOkForBoolean = booleanOperatorsList.includes(obj.op);
+          if (obj.atr && entityAtrsAndTypes[obj.atr] === 'boolean') {
+            const opIsOkForBoolean =
+              obj.op && booleanOperatorsList.includes(obj.op);
             if (!opIsOkForBoolean) {
               invalidBooleanOp.push(strForOpTypeError);
             }
@@ -538,11 +701,13 @@ export class BaseRepository {
           }
           // numbers op ------------------
           else if (
+            obj.atr &&
             ['integer', 'smallint', 'bigint', 'float'].includes(
               entityAtrsAndTypes[obj.atr],
             )
           ) {
-            const opIsOkForNumber = numberDateOperatorsList.includes(obj.op);
+            const opIsOkForNumber =
+              obj.op && numberDateOperatorsList.includes(obj.op);
             if (!opIsOkForNumber) {
               invalidNumberOp.push(strForOpTypeError);
             }
@@ -553,10 +718,25 @@ export class BaseRepository {
             ) {
               if (obj.op === EQueryOperators.BETWEEN) {
                 if (
+                  !obj.value ||
                   !RE_INT_NUMBER_INCLUDE_0.test(<string>obj.value[0]) ||
                   !RE_INT_NUMBER_INCLUDE_0.test(<string>obj.value[1])
                 ) {
                   invalidNumberVal.push(obj.atr);
+                } else if (
+                  ['integer', 'smallint'].includes(entityAtrsAndTypes[obj.atr])
+                ) {
+                  const intVal0 = Math.abs(Number(obj.value[0]));
+                  const intVal1 = Math.abs(Number(obj.value[1]));
+                  const isSmallWrong =
+                    entityAtrsAndTypes[obj.atr] === 'smallint' &&
+                    (intVal0 > 32767 || intVal1 > 32767);
+                  const isWrong =
+                    entityAtrsAndTypes[obj.atr] === 'integer' &&
+                    (intVal0 > 2147483647 || intVal1 > 2147483647);
+                  if (isSmallWrong || isWrong) {
+                    invalidNumberSize.push(obj.atr);
+                  }
                 }
               } else if (obj.op === EQueryOperators.IN) {
                 const invalidType = (<string[]>obj.value).some((value) => {
@@ -564,13 +744,51 @@ export class BaseRepository {
                 });
                 if (invalidType) {
                   invalidNumberVal.push(obj.atr);
+                } else if (
+                  ['integer', 'smallint'].includes(entityAtrsAndTypes[obj.atr])
+                ) {
+                  const invalidType = (<string[]>obj.value).some((value) => {
+                    const intVal = Math.abs(Number(value));
+                    const isSmallWrong =
+                      obj.atr &&
+                      entityAtrsAndTypes[obj.atr] === 'smallint' &&
+                      intVal > 32767;
+                    const isWrong =
+                      obj.atr &&
+                      entityAtrsAndTypes[obj.atr] === 'integer' &&
+                      intVal > 2147483647;
+                    return isWrong || isSmallWrong;
+                  });
+                  if (invalidType) {
+                    invalidNumberSize.push(obj.atr);
+                  }
                 }
-              } else if (!RE_INT_NUMBER_INCLUDE_0.test(<string>obj.value)) {
+              } else if (
+                obj.value !== 'NULL' &&
+                obj.value !== 'null' &&
+                !RE_INT_NUMBER_INCLUDE_0.test(<string>obj.value)
+              ) {
                 invalidNumberVal.push(obj.atr);
+              } else if (
+                ['integer', 'smallint'].includes(entityAtrsAndTypes[obj.atr])
+              ) {
+                if (obj.value !== 'NULL' && obj.value !== 'null') {
+                  const intVal = Math.abs(Number(obj.value));
+                  const isSmallWrong =
+                    entityAtrsAndTypes[obj.atr] === 'smallint' &&
+                    intVal > 32767;
+                  const isWrong =
+                    entityAtrsAndTypes[obj.atr] === 'integer' &&
+                    intVal > 2147483647;
+                  if (isWrong || isSmallWrong) {
+                    invalidNumberSize.push(obj.atr);
+                  }
+                }
               }
             } else if (entityAtrsAndTypes[obj.atr] === 'float') {
               if (obj.op === EQueryOperators.BETWEEN) {
                 if (
+                  !obj.value ||
                   !RE_FLOAT_NUMBER.test(<string>obj.value[0]) ||
                   !RE_FLOAT_NUMBER.test(<string>obj.value[1])
                 ) {
@@ -583,14 +801,22 @@ export class BaseRepository {
                 if (invalidType) {
                   invalidNumberVal.push(obj.atr);
                 }
-              } else if (!RE_FLOAT_NUMBER.test(<string>obj.value)) {
+              } else if (
+                obj.value !== 'NULL' &&
+                obj.value !== 'null' &&
+                !RE_FLOAT_NUMBER.test(<string>obj.value)
+              ) {
                 invalidNumberVal.push(obj.atr);
               }
             }
           }
           // strings op ------------------
-          else if (['char', 'varchar'].includes(entityAtrsAndTypes[obj.atr])) {
-            const opIsOkForString = stringOperatorsList.includes(obj.op);
+          else if (
+            obj.atr &&
+            ['char', 'varchar'].includes(entityAtrsAndTypes[obj.atr])
+          ) {
+            const opIsOkForString =
+              obj.op && stringOperatorsList.includes(obj.op);
             if (!opIsOkForString) {
               invalidStringOp.push(strForOpTypeError);
             }
@@ -609,13 +835,15 @@ export class BaseRepository {
           }
           // date op ------------------
           else if (
+            obj.atr &&
             ['date', 'timestamp'].includes(entityAtrsAndTypes[obj.atr])
           ) {
-            const opIsOkForDate = numberDateOperatorsList.includes(obj.op);
+            const opIsOkForDate =
+              obj.op && numberDateOperatorsList.includes(obj.op);
             if (!opIsOkForDate) {
               invalidDateOp.push(strForOpTypeError);
             }
-            if (obj.op === EQueryOperators.BETWEEN) {
+            if (obj.value && obj.op === EQueryOperators.BETWEEN) {
               const dateVal1 = parseISO(<string>obj.value[0]);
               const isValidDate1 = isValid(dateVal1);
               const dateVal2 = parseISO(<string>obj.value[1]);
@@ -625,7 +853,11 @@ export class BaseRepository {
               }
             } else {
               const dateVal = parseISO(<string>obj.value);
-              const isValidDate = isValid(dateVal);
+              const isValidDate =
+                (typeof obj.value === 'string' &&
+                  obj.value &&
+                  obj.value.toUpperCase() === 'NULL') ||
+                isValid(dateVal);
               if (!isValidDate) {
                 invalidDateVal.push(obj.atr);
               }
@@ -633,32 +865,38 @@ export class BaseRepository {
           }
         }
       } else {
-        invalidOps.push(`${obj.atr}: ${obj.op}`);
+        invalidOps.push(`${obj.atr}: ${obj.op} ${obj.value}`);
       }
     });
 
-    const message = [];
-    if (invalidAtrs && invalidAtrs.length) {
+    const message: string[] = [];
+    if (invalidAtrs.length) {
       const invalidAtrsStr = invalidAtrs.join(', ');
       message.push(
         `validation.common.GEN_QUERY_BAD_ATR|{"atrs":"${invalidAtrsStr}"}`,
       );
     }
 
-    if (invalidStringOp && invalidStringOp.length > 0) {
+    if (invalidStringOp.length > 0) {
       invalidStringOp.forEach((value) => {
         message.push(
           `validation.common.GEN_QUERY_BAD_OP_TYPE|{"type":"STRING",${value}}`,
         );
       });
     }
-    if (invalidNumberVal && invalidNumberVal.length) {
+    if (invalidNumberVal.length) {
       const invalidNumberValStr = invalidNumberVal.join(', ');
       message.push(
         `validation.common.GEN_QUERY_BAD_VAL_NUMBER|{"atrs":"${invalidNumberValStr}"}`,
       );
     }
-    if (invalidNumberOp && invalidNumberOp.length > 0) {
+    if (invalidNumberSize.length) {
+      const invalidNumberSizeStr = invalidNumberSize.join(', ');
+      message.push(
+        `validation.common.GEN_QUERY_BAD_VAL_NUMBER_SIZE|{"atrs":"${invalidNumberSizeStr}"}`,
+      );
+    }
+    if (invalidNumberOp.length > 0) {
       invalidNumberOp.forEach((value) => {
         message.push(
           `validation.common.GEN_QUERY_BAD_OP_TYPE|{"type":"NUMBER",${value}}`,
@@ -666,13 +904,13 @@ export class BaseRepository {
       });
     }
     // Booleans errors ----------
-    if (invalidBooleanVal && invalidBooleanVal.length) {
+    if (invalidBooleanVal.length) {
       const invalidBoolValStr = invalidBooleanVal.join(', ');
       message.push(
         `validation.common.GEN_QUERY_BAD_VAL_BOOLEAN|{"atrs":"${invalidBoolValStr}"}`,
       );
     }
-    if (invalidBooleanOp && invalidBooleanOp.length) {
+    if (invalidBooleanOp.length) {
       invalidBooleanOp.forEach((value) => {
         message.push(
           `validation.common.GEN_QUERY_BAD_OP_TYPE|{"type":"BOOLEAN",${value}}`,
@@ -680,13 +918,13 @@ export class BaseRepository {
       });
     }
     // Date errors ----------
-    if (invalidDateVal && invalidDateVal.length) {
+    if (invalidDateVal.length) {
       const invalidDateValStr = invalidDateVal.join(', ');
       message.push(
         `validation.common.GEN_QUERY_BAD_VAL_DATE|{"atrs":"${invalidDateValStr}"}`,
       );
     }
-    if (invalidDateOp && invalidDateOp.length > 0) {
+    if (invalidDateOp.length > 0) {
       invalidDateOp.forEach((value) => {
         message.push(
           `validation.common.GEN_QUERY_BAD_OP_TYPE|{"type":"DATE or TIMESTAMP",${value}}`,
@@ -694,10 +932,14 @@ export class BaseRepository {
       });
     }
     // Operators errors - ---------
-    if (invalidOps && invalidOps.length) {
+    if (invalidOps.length) {
       const invalidOpsStr = invalidOps.join(', ');
+      let technicalError = '';
+      if (invalidOpsStr.includes('NULL') || invalidOpsStr.includes('null')) {
+        technicalError = `,"technicalError":"For NULL values only use = and <> operators; check"`;
+      }
       message.push(
-        `validation.common.GEN_QUERY_BAD_OPS|{"ops":"${invalidOpsStr}"}`,
+        `validation.common.GEN_QUERY_BAD_OPS|{"ops":"${invalidOpsStr}"${technicalError}}`,
       );
     }
     if (message && message.length > 0) {
@@ -719,8 +961,8 @@ export class BaseRepository {
       Object.assign(entityAtrsAndTypes, addAtrs);
     }
 
-    const orderInvAtrName = [];
-    const orderInvAtrDir = [];
+    const orderInvAtrName: string[] = [];
+    const orderInvAtrDir: string[] = [];
     attributes.forEach((sortObj) => {
       const isAtrOk = entityAtrsAndTypes[sortObj.selector] !== undefined;
       if (!isAtrOk) {

@@ -173,14 +173,13 @@ export class DatabaseOperatorsActionsRepository
       'user.name': 'varchar',
     };
 
-    const data = await super.getByQueryBase<OperatorsActions>(
+    const data = await super.getByQueryBase<OperatorsActions>({
       queryDto,
-      'oa',
+      alias: 'oa',
       queryCount,
       queryList,
-      false,
       addAtrs,
-    );
+    });
     const opActions = data.entities.map((opAction) =>
       this.toModelPanel(opAction),
     );

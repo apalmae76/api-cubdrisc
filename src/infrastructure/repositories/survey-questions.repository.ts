@@ -233,13 +233,11 @@ export class DatabaseSurveyQuestionsRepository
   ): Promise<PageDto<SurveyQuestionModel>> {
     const queryList = this.getBasicQuery();
 
-    const query = await super.getByQueryBase<SurveyQuestions>(
+    const query = await super.getByQueryBase<SurveyQuestions>({
       queryDto,
-      'sq',
-      null,
+      alias: 'sq',
       queryList,
-      false,
-    );
+    });
 
     const survQuestions = query.entities.map((survQuestion) =>
       this.toModelPanel(survQuestion),

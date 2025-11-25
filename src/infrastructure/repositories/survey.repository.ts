@@ -180,13 +180,11 @@ export class DatabaseSurveyRepository
   async getByQuery(queryDto: GetGenericAllDto): Promise<PageDto<SurveyModel>> {
     const queryList = this.getBasicQuery();
 
-    const query = await super.getByQueryBase<Survey>(
+    const query = await super.getByQueryBase<Survey>({
       queryDto,
-      'survey',
-      null,
+      alias: 'survey',
       queryList,
-      false,
-    );
+    });
 
     const surveys = query.entities.map((survey) => this.toModelPanel(survey));
 

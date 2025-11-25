@@ -18,8 +18,7 @@ import { BaseRepository } from './base.repository';
 @Injectable()
 export class DatabasePhoneRepository
   extends BaseRepository
-  implements IUserPhoneRepository
-{
+  implements IUserPhoneRepository {
   private readonly cacheKey = 'Repository:UserPhones:';
   private readonly cacheTime = 30 * 60; // 30mins cache
   constructor(
@@ -119,13 +118,13 @@ export class DatabasePhoneRepository
         'phones.created_at as "createdAt"',
       ]);
 
-    const data = await super.getByQueryBase<UserPhones>(
+    const data = await super.getByQueryBase<UserPhones, true>({
       queryDto,
-      'phones',
+      alias: 'phones',
       queryCount,
       queryList,
-      true,
-    );
+      hasUserName: true,
+    });
 
     const phones = data.entities.map((phone) => this.toModelPanel(phone));
 

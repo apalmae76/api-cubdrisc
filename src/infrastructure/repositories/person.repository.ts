@@ -140,13 +140,12 @@ export class DatabasePersonRepository
     const queryCount = null;
     const queryList = this.getBasicQuery();
 
-    const query = await super.getByQueryBase<Person>(
+    const query = await super.getByQueryBase<Person>({
       queryDto,
-      'person',
+      alias: 'person',
       queryCount,
       queryList,
-      false,
-    );
+    });
 
     const persons = query.entities.map((person) => this.toModel(person));
 

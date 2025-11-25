@@ -127,13 +127,11 @@ export class DatabasePatientRepository
   async getByQuery(queryDto: GetGenericAllDto): Promise<PageDto<PatientModel>> {
     const queryList = this.getBasicQuery();
 
-    const query = await super.getByQueryBase<Patient>(
+    const query = await super.getByQueryBase<Patient>({
       queryDto,
-      'pa',
-      null,
+      alias: 'pa',
       queryList,
-      false,
-    );
+    });
 
     const patients = query.entities.map((patient) =>
       this.toModelPanel(patient),

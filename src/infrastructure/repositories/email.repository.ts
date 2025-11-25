@@ -13,8 +13,7 @@ import { BaseRepository } from './base.repository';
 @Injectable()
 export class DatabaseEmailRepository
   extends BaseRepository
-  implements IUserEmailRepository
-{
+  implements IUserEmailRepository {
   constructor(
     @InjectRepository(UserEmails)
     private readonly userEmailEntity: Repository<UserEmails>,
@@ -85,13 +84,13 @@ export class DatabaseEmailRepository
         'emails.created_at as "createdAt"',
       ]);
 
-    const data = await super.getByQueryBase<UserEmails>(
+    const data = await super.getByQueryBase<UserEmails, true>({
       queryDto,
-      'emails',
+      alias: 'emails',
       queryCount,
       queryList,
-      true,
-    );
+      hasUserName: true,
+    });
 
     const emails = data.entities.map((email) => this.toModelPanel(email));
 
