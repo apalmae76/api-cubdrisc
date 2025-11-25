@@ -569,6 +569,10 @@ export class BaseRepository {
     }
   }
 
+  private isNullString(value): boolean {
+    return typeof value === 'string' && (value === 'NULL' || value === 'null');
+  }
+
   protected getCondition(
     atrType: string,
     alias: string,
@@ -586,7 +590,7 @@ export class BaseRepository {
           obj.value[1].length === 10));
     let condition = convertToDate
       ? `DATE(${alias}${obj.atr}) ${obj.op} DATE(:${obj.atr}${index})`
-      : obj.value && obj.value.toUpperCase() === 'NULL'
+      : this.isNullString(obj.value)
         ? `${alias}${obj.atr} ${obj.op === '<>' ? 'is not' : 'is'} null`
         : `${alias}${obj.atr} ${obj.op} :${obj.atr}${index}`;
     const val: KeyValueObjectList<string>[] = [];
@@ -657,13 +661,10 @@ export class BaseRepository {
       if (obj.atr && !isAtrOk) {
         invalidAtrs.push(obj.atr);
       }
-      const opIsOk =
-        typeof obj.value === 'string' &&
-          obj.value &&
-          obj.value.toUpperCase() === 'NULL'
-          ? obj.op &&
-          [EQueryOperators.EQUAL, EQueryOperators.NOT_EQUAL].includes(obj.op)
-          : obj.op && operatorsList.includes(obj.op);
+      const opIsOk = this.isNullString(obj.value)
+        ? obj.op &&
+        [EQueryOperators.EQUAL, EQueryOperators.NOT_EQUAL].includes(obj.op)
+        : obj.op && operatorsList.includes(obj.op);
       if (opIsOk) {
         if (
           obj.op === EQueryOperators.BETWEEN &&
@@ -764,15 +765,14 @@ export class BaseRepository {
                   }
                 }
               } else if (
-                obj.value !== 'NULL' &&
-                obj.value !== 'null' &&
+                !this.isNullString(obj.value) &&
                 !RE_INT_NUMBER_INCLUDE_0.test(<string>obj.value)
               ) {
                 invalidNumberVal.push(obj.atr);
               } else if (
                 ['integer', 'smallint'].includes(entityAtrsAndTypes[obj.atr])
               ) {
-                if (obj.value !== 'NULL' && obj.value !== 'null') {
+                if (!this.isNullString(obj.value)) {
                   const intVal = Math.abs(Number(obj.value));
                   const isSmallWrong =
                     entityAtrsAndTypes[obj.atr] === 'smallint' &&
@@ -802,8 +802,7 @@ export class BaseRepository {
                   invalidNumberVal.push(obj.atr);
                 }
               } else if (
-                obj.value !== 'NULL' &&
-                obj.value !== 'null' &&
+                !this.isNullString(obj.value) &&
                 !RE_FLOAT_NUMBER.test(<string>obj.value)
               ) {
                 invalidNumberVal.push(obj.atr);
@@ -854,10 +853,7 @@ export class BaseRepository {
             } else {
               const dateVal = parseISO(<string>obj.value);
               const isValidDate =
-                (typeof obj.value === 'string' &&
-                  obj.value &&
-                  obj.value.toUpperCase() === 'NULL') ||
-                isValid(dateVal);
+                this.isNullString(obj.value) || isValid(dateVal);
               if (!isValidDate) {
                 invalidDateVal.push(obj.atr);
               }
