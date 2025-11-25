@@ -132,7 +132,6 @@ export class DatabasePersonSurveyRepository
         'ps.state_id as "stateId"',
         'ps.age as "age"',
         'ps.total_score as "totalScore"',
-        'ps.waist_perimeter as "waistPerimeter"',
         'ps.weight as "weight"',
         'ps.size as "size"',
         'ps.imcc as "imcc"',
@@ -274,7 +273,6 @@ export class DatabasePersonSurveyRepository
     model.stateId = Number(entity.stateId);
     model.age = Number(entity.age);
     model.totalScore = Number(entity.totalScore);
-    model.waistPerimeter = Number(entity.waistPerimeter);
     model.weight = Number(entity.weight);
     model.size = Number(entity.size);
     model.imcc = Number(entity.imcc);
@@ -297,9 +295,6 @@ export class DatabasePersonSurveyRepository
     model.stateId = Number(entity.stateId);
     model.age = Number(model.age);
     model.totalScore = model.totalScore ? Number(model.totalScore) : null;
-    model.waistPerimeter = model.waistPerimeter
-      ? Number(model.waistPerimeter)
-      : null;
     model.weight = model.weight ? Number(model.weight) : null;
     model.size = model.size ? Number(model.size) : null;
     model.imcc = model.imcc ? Number(model.imcc) : null;

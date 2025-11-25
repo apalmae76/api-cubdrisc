@@ -30,18 +30,29 @@ export class EnvironmentConfigService
     return this.configService.get<string>('NODE_ENV') !== 'production';
   }
   isNotLocalEnv(): boolean {
-    return this.configService.get<string>('NODE_ENV') !== 'local';
+    return (
+      this.configService.get<string>('NODE_ENV') !== 'local' &&
+      this.configService.get<string>('NODE_ENV') !== 'test'
+    );
   }
 
   isLocalEnv(): boolean {
-    return this.configService.get<string>('NODE_ENV') === 'local';
+    return (
+      this.configService.get<string>('NODE_ENV') === 'local' ||
+      this.configService.get<string>('NODE_ENV') === 'test'
+    );
   }
 
   isDevelopEnv(): boolean {
     return (
       this.configService.get<string>('NODE_ENV') === 'local' ||
+      this.configService.get<string>('NODE_ENV') === 'test' ||
       this.configService.get<string>('NODE_ENV') === 'development'
     );
+  }
+
+  isTestEnv(): boolean {
+    return this.configService.get<string>('NODE_ENV') === 'test';
   }
 
   isDevelopmentEnv(): boolean {

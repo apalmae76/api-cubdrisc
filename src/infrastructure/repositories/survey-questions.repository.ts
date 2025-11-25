@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ListToUpdOrderModel,
@@ -11,6 +15,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
+import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { SurveyQuestions } from '../entities/survey-questions.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
@@ -37,9 +42,53 @@ export class DatabaseSurveyQuestionsRepository
     const repo = em
       ? em.getRepository(SurveyQuestions)
       : this.surveyQuestionEntity;
-    const entity = await this.toCreate(data);
-    const dataSaved = await repo.save(entity);
-    return this.toModel(dataSaved);
+    try {
+      const entity = await this.toCreate(data);
+      const dataSaved = await repo.save(entity);
+      return this.toModel(dataSaved);
+    } catch (er: unknown) {
+      await this.manageErrors(data, er);
+      throw er;
+    }
+  }
+
+  private async manageErrors(
+    newData: SurveyQuestionCreateModel | SurveyQuestionUpdateModel,
+    er: unknown,
+  ) {
+    const { message } = extractErrorDetails(er);
+
+    if (message) {
+      if (message.includes('IDX_06fa45a0837c19b436c2aeb4e3')) {
+        const addInfo = {
+          technicalError: `Question exists, text must be unique (${newData.question}), check`,
+          answer: newData.question,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_question.DESCRIPTION_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      } else if (message.includes('IDX_2bf050efd8e08697270364a7f6')) {
+        const addInfo = {
+          technicalError: `Order number must be unique (${newData.order}), check`,
+          order: newData.order,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_question.ORDER_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      } else if (message.includes('FK_895ad6ec351b200c52c8d1ec099')) {
+        const addInfo = {
+          technicalError: `Survey most exists (${newData.surveyId}), check`,
+          question: newData.question,
+        };
+        throw new BadRequestException({
+          message: [`validation.survey.NOT_FOUND|${JSON.stringify(addInfo)}`],
+        });
+      }
+    }
   }
 
   private async toCreate(
@@ -51,6 +100,7 @@ export class DatabaseSurveyQuestionsRepository
     entity.question = model.question;
     entity.order = await this.getLastOrder(model.surveyId);
     entity.required = model.required ?? false;
+    entity.gender = model.gender ?? null;
 
     return entity;
   }
@@ -73,12 +123,17 @@ export class DatabaseSurveyQuestionsRepository
     const repo = em
       ? em.getRepository(SurveyQuestions)
       : this.surveyQuestionEntity;
-    const update = await repo.update({ surveyId, id }, surveyQuestion);
-    if (update.affected > 0) {
-      await this.cleanCacheData(surveyId);
-      return true;
+    try {
+      const update = await repo.update({ surveyId, id }, surveyQuestion);
+      if (update.affected > 0) {
+        await this.cleanCacheData(surveyId);
+        return true;
+      }
+      return false;
+    } catch (er: unknown) {
+      await this.manageErrors(surveyQuestion, er);
+      throw er;
     }
-    return false;
   }
 
   async softDelete(
@@ -139,8 +194,8 @@ export class DatabaseSurveyQuestionsRepository
   }
 
   async cleanCacheData(surveyId: number) {
-    const keyPattern = `${this.cacheKey}${surveyId}*`;
-    await this.redisService.removeAllKeysWithPattern(keyPattern);
+    const pattern = `${this.cacheKey}${surveyId}:*`;
+    await this.redisService.removeAllKeysWithPattern(pattern);
   }
 
   private getBasicQuery() {
@@ -152,6 +207,7 @@ export class DatabaseSurveyQuestionsRepository
         'sq.question as "question"',
         'sq.order as "order"',
         'sq.required as "required"',
+        'sq.gender as "gender"',
         'sq.created_at as "createdAt"',
         'sq.updated_at as "updatedAt"',
         'sq.deleted_at as "deletedAt"',
@@ -225,7 +281,7 @@ export class DatabaseSurveyQuestionsRepository
     let cacheKey = null;
     let survQuestion: SurveyQuestionModel = null;
     if (useCache) {
-      cacheKey = `${this.cacheKey}${id}`;
+      cacheKey = `${this.cacheKey}${surveyId}:${id}`;
       survQuestion = await this.redisService.get<SurveyQuestionModel>(cacheKey);
       if (survQuestion) {
         return survQuestion;
@@ -323,7 +379,9 @@ export class DatabaseSurveyQuestionsRepository
       (survey2.question === undefined ||
         survey1.question === survey2.question) &&
       (survey2.order === undefined || survey1.order === survey2.order) &&
-      (survey2.required === undefined || survey1.required === survey2.required)
+      (survey2.required === undefined ||
+        survey1.required === survey2.required) &&
+      (survey2.gender === undefined || survey1.gender === survey2.gender)
     );
   }
 
@@ -342,6 +400,7 @@ export class DatabaseSurveyQuestionsRepository
     model.question = entity.question;
     model.order = entity.order;
     model.required = entity.required;
+    model.gender = entity.gender;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
@@ -365,6 +424,7 @@ export class DatabaseSurveyQuestionsRepository
     model.question = entity.question;
     model.order = Number(entity.order);
     model.required = entity.required;
+    model.gender = entity.gender;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

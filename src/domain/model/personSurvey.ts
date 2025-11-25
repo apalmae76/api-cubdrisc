@@ -13,7 +13,6 @@ export class PersonSurveyUpdateModel {
   phone?: string;
   email?: string;
   totalScore?: number;
-  waistPerimeter?: number;
   weight?: number;
   size?: number;
   imcc?: number;
@@ -23,7 +22,6 @@ export class PersonSurveyUpdateModel {
 export class PersonSurveyModel extends PersonSurveyCreateModel {
   id: number;
   totalScore: number;
-  waistPerimeter: number;
   weight: number;
   size: number;
   imcc: number;

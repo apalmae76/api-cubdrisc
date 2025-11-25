@@ -176,6 +176,8 @@
     "NOT_A_DRAFT": "Solo podrá modificar las  encuentras en estado BORRADOR, por favor verifique",
     "ALREADY_ACTIVE": "El test ya esta activo, no puede ser modificada, por favor verifique",
     "ALREADY_DELETED": "El test ya ha sido eliminado, por favor verifique",
+    "DESCRIPTION_IS_UNIQUE": "Ya existe un test con ese mismo nombre y debe ser único, por favor verifique",
+    "ORDER_IS_UNIQUE": "El número de orden debe ser único, verifique",
     "CANT_ACTIVATE_DELETED": "El test ha sido eliminado, no es posible activarlo, por favor verifique",
     "CANT_ACTIVATE_MIN_RULES": "Para activar el test, debe tener definidas como mínimo, dos reglas para el cálculo de riesgo, por favor verifique",
     "CANT_ACTIVATE_MIN_QUESTIONS": "Para activar el test, debe tener como mínimo una pregunta, por favor verifique",
@@ -186,7 +188,9 @@
     "REF_NOT_FOUND": "La pregunta de referencia no se encuentra o no ha sido registrada, por favor verifique",
     "CANT_ACTIVATE_ALREADY_DELETED": "La pregunta ya ha sido eliminada, nos es posible activarla, por favor verifique",
     "ALREADY_ACTIVE": "La pregunta ya esta activa, por favor verifique",
-    "ALREADY_DELETED": "La pregunta ya ha sido eliminada, por favor verifique"
+    "ALREADY_DELETED": "La pregunta ya ha sido eliminada, por favor verifique",
+    "DESCRIPTION_IS_UNIQUE": "Ya existe una pregunta con esa descripción y debe ser única, por favor verifique",
+    "ORDER_IS_UNIQUE": "El número de orden debe ser único, verifique"
   },
   "survey_risk_calculation": {
     "NOT_FOUND": "La regla no se encuentra o no ha sido registrada, por favor verifique",

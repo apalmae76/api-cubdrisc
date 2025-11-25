@@ -26,6 +26,10 @@ export class SurveyQuestionPresenter {
   required: boolean;
 
   @ApiProperty()
+  @IsString()
+  gender: string;
+
+  @ApiProperty()
   @IsDate()
   createdAt: Date;
 
@@ -37,16 +41,17 @@ export class SurveyQuestionPresenter {
   @IsDate()
   deletedAt: Date;
 
-  constructor(survey: SurveyQuestionModel) {
-    this.surveyId = survey.surveyId;
-    this.id = survey.id;
-    this.question = survey.question;
-    this.order = survey.order;
-    this.required = survey.required;
+  constructor(question: SurveyQuestionModel) {
+    this.surveyId = question.surveyId;
+    this.id = question.id;
+    this.question = question.question;
+    this.order = question.order;
+    this.required = question.required;
+    this.gender = question.gender;
 
-    this.createdAt = survey.createdAt;
-    this.updatedAt = survey.updatedAt;
-    this.deletedAt = survey.deletedAt;
+    this.createdAt = question.createdAt;
+    this.updatedAt = question.updatedAt;
+    this.deletedAt = question.deletedAt;
   }
 }
 

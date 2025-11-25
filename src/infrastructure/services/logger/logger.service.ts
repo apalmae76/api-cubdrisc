@@ -231,7 +231,9 @@ export class ApiLoggerService {
     if (message) {
       console.log(`Log message was: ${message}`);
     }
-    console.log(`Data:`);
-    console.log(data);
+    if (data) {
+      console.log(`Data:`);
+      console.log(data);
+    }
   }
 }

@@ -8,7 +8,7 @@ import {
   OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 import { PersonSurveyAnswers } from './person-survey-answers.entity';
 import { Person } from './person.entity';
@@ -83,13 +83,6 @@ export class PersonSurvey {
     nullable: true,
   })
   totalScore: number;
-
-  @Column({
-    type: 'float',
-    name: 'waist_perimeter',
-    nullable: true,
-  })
-  waistPerimeter: number;
 
   @Column({
     type: 'float',

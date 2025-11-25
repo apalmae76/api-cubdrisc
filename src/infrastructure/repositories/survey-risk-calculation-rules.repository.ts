@@ -242,8 +242,8 @@ export class DatabaseSurveyRiskCalculationRulesRepository
   }
 
   async cleanCacheData(surveyId: number) {
-    const keyPattern = `${this.cacheKey}${surveyId}:*`;
-    await this.redisService.removeAllKeysWithPattern(keyPattern);
+    const pattern = `${this.cacheKey}${surveyId}:*`;
+    await this.redisService.removeAllKeysWithPattern(pattern);
   }
 
   private getBasicQuery() {
@@ -363,7 +363,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     let cacheKey = null;
     let surveyRCR: SurveyRiskCalculationRulesModel = null;
     if (useCache) {
-      cacheKey = `${this.cacheKey}${id}`;
+      cacheKey = `${this.cacheKey}${surveyId}:${id}`;
       surveyRCR =
         await this.redisService.get<SurveyRiskCalculationRulesModel>(cacheKey);
       if (surveyRCR) {

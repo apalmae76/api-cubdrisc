@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsDefined,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -14,6 +15,7 @@ import {
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { RE_INT_NUMBER } from 'src/infrastructure/common/utils/constants';
+import { Gender, genderTypesValues } from '../profile/profile-dto.class';
 
 export class ValidQuestionIdDto {
   @Transform(({ value }) =>
@@ -33,7 +35,7 @@ export class CreateSurveyQuestionDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @MinLength(10, { message: i18nValidationMessage('validation.MIN_LENGTH') })
-  question: string;
+  readonly question: string;
 
   @ApiProperty({
     example: '',
@@ -41,7 +43,25 @@ export class CreateSurveyQuestionDto {
   })
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsBoolean({ message: i18nValidationMessage('validation.INVALID_BOOLEAN') })
-  required: boolean;
+  readonly required: boolean;
+
+  @ApiProperty({
+    description: `Biological sex. Is enum type with these values: ${genderTypesValues}
+    \n Used for sex optional questions. Use null value if question is not optionally by sex`,
+    example: Gender.MALE,
+    default: null,
+    enum: Gender,
+    nullable: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(Gender, {
+    message: i18nValidationMessage('validation.INVALID_ENUM', {
+      acepted: genderTypesValues,
+    }),
+  })
+  @IsDefined({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  readonly gender: string | null = null;
 }
 
 export class UpdateSurveyQuestionDto {
@@ -63,6 +83,24 @@ export class UpdateSurveyQuestionDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsBoolean({ message: i18nValidationMessage('validation.INVALID_BOOLEAN') })
   required: boolean;
+
+  @ApiProperty({
+    description: `Biological sex. Is enum type with these values: ${genderTypesValues}
+    \n Used for sex optional questions. Use null value if question is not optionally by sex`,
+    example: Gender.MALE,
+    default: null,
+    enum: Gender,
+    nullable: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(Gender, {
+    message: i18nValidationMessage('validation.INVALID_ENUM', {
+      acepted: genderTypesValues,
+    }),
+  })
+  @IsDefined({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  readonly gender: string | null = null;
 }
 
 export class MoveRowDto {

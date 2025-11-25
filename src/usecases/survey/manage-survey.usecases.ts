@@ -46,18 +46,15 @@ export class ManageSurveyUseCases extends UseCaseBase {
   ): Promise<BaseResponsePresenter<SurveyPresenter>> {
     const survey = await this.dataSource.transaction(async (em) => {
       const newSurvey = await this.surveyRepo.create(dataDto, em);
-      if (newSurvey) {
-        const opPayload: OperatorsActionCreateModel = {
-          operatorId,
-          toUserId: null,
-          actionId: EOperatorsActions.SURVEY_CREATE,
-          reason: 'Adiciona nuevo test',
-          details: newSurvey,
-        };
-        await this.operActionRepo.create(opPayload, em);
-        return newSurvey;
-      }
-      return null;
+      const opPayload: OperatorsActionCreateModel = {
+        operatorId,
+        toUserId: null,
+        actionId: EOperatorsActions.SURVEY_CREATE,
+        reason: 'Adiciona nuevo test',
+        details: newSurvey,
+      };
+      await this.operActionRepo.create(opPayload, em);
+      return newSurvey;
     });
     return new BaseResponsePresenter(
       `messages.survey.CREATED_SUCESSFULLY|{"name":"${dataDto.name}"}`,

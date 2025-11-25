@@ -2,7 +2,7 @@ import * as Joi from 'joi';
 
 export type IEnv = {
   PORT: number;
-  NODE_ENV: 'local' | 'development' | 'staging' | 'production';
+  NODE_ENV: 'test' | 'local' | 'development' | 'staging' | 'production';
 
   LIST_OF_AUTHORIZED_ADDRESSES: string;
   API_URL_CALLBACK: string;
@@ -58,7 +58,7 @@ export type IEnv = {
 export const validationSchema = Joi.object({
   PORT: Joi.string().pattern(/^\d+$/).empty('').default('3000'),
   NODE_ENV: Joi.string()
-    .valid('local', 'development', 'staging', 'production')
+    .valid('test', 'local', 'development', 'staging', 'production')
     .default('development'),
   BASE_URL_WEB: Joi.string().domain().required(),
   BASE_URL_PANEL: Joi.string().domain().required(),
@@ -80,7 +80,7 @@ export const validationSchema = Joi.object({
   JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
   JWT_REFRESH_TOKEN_EXPIRATION_TIME: Joi.string().required(),
   // DATABASE
-  DATABASE_URL: Joi.string().uri().required(),
+  DATABASE_URL: Joi.string().required(),
   DATABASE_SSL_CERT: Joi.string().required(),
   DATABASE_SCHEMA: Joi.string().default('public'),
   DATABASE_SYNCHRONIZE: Joi.boolean().default(false),

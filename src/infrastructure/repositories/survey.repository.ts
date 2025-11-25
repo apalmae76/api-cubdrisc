@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   SurveyCreateModel,
@@ -10,6 +14,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
+import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { Survey } from '../entities/survey.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
@@ -35,9 +40,35 @@ export class DatabaseSurveyRepository
     em: EntityManager,
   ): Promise<SurveyModel> {
     const repo = em ? em.getRepository(Survey) : this.surveyEntity;
-    const entity = this.toCreate(data);
-    const dataSaved = await repo.save(entity);
-    return this.toModel(dataSaved);
+    try {
+      const entity = this.toCreate(data);
+      const dataSaved = await repo.save(entity);
+      return this.toModel(dataSaved);
+    } catch (er: unknown) {
+      await this.manageErrors(data, er);
+      throw er;
+    }
+  }
+
+  private async manageErrors(
+    newData: SurveyCreateModel | SurveyUpdateModel,
+    er: unknown,
+  ) {
+    const { message } = extractErrorDetails(er);
+
+    if (message) {
+      if (message.includes('UQ_SURVEY_NAME')) {
+        const addInfo = {
+          technicalError: `Question exists, text must be unique (${newData.name}), check`,
+          answer: newData.name,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey.DESCRIPTION_IS_UNIQUE|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      }
+    }
   }
 
   private toCreate(model: SurveyCreateModel): Survey {
@@ -56,12 +87,17 @@ export class DatabaseSurveyRepository
     em: EntityManager,
   ): Promise<boolean> {
     const repo = em ? em.getRepository(Survey) : this.surveyEntity;
-    const update = await repo.update({ id }, payload);
-    if (update.affected > 0) {
-      await this.cleanCacheData(id);
-      return true;
+    try {
+      const update = await repo.update({ id }, payload);
+      if (update.affected > 0) {
+        await this.cleanCacheData(id);
+        return true;
+      }
+      return false;
+    } catch (er: unknown) {
+      await this.manageErrors(payload, er);
+      throw er;
     }
-    return false;
   }
 
   async softDelete(id: number, em: EntityManager = null): Promise<boolean> {

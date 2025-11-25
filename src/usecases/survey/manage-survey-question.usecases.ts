@@ -136,9 +136,12 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
     ) {
       newData.required = dataDto.required;
     }
+    if (dataDto.gender !== undefined && dataDto.gender !== question.gender) {
+      newData.gender = dataDto.gender;
+    }
 
     if (Object.keys(newData).length === 0) {
-      return { newData: null, question: question };
+      return { newData: null, question };
     }
     return { newData, question };
   }

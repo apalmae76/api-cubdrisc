@@ -135,14 +135,19 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     const repo = em
       ? em.getRepository(SurveyQuestionsPossibleAnswers)
       : this.surveyQPAEntity;
-    const update = await repo.update(
-      { surveyId, surveyQuestionId, id },
-      surveyQuestion,
-    );
-    if (update.affected > 0) {
-      await this.cleanCacheData(surveyId, surveyQuestionId);
+    try {
+      const update = await repo.update(
+        { surveyId, surveyQuestionId, id },
+        surveyQuestion,
+      );
+      if (update.affected > 0) {
+        await this.cleanCacheData(surveyId, surveyQuestionId);
+      }
+      return true;
+    } catch (er: unknown) {
+      await this.manageErrors(surveyQuestion, er);
+      throw er;
     }
-    return true;
   }
 
   async softDelete(
@@ -222,8 +227,8 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
   }
 
   async cleanCacheData(surveyId: number, surveyQuestionId: number) {
-    const keyPattern = `${this.cacheKey}${surveyId}:${surveyQuestionId}*`;
-    await this.redisService.removeAllKeysWithPattern(keyPattern);
+    const pattern = `${this.cacheKey}${surveyId}:${surveyQuestionId}*`;
+    await this.redisService.removeAllKeysWithPattern(pattern);
   }
 
   private getBasicQuery() {

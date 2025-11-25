@@ -152,14 +152,16 @@ export class JwtGetToken extends UseCaseBase {
       marker,
     });
     const cacheKey = `SYSTEM:OTP:USER_COUNT:${userId ? userId : user}`;
-    const baseOtpTime = await this.appConfig.getOtpBlockingTime();
+    const baseOtpTime = this.appConfig.getOtpBlockingTime();
     // Get user otp count from Redis
     let otpCount = await this.redisService.get<number>(cacheKey);
     otpCount = otpCount ? otpCount + 1 : 1;
     // Guardo la data en Redis
     await this.redisService.set<number>(cacheKey, otpCount, baseOtpTime, true);
     // validate if not exceed limit of otp request, notify panel if true
-    const sysMaxOtp = await this.appConfig.getOtpMaxAllowedCount();
+    const sysMaxOtp = this.appConfig.isTestEnv()
+      ? 1000
+      : this.appConfig.getOtpMaxAllowedCount();
     if (otpCount > sysMaxOtp) {
       const cacheBlockKey = `SYSTEM:OTP:USER_BLOCKED:${userId ? userId : user}`;
       let isUserOtpBlocked =

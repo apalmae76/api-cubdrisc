@@ -177,6 +177,8 @@
     "NOT_A_DRAFT": "You can only modify those in DRAFT state, please check",
     "ALREADY_ACTIVE": "The survey is already active and cannot be modified; please check",
     "ALREADY_DELETED": "Survey is already deleted, please check",
+    "DESCRIPTION_IS_UNIQUE": "Survey with that description already exists and it must be unique; please check",
+    "ORDER_IS_UNIQUE": "The order number must be unique, please verify",
     "CANT_ACTIVATE_DELETED": "The survey has been removed; we are unable to activate it; please check",
     "CANT_ACTIVATE_MIN_RULES": "To activate the test, you must have defined at least, two risk calculation rules; please check",
     "CANT_ACTIVATE_MIN_QUESTIONS": "To activate the test, you must have at least one question; please check",
@@ -187,7 +189,9 @@
     "REF_NOT_FOUND": "The reference question is not found or has not been registered, please check",
     "CANT_ACTIVATE_ALREADY_DELETED": "The question has already been deleted, we are unable to activate it, please check",
     "ALREADY_ACTIVE": "Question is already active, please check",
-    "ALREADY_DELETED": "Question is already deleted, please check"
+    "ALREADY_DELETED": "Question is already deleted, please check",
+    "DESCRIPTION_IS_UNIQUE": "Question with that description already exists and it must be unique; please check",
+    "ORDER_IS_UNIQUE": "The order number must be unique, please verify"
   },
   "survey_risk_calculation": {
     "NOT_FOUND": "Rule is not found or has not been registered, please check",

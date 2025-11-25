@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -17,6 +18,7 @@ export class Survey {
   id: number;
 
   @Column({ type: 'varchar', length: 200 })
+  @Index('UQ_SURVEY_NAME', { unique: true, where: 'deleted_at IS NULL' })
   name: string;
 
   @Column({ type: 'varchar', length: 255 })

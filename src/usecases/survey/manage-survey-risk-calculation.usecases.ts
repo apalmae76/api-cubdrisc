@@ -57,18 +57,15 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     };
     const rule = await this.dataSource.transaction(async (em) => {
       const newRule = await this.surveyRiscCRepo.create(newData, em);
-      if (newRule) {
-        const opPayload: OperatorsActionCreateModel = {
-          operatorId,
-          toUserId: null,
-          actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_CREATE,
-          reason: 'Adiciona nueva pregunta a un test',
-          details: newRule,
-        };
-        await this.operActionRepo.create(opPayload, em);
-        return newRule;
-      }
-      return null;
+      const opPayload: OperatorsActionCreateModel = {
+        operatorId,
+        toUserId: null,
+        actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_CREATE,
+        reason: 'Adiciona nueva escala para cálculo de riesgo',
+        details: newRule,
+      };
+      await this.operActionRepo.create(opPayload, em);
+      return newRule;
     });
     return new BaseResponsePresenter(
       `messages.survey_risk_calculation.CREATED_SUCESSFULLY|{"description":"${dataDto.description}"}`,
@@ -231,7 +228,7 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
           operatorId: operatorId,
           toUserId: null,
           actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_UPDATE,
-          reason: 'Modifica una regla',
+          reason: 'Modifica escala para cálculo de riesgo',
           details: payload,
         };
         await this.operActionRepo.create(opPayload, em);

@@ -16,6 +16,7 @@ import { Survey } from './survey.entity';
 
 @Entity('survey_questions')
 @Index(['order'], { where: 'deleted_at IS NULL' })
+@Index(['surveyId', 'question'], { unique: true, where: 'deleted_at IS NULL' })
 export class SurveyQuestions {
   @ManyToOne(() => Survey, (survey) => survey.id, {
     nullable: false,
@@ -39,6 +40,9 @@ export class SurveyQuestions {
     type: 'smallint',
   })
   order: number;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  gender: string | null;
 
   @Column({
     type: 'boolean',

@@ -233,22 +233,3 @@ export class BasicErrorDetail {
     this.code = code;
   }
 }
-
-export class BasicBadRequestResponse<
-  T extends BasicErrorDetail,
-> extends BaseResponsePresenter<object> {
-  @ApiProperty({ type: 'integer' })
-  statusCode: number;
-
-  @ApiProperty({
-    type: BasicErrorDetail,
-    required: false,
-    nullable: true,
-  })
-  errorsDetails?: T;
-  constructor(errorsDetails: T) {
-    super('Bad Request', {}, false);
-    this.statusCode = 400;
-    this.errorsDetails = errorsDetails;
-  }
-}

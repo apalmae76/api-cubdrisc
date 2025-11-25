@@ -48,8 +48,8 @@ export class Person {
   @Column({ name: 'date_of_birth', type: 'date' })
   dateOfBirth: Date;
 
-  @Column({ type: 'varchar', length: 80, nullable: true })
-  gender: string;
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  gender: string | null;
 
   @CreateDateColumn({
     type: 'timestamp',
