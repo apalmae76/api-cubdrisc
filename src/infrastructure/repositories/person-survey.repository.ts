@@ -131,13 +131,15 @@ export class DatabasePersonSurveyRepository
         'ps.id as "id"',
         'ps.state_id as "stateId"',
         'ps.age as "age"',
-        'ps.total_score as "totalScore"',
-        'ps.weight as "weight"',
-        'ps.size as "size"',
-        'ps.imcc as "imcc"',
-        'ps.estimated_risk as "estimatedRisk"',
         'ps.phone as "phone"',
         'ps.email as "email"',
+        'ps.weight as "weight"',
+        'ps.size as "size"',
+        'ps.imc_value as "imcValue"',
+        'ps.imc_points as "imcPoints"',
+        'ps.imc_category as "imcCategory"',
+        'ps.estimated_risk as "estimatedRisk"',
+        'ps.total_score as "totalScore"',
         'ps.created_at as "createdAt"',
         'ps.updated_at as "updatedAt"',
       ])
@@ -272,11 +274,15 @@ export class DatabasePersonSurveyRepository
     model.id = Number(entity.id);
     model.stateId = Number(entity.stateId);
     model.age = Number(entity.age);
-    model.totalScore = Number(entity.totalScore);
-    model.weight = Number(entity.weight);
-    model.size = Number(entity.size);
-    model.imcc = Number(entity.imcc);
-    model.estimatedRisk = Number(entity.estimatedRisk);
+    model.totalScore = entity.totalScore ? Number(entity.totalScore) : null;
+    model.weight = entity.weight ? Number(entity.weight) : null;
+    model.size = entity.size ? Number(entity.size) : null;
+    model.imcValue = entity.imcValue ? Number(entity.imcValue) : null;
+    model.imcPoints = entity.imcPoints ? Number(entity.imcPoints) : null;
+    model.imcCategory = entity.imcCategory ?? null;
+    model.estimatedRisk = entity.estimatedRisk
+      ? Number(entity.estimatedRisk)
+      : null;
     model.phone = entity.phone;
     model.email = entity.email;
 
@@ -293,13 +299,15 @@ export class DatabasePersonSurveyRepository
     model.surveyId = Number(entity.surveyId);
     model.id = Number(entity.id);
     model.stateId = Number(entity.stateId);
-    model.age = Number(model.age);
-    model.totalScore = model.totalScore ? Number(model.totalScore) : null;
-    model.weight = model.weight ? Number(model.weight) : null;
-    model.size = model.size ? Number(model.size) : null;
-    model.imcc = model.imcc ? Number(model.imcc) : null;
-    model.estimatedRisk = model.estimatedRisk
-      ? Number(model.estimatedRisk)
+    model.age = Number(entity.age);
+    model.totalScore = entity.totalScore ? Number(entity.totalScore) : null;
+    model.weight = entity.weight ? Number(entity.weight) : null;
+    model.size = entity.size ? Number(entity.size) : null;
+    model.imcValue = entity.imcValue ? Number(entity.imcValue) : null;
+    model.imcPoints = entity.imcPoints ? Number(entity.imcPoints) : null;
+    model.imcCategory = entity.imcCategory ?? null;
+    model.estimatedRisk = entity.estimatedRisk
+      ? Number(entity.estimatedRisk)
       : null;
     model.phone = entity.phone;
     model.email = entity.email;

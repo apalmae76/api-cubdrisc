@@ -50,7 +50,9 @@
     "answer": "answer",
     "educationalTip": "educationalTip",
     "percent": "percent",
-    "label": "label"
+    "label": "label",
+    "weight": "weight",
+    "size": "size"
   },
   "IS_REQUIRED": "Required value",
   "IS_DEFINED": "Most be defined",

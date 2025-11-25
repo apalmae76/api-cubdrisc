@@ -24,6 +24,7 @@ import { ValidQuestionIdDto } from '../admin/manage-survey-question-dto.class';
 import {
   CreatePersonSurveyDto,
   PatchPersonSurveyDto,
+  PatchPersonSurveyIMCDto,
   PutAnswerDto,
   ReferenceIdDto,
 } from './person-answer-dto.class';
@@ -123,6 +124,23 @@ export class ManagePersonSurveyController {
     @Body() dataDto: PatchPersonSurveyDto,
   ): Promise<GetPersonSurveyPresenter> {
     return await this.managePersonSurveyProxyUC.getInstance().update(dataDto);
+  }
+
+  @Patch('survey/imc')
+  @ApiCreatedResponse({ type: GetPersonSurveyPresenter })
+  @ApiBody({ type: PatchPersonSurveyIMCDto })
+  @ApiOperation({
+    description: '',
+    summary:
+      'Allows persons to update a survey imc data. Use ones referenceId its available',
+    operationId: 'patchSurveyIMC',
+  })
+  async patchSurveyIMC(
+    @Body() dataDto: PatchPersonSurveyIMCDto,
+  ): Promise<GetPersonSurveyPresenter> {
+    return await this.managePersonSurveyProxyUC
+      .getInstance()
+      .updateIMC(dataDto);
   }
 
   @Put('survey/:surveyId/question/:questionId')

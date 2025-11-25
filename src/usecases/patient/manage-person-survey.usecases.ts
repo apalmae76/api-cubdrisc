@@ -13,12 +13,12 @@ import { EnvironmentConfigService } from 'src/infrastructure/config/environment-
 import {
   CreatePersonSurveyDto,
   PatchPersonSurveyDto,
+  PatchPersonSurveyIMCDto,
 } from 'src/infrastructure/controllers/patient/person-answer-dto.class';
 import {
   GetPersonSurveyPresenter,
   PersonSurveyPresenter,
 } from 'src/infrastructure/controllers/patient/person-survey.presenter';
-import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/person-survey-answers.repository';
 import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/person-survey.repository';
 import { DatabasePersonRepository } from 'src/infrastructure/repositories/person.repository';
 import { DatabaseStateRepository } from 'src/infrastructure/repositories/state.repository';
@@ -44,7 +44,6 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     private readonly surveyRepo: DatabaseSurveyRepository,
     private readonly personRepo: DatabasePersonRepository,
     private readonly personSurveyRepo: DatabasePersonSurveyRepository,
-    private readonly personSurveyAnsRepo: DatabasePersonSurveyAnswersRepository,
     private readonly stateRepo: DatabaseStateRepository,
     private readonly redisService: ApiRedisService,
     private readonly appConfig: EnvironmentConfigService,
@@ -209,21 +208,8 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     newPersonData: PersonUpdateModel | null;
     newPersonSurveyData: PersonSurveyUpdateModel | null;
   }> {
-    const referenceId = dataDto.referenceId;
-    const cacheKey = this.getCacheKey(referenceId);
-    const personSurveyData =
-      await this.redisService.get<PersonSurveyPresenter>(cacheKey);
+    const personSurveyData = await this.validateBase(dataDto.referenceId);
 
-    if (!personSurveyData) {
-      const args = {
-        technicalError: `Patient survey relation (${referenceId}) does not exist or data expired`,
-      };
-      throw new BadRequestException({
-        message: [
-          `validation.person_survey.NOT_EXIST_OR_EXPIRED|${JSON.stringify(args)}`,
-        ],
-      });
-    }
     const { personId, surveyId, personSurveyId } = personSurveyData;
     const [person, personSurvey] = await Promise.all([
       this.personRepo.getByIdOrFail(personId),
@@ -330,5 +316,134 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
       return personUpd;
     }
     return null;
+  }
+
+  @UseCaseLogger()
+  async updateIMC(
+    dataDto: PatchPersonSurveyIMCDto,
+  ): Promise<GetPersonSurveyPresenter> {
+    const context = `${this.context}updateIMC`;
+    const { personSurveyData, newPersonSurveyData } =
+      await this.validateUpdateIMC(dataDto);
+
+    if (newPersonSurveyData === null) {
+      const response = new BaseResponsePresenter(
+        `messages.person_survey.UPDATED_SUCESSFULLY|{"identityCardNumber":"${personSurveyData.personCi}"}`,
+        personSurveyData,
+      );
+      return this.handleNoChangedValuesOnUpdate(
+        context,
+        response,
+        this.appConfig.isProductionEnv(),
+      );
+    }
+
+    const updSurvey = await this.persistIMCData(
+      personSurveyData,
+      newPersonSurveyData,
+    );
+    return new BaseResponsePresenter(
+      `messages.person_survey.UPDATED_SUCESSFULLY|{"identityCardNumber":"${personSurveyData.personCi}"}`,
+      updSurvey,
+    );
+  }
+
+  private async validateUpdateIMC(dataDto: PatchPersonSurveyIMCDto): Promise<{
+    personSurveyData: PersonSurveyPresenter;
+    newPersonSurveyData: PersonSurveyUpdateModel | null;
+  }> {
+    const personSurveyData = await this.validateBase(dataDto.referenceId);
+
+    const { personId, surveyId, personSurveyId } = personSurveyData;
+    const [personSurvey] = await Promise.all([
+      this.personSurveyRepo.getByIdOrFail(surveyId, personId, personSurveyId),
+      this.personRepo.getByIdOrFail(personId),
+      this.surveyRepo.getByIdOrFail(surveyId),
+    ]);
+
+    const newPersonSurveyData: PersonSurveyUpdateModel = {};
+
+    if (dataDto.weight !== personSurvey.weight) {
+      newPersonSurveyData.weight = dataDto.weight;
+    }
+    if (dataDto.size !== personSurvey.size) {
+      newPersonSurveyData.size = dataDto.size;
+    }
+
+    const updPersonSurvey =
+      Object.keys(newPersonSurveyData).length === 0
+        ? null
+        : newPersonSurveyData;
+
+    if (updPersonSurvey) {
+      const sizeMts = updPersonSurvey.size / 100;
+      updPersonSurvey.imcValue = Number(
+        (updPersonSurvey.weight / (sizeMts * sizeMts)).toFixed(2),
+      );
+      if (updPersonSurvey.imcValue < 25) {
+        updPersonSurvey.imcPoints = 0;
+        updPersonSurvey.imcCategory = 'Normal';
+      } else if (
+        updPersonSurvey.imcValue >= 25 &&
+        updPersonSurvey.imcValue <= 30
+      ) {
+        updPersonSurvey.imcPoints = 1;
+        updPersonSurvey.imcCategory = 'Sobrepeso';
+      } else {
+        // more than 30
+        updPersonSurvey.imcPoints = 3;
+        updPersonSurvey.imcCategory = 'Obesidad';
+      }
+    }
+
+    const response = {
+      personSurveyData,
+      newPersonSurveyData: updPersonSurvey,
+    };
+
+    return response;
+  }
+
+  async persistIMCData(
+    personSurveyData: PersonSurveyPresenter,
+    newPersonSurveyData: PersonSurveyUpdateModel | null,
+  ): Promise<PersonSurveyPresenter> {
+    const context = `${this.context}persistIMCData`;
+    this.logger.debug('Saving data', {
+      context,
+      personSurveyData,
+      newPersonSurveyData,
+    });
+    const { personId, surveyId, personSurveyId } = personSurveyData;
+    if (newPersonSurveyData) {
+      await this.personSurveyRepo.update(
+        personId,
+        surveyId,
+        personSurveyId,
+        newPersonSurveyData,
+        null,
+      );
+    }
+    const cacheKey = this.getCacheKey(personSurveyData.referenceId);
+    await this.redisService.set(cacheKey, personSurveyData, this.surveyTtl);
+    return personSurveyData;
+  }
+
+  async validateBase(referenceId: string): Promise<PersonSurveyPresenter> {
+    const cacheKey = this.getCacheKey(referenceId);
+    const personSurveyData =
+      await this.redisService.get<PersonSurveyPresenter>(cacheKey);
+
+    if (!personSurveyData) {
+      const args = {
+        technicalError: `Patient survey relation (${referenceId}) does not exist or data expired`,
+      };
+      throw new BadRequestException({
+        message: [
+          `validation.person_survey.NOT_EXIST_OR_EXPIRED|${JSON.stringify(args)}`,
+        ],
+      });
+    }
+    return personSurveyData;
   }
 }

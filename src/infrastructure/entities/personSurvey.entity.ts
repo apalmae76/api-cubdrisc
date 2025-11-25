@@ -78,13 +78,6 @@ export class PersonSurvey {
   age: number;
 
   @Column({
-    type: 'smallint',
-    name: 'total_score',
-    nullable: true,
-  })
-  totalScore: number;
-
-  @Column({
     type: 'float',
     nullable: true,
   })
@@ -98,9 +91,25 @@ export class PersonSurvey {
 
   @Column({
     type: 'float',
+    name: 'imc_value',
     nullable: true,
   })
-  imcc: number;
+  imcValue: number;
+
+  @Column({
+    type: 'smallint',
+    name: 'imc_points',
+    nullable: true,
+  })
+  imcPoints: number;
+
+  @Column({
+    type: 'varchar',
+    length: 30,
+    name: 'imc_category',
+    nullable: true,
+  })
+  imcCategory: string;
 
   @Column({
     type: 'float',
@@ -108,6 +117,13 @@ export class PersonSurvey {
     nullable: true,
   })
   estimatedRisk: number;
+
+  @Column({
+    type: 'smallint',
+    name: 'total_score',
+    nullable: true,
+  })
+  totalScore: number;
 
   @CreateDateColumn({
     type: 'timestamp',

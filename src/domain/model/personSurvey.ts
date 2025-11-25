@@ -12,20 +12,24 @@ export class PersonSurveyUpdateModel {
   age?: number;
   phone?: string;
   email?: string;
-  totalScore?: number;
   weight?: number;
   size?: number;
-  imcc?: number;
+  imcValue?: number;
+  imcPoints?: number;
+  imcCategory?: string;
   estimatedRisk?: number;
+  totalScore?: number;
 }
 
 export class PersonSurveyModel extends PersonSurveyCreateModel {
   id: number;
-  totalScore: number;
   weight: number;
   size: number;
-  imcc: number;
+  imcValue: number;
+  imcPoints: number;
+  imcCategory: string;
   estimatedRisk: number;
+  totalScore: number;
   createdAt: Date;
   updatedAt: Date;
 }

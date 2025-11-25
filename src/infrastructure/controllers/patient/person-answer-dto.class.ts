@@ -6,10 +6,12 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
   Matches,
+  Max,
   Min,
   Validate,
 } from 'class-validator';
@@ -300,4 +302,39 @@ export class PutAnswerDto {
   @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
   @Min(1, { message: i18nValidationMessage('validation.MIN') })
   readonly answerId: number;
+}
+
+export class PatchPersonSurveyIMCDto {
+  @ApiProperty({
+    description: `\n@IMPORTANT@\n
+    - Ignore this param on the first request to this endpoint; you will get it in the response body of that request
+    - Allways send this param as a reference of the user on consecutive request. Acts as respose test flow identifier
+    `,
+    required: true,
+    example: '9d77c4db-ccec-4434-9764-e86d685e7b86',
+  })
+  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
+  @IsUUID('4', { message: i18nValidationMessage('validation.IS_UUID') })
+  readonly referenceId: string;
+
+  @ApiProperty({
+    description: 'weight in Kgs',
+    example: 73.5,
+  })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(35, { message: i18nValidationMessage('validation.MIN') })
+  @Max(250, { message: i18nValidationMessage('validation.MAX') })
+  readonly weight: number;
+
+  @ApiProperty({
+    description: 'size in cms',
+    example: 167.5,
+  })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(100, { message: i18nValidationMessage('validation.MIN') })
+  @Max(250, { message: i18nValidationMessage('validation.MAX') })
+  readonly size: number;
 }
