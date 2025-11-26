@@ -15,7 +15,7 @@
 
     <p style='margin-top: 0;'>
       Estimado/a
-      <strong style='color: #2c3e50;'>{{person.fullName}}</strong>,
+      <strong style='color: #2c3e50;'>{{personFullName}}</strong>,
     </p>
 
     <p>
@@ -70,18 +70,6 @@
       nuestro compromiso con su bienestar y salud metabólica.
     </p>
 
-    <p style='margin-top: 30px; font-weight: bold;'>Atentamente,</p>
-
-    <!-- Signature Block (Handlebars Each Loop) -->
-    {{#each medics}}
-      <p style='margin: 5px 0; color: #2c3e50;'>
-        <strong>{{this.medicName}}</strong><br />
-        <span
-          style='font-size: 0.9em; color: #555;'
-        >{{this.medicContact}}</span>
-      </p>
-    {{/each}}
-
   </div>
 
   <!-- Footer -->
@@ -94,13 +82,6 @@
     <p style='margin: 5px 0;'>
       Teléfono:
       {{contactPhone}}
-      <!--
-      | Email:
-      <a
-        href='mailto:{{contactEmail}}'
-        style='color: #3498db; text-decoration: none;'
-      >{{contactEmail}}</a>
-      -->
     </p>
     <p style='margin: 5px 0;'>
       Dirección:

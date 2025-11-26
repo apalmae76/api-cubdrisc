@@ -169,7 +169,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
   }
 
   private getCacheKey(referenceId: string): string {
-    return `PatientSurvey:${referenceId}`;
+    return `System:PatientSurvey:${referenceId}`;
   }
 
   @UseCaseLogger()

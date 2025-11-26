@@ -77,7 +77,8 @@
     "NOT_DELETED": "Test possible answer could not be disabled, please check"
   },
   "person_survey": {
-    "CREATED_SUCESSFULLY": "The test has started successfully",
-    "UPDATED_SUCESSFULLY": "The test has has been updated successfully"
+    "CREATED_SUCESSFULLY": "Test has started successfully",
+    "UPDATED_SUCESSFULLY": "Test has has been updated successfully",
+    "CLOSED_SUCESSFULLY": "Test has been successfully completed"
   }
 }

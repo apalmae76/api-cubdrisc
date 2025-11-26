@@ -178,6 +178,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
       newPersonSurveyData,
       answeredQuestions,
     };
+    // console.log('--response--'); console.log(response);
     return response;
   }
 
@@ -223,7 +224,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
   }
 
   private getCacheKey(referenceId: string): string {
-    return `PatientSurvey:${referenceId}`;
+    return `System:PatientSurvey:${referenceId}`;
   }
 
   private async sendConfirmationEmail(
@@ -277,7 +278,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
             },
           ],
         },
-        mailType: 'Store order payment email',
+        mailType: 'Test confirmation',
         correlationId: this.contextStorageService.getContextId() ?? undefined,
       };
       const options: JobOptions = {
@@ -298,7 +299,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
   private async generarPdfTestMedico(
     personSurvey: PersonSurveyFullModel,
     answeredQuestions: AnswerModel[],
-  ) {
+  ): Promise<string> {
     const pdfData = {
       test: {
         nombre: personSurvey.surveyName,
@@ -325,6 +326,6 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
       },
     );
 
-    return pdfBuffer;
+    return pdfBuffer.toString('base64');
   }
 }

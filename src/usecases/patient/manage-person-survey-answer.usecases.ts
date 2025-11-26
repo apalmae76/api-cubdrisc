@@ -73,7 +73,7 @@ export class ManagePersonSurveyAnswerUseCases extends UseCaseBase {
       );
       if (answersModel.length > 0) {
         const referenceId = dataDto.referenceId;
-        const cacheKey = `PatientSurvey:${referenceId}`;
+        const cacheKey = `System:PatientSurvey:${referenceId}`;
         const personSurveyData =
           await this.redisService.get<PersonSurveyPresenter>(cacheKey);
 
@@ -104,7 +104,7 @@ export class ManagePersonSurveyAnswerUseCases extends UseCaseBase {
     dataDto: PutAnswerDto,
   ): Promise<BooleanDataResponsePresenter> {
     const referenceId = dataDto.referenceId;
-    const cacheKey = `PatientSurvey:${referenceId}`;
+    const cacheKey = `System:PatientSurvey:${referenceId}`;
     const personSurveyData =
       await this.redisService.get<PersonSurveyPresenter>(cacheKey);
     if (!personSurveyData) {

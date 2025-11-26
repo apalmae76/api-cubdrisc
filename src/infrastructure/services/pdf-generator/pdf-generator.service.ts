@@ -34,14 +34,7 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PdfGeneratorService.name);
 
   constructor() {
-    this.templatesDir = path.resolve(
-      process.cwd(),
-      'src',
-      'infrastructure',
-      'services',
-      'pdf-generator',
-      'templates',
-    );
+    this.templatesDir = path.join(__dirname, '/templates');
   }
 
   /**

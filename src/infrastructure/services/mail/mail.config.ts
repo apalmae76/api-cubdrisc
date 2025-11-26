@@ -29,7 +29,7 @@ export const getMailModuleOptions = (
     },
     // dist\src\infrastructure\services\mail\templates
     template: {
-      dir: path.join(__dirname, '../../templates'),
+      dir: path.join(__dirname, '/templates'),
       adapter: new HandlebarsAdapter(),
       options: {
         strict: true,
