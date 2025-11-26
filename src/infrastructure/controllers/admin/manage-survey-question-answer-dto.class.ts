@@ -32,6 +32,7 @@ export class CreateSurveyQuestionAnswerDto {
     example: '',
     required: true,
   })
+  @Transform(({ value }) => value?.trim() ?? '')
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @MinLength(2, { message: i18nValidationMessage('validation.MIN_LENGTH') })
@@ -41,6 +42,9 @@ export class CreateSurveyQuestionAnswerDto {
     example: '',
     required: false,
   })
+  @Transform(({ value }) =>
+    value !== undefined ? (value?.trim() ?? '') : value,
+  )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
@@ -62,6 +66,9 @@ export class UpdateSurveyQuestionAnswerDto {
     example: '',
     required: false,
   })
+  @Transform(({ value }) =>
+    value !== undefined ? (value?.trim() ?? '') : value,
+  )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
@@ -72,6 +79,9 @@ export class UpdateSurveyQuestionAnswerDto {
     example: '',
     required: false,
   })
+  @Transform(({ value }) =>
+    value !== undefined ? (value?.trim() ?? '') : value,
+  )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })

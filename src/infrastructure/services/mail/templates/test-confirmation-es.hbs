@@ -1,0 +1,111 @@
+<div
+  style='font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9;'
+>
+
+  <!-- Header/Logo (Simulated) -->
+  <div
+    style='text-align: center; padding-bottom: 20px; border-bottom: 3px solid #3498db;'
+  >
+    <h1 style='color: #2c3e50; font-size: 24px; margin: 0;'>Instituto de
+      Endocrinología</h1>
+  </div>
+
+  <!-- Body Content -->
+  <div style='padding-top: 20px; color: #333333; line-height: 1.6;'>
+
+    <p style='margin-top: 0;'>
+      Estimado/a
+      <strong style='color: #2c3e50;'>{{person.fullName}}</strong>,
+    </p>
+
+    <p>
+      Reciba un cordial saludo de parte del equipo del Instituto de
+      Endocrinología.
+    </p>
+
+    <p>
+      Por este medio, y en seguimiento a su reciente participación, le hacemos
+      llegar los resultados correspondientes al **test de evaluación de riesgo
+      <span style='color: #3498db;'>{{testName}}</span>** que usted amablemente
+      completó.
+    </p>
+
+    <!-- Call to Action/Attachment Section -->
+    <div
+      style='background-color: #ecf0f1; padding: 15px; border-left: 5px solid #3498db; margin: 25px 0; border-radius: 4px;'
+    >
+      <p style='margin: 0; font-weight: bold; color: #2c3e50;'>
+        <span style='font-size: 1.2em;'>📄 Adjunto:</span>
+        Documento Detallado de Análisis.
+      </p>
+      <p style='font-size: 0.9em; margin-top: 5px; color: #555;'>
+        Este informe constituye una herramienta de estimación de factores de
+        riesgo.
+      </p>
+    </div>
+
+    <p>
+      Le recordamos que esta evaluación tiene un carácter **informativo y
+      preliminar**. No sustituye el criterio clínico de un diagnóstico formal.
+      Su propósito es fomentar la medicina preventiva y, de ser necesario,
+      servir como punto de partida para una consulta especializada donde un
+      endocrinólogo podrá realizar una valoración integral, incluyendo
+      exploración física y estudios de laboratorio pertinentes.
+    </p>
+
+    <p style='font-weight: bold;'>
+      Recomendamos que comparta estos resultados con su médico tratante o
+      solicite una consulta con nuestros especialistas para una interpretación
+      personalizada y un plan de manejo individualizado si así lo considera.
+    </p>
+
+    <p>
+      Quedamos a su disposición para cualquier aclaración o para agendar una
+      consulta en
+      <strong style='color: #e74c3c;'>{{contactPhone}}</strong>.
+    </p>
+
+    <p>
+      Agradecemos su confianza en el Instituto de Endocrinología y le reiteramos
+      nuestro compromiso con su bienestar y salud metabólica.
+    </p>
+
+    <p style='margin-top: 30px; font-weight: bold;'>Atentamente,</p>
+
+    <!-- Signature Block (Handlebars Each Loop) -->
+    {{#each medics}}
+      <p style='margin: 5px 0; color: #2c3e50;'>
+        <strong>{{this.medicName}}</strong><br />
+        <span
+          style='font-size: 0.9em; color: #555;'
+        >{{this.medicContact}}</span>
+      </p>
+    {{/each}}
+
+  </div>
+
+  <!-- Footer -->
+  <div
+    style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #e0e0e0; text-align: center; font-size: 0.8em; color: #7f8c8d;'
+  >
+    <p style='margin: 5px 0;'>
+      Instituto de Endocrinología
+    </p>
+    <p style='margin: 5px 0;'>
+      Teléfono:
+      {{contactPhone}}
+      <!--
+      | Email:
+      <a
+        href='mailto:{{contactEmail}}'
+        style='color: #3498db; text-decoration: none;'
+      >{{contactEmail}}</a>
+      -->
+    </p>
+    <p style='margin: 5px 0;'>
+      Dirección:
+      {{contactAddress}}
+    </p>
+  </div>
+
+</div>

@@ -31,7 +31,7 @@ export class SurveyRiskCalculationRules {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: 'id column' })
   id: number;
 
-  @Column({ type: 'varchar', length: 250 })
+  @Column({ type: 'varchar', length: 50 })
   label: string;
 
   @Column({ type: 'text' })

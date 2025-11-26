@@ -61,7 +61,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     const { message } = extractErrorDetails(er);
 
     if (message) {
-      if (message.includes('IDX_1e7ddf3829548c991a08fbe9d6')) {
+      if (message.includes('IDX_7ef93680307bb863c00dd39e2b')) {
         const addInfo = {
           technicalError: `Answer exists, text must be unique (${newData.answer}), check`,
           answer: newData.answer,

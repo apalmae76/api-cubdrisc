@@ -13,6 +13,11 @@
         "include": "infrastructure/services/mail/templates/*.hbs",
         "watchAssets": true,
         "outDir": "dist/src"
+      },
+      {
+        "include": "infrastructure/services/pdf-generator/templates/*.hbs",
+        "watchAssets": true,
+        "outDir": "dist/src"
       }
     ],
     "deleteOutDir": true

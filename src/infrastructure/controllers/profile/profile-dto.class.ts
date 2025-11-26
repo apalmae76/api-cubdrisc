@@ -28,7 +28,6 @@ import { ValidDate } from './valid-date-custom.class';
 export enum Gender {
   MALE = 'Masculino',
   FEMALE = 'Femenino',
-  NON_BINARY = 'Otro',
 }
 
 export const genderTypesValues = Object.values(Gender)

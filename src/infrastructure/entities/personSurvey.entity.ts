@@ -112,11 +112,12 @@ export class PersonSurvey {
   imcCategory: string;
 
   @Column({
-    type: 'float',
+    type: 'varchar',
+    length: 50,
     name: 'estimated_risk',
     nullable: true,
   })
-  estimatedRisk: number;
+  estimatedRisk: string;
 
   @Column({
     type: 'smallint',

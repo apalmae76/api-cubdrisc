@@ -10,6 +10,7 @@ import { EmailService } from './mail.service';
 @Module({
   providers: [EmailService],
   imports: [
+    ApiLoggerModule,
     MailerModule.forRootAsync({
       imports: [EnvironmentConfigModule, ApiLoggerModule],
       inject: [EnvironmentConfigService, ApiLoggerService],
@@ -18,4 +19,4 @@ import { EmailService } from './mail.service';
   ],
   exports: [EmailService],
 })
-export class MailModule {}
+export class MailModule { }

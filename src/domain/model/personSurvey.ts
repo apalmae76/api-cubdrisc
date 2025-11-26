@@ -17,7 +17,7 @@ export class PersonSurveyUpdateModel {
   imcValue?: number;
   imcPoints?: number;
   imcCategory?: string;
-  estimatedRisk?: number;
+  estimatedRisk?: string;
   totalScore?: number;
 }
 
@@ -28,8 +28,24 @@ export class PersonSurveyModel extends PersonSurveyCreateModel {
   imcValue: number;
   imcPoints: number;
   imcCategory: string;
-  estimatedRisk: number;
+  estimatedRisk: string;
   totalScore: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export class PersonSurveyFullModel extends PersonSurveyModel {
+  surveyName: string;
+  surveyDescription: string;
+  ci: string;
+  fullName: string;
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  secondLastName?: string | null;
+  dateOfBirth: Date;
+  gender: string;
+
+  estimatedRiskDescription: string;
+  estimatedRiskPercent: number;
 }

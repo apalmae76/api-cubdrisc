@@ -89,8 +89,8 @@ export class DatabasePersonSurveyRepository
     personId: number;
     surveyId: number;
   }) {
-    const cacheKey = `${this.cacheKey}${personId}:${surveyId}`;
-    await this.redisService.del(cacheKey);
+    const pattern = `${this.cacheKey}${personId}:${surveyId}:*`;
+    await this.redisService.removeAllKeysWithPattern(pattern);
   }
 
   async setEmail(
@@ -278,9 +278,7 @@ export class DatabasePersonSurveyRepository
     model.imcValue = entity.imcValue ? Number(entity.imcValue) : null;
     model.imcPoints = entity.imcPoints ? Number(entity.imcPoints) : null;
     model.imcCategory = entity.imcCategory ?? null;
-    model.estimatedRisk = entity.estimatedRisk
-      ? Number(entity.estimatedRisk)
-      : null;
+    model.estimatedRisk = entity.estimatedRisk ?? null;
     model.phone = entity.phone;
     model.email = entity.email;
 
@@ -304,9 +302,7 @@ export class DatabasePersonSurveyRepository
     model.imcValue = entity.imcValue ? Number(entity.imcValue) : null;
     model.imcPoints = entity.imcPoints ? Number(entity.imcPoints) : null;
     model.imcCategory = entity.imcCategory ?? null;
-    model.estimatedRisk = entity.estimatedRisk
-      ? Number(entity.estimatedRisk)
-      : null;
+    model.estimatedRisk = entity.estimatedRisk ?? null;
     model.phone = entity.phone;
     model.email = entity.email;
 

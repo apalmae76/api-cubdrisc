@@ -222,6 +222,9 @@
   "person_survey": {
     "HAS_VALID_TEST": "You have a valid test (taken less than a year ago). The next test can be taken from {date}",
     "HAS_ALREADY_STARTED": "The test has already started; you need to modify it. Please check",
-    "NOT_EXIST_OR_EXPIRED": "The test you are currently taking does not exist or the data has expired. You must start it again, please check"
+    "NOT_EXIST_OR_EXPIRED": "The test you are currently taking does not exist or the data has expired. You must start it again, please check",
+    "MISSING_IMC": "Must record your height and weight before completing the test, please verify",
+    "MISSING_ANSWERS": "You must answer all questions to complete the test. {count} remain unanswered, please check",
+    "MISSING_ESTIMATED_RISK": "The test could not be completed. Please contact technical support for more information."
   }
 }

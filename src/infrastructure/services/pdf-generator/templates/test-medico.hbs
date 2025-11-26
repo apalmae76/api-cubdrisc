@@ -1,0 +1,117 @@
+<html lang='es'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Test Médico - {{paciente.nombre}}</title>
+    <style>
+      body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333;
+      margin: 0; padding: 20px; } .header { text-align: center; border-bottom:
+      2px solid #2c5aa0; padding-bottom: 20px; margin-bottom: 30px; } .header h1
+      { color: #2c5aa0; margin: 0; } .paciente-info { background: #f8f9fa;
+      padding: 15px; border-radius: 5px; margin-bottom: 25px; } .paciente-info
+      h3 { margin-top: 0; color: #2c5aa0; } .info-grid { display: grid;
+      grid-template-columns: 1fr 1fr; gap: 10px; } .info-item { margin-bottom:
+      8px; } .info-label { font-weight: bold; color: #555; } .seccion {
+      margin-bottom: 30px; page-break-inside: avoid; } .seccion-titulo {
+      background: #2c5aa0; color: white; padding: 10px 15px; border-radius: 5px;
+      margin-bottom: 15px; } .pregunta { margin-bottom: 20px; padding: 15px;
+      border: 1px solid #ddd; border-radius: 5px; page-break-inside: avoid; }
+      .pregunta-texto { font-weight: bold; margin-bottom: 10px; color: #2c5aa0;
+      } .respuesta { background: #e8f4fd; padding: 10px; border-radius: 3px;
+      border-left: 4px solid #2c5aa0; } .observaciones { margin-top: 10px;
+      font-style: italic; color: #666; } .footer { margin-top: 40px; text-align:
+      center; font-size: 12px; color: #666; border-top: 1px solid #ddd;
+      padding-top: 20px; } .firma { margin-top: 50px; text-align: center; }
+      .linea-firma { width: 300px; border-top: 1px solid #333; margin: 0 auto
+      10px; padding-top: 40px; } @media print { body { padding: 0; } .pregunta {
+      page-break-inside: avoid; } }
+    </style>
+  </head>
+  <body>
+    <div class='header'>
+      <h1>TEST MÉDICO - {{test.nombre}}</h1>
+      <p>Fecha de realización: {{fechaRealizacion}}</p>
+    </div>
+
+    <div class='paciente-info'>
+      <h3>Información del Paciente</h3>
+      <div class='info-grid'>
+        <div class='info-item'>
+          <span class='info-label'>Nombre:</span>
+          {{paciente.nombre}}
+          {{paciente.apellido}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Edad:</span>
+          {{paciente.edad}}
+          años
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Documento:</span>
+          {{paciente.documento}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Fecha de Nacimiento:</span>
+          {{paciente.fechaNacimiento}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Médico:</span>
+          {{medico.nombre}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Especialidad:</span>
+          {{medico.especialidad}}
+        </div>
+      </div>
+    </div>
+
+    {{#each secciones as |seccion|}}
+      <div class='seccion'>
+        <div class='seccion-titulo'>
+          <h2>{{seccion.titulo}}</h2>
+        </div>
+
+        {{#each seccion.preguntas as |pregunta|}}
+          <div class='pregunta'>
+            <div class='pregunta-texto'>
+              {{@index1}}.
+              {{pregunta.texto}}
+            </div>
+            <div class='respuesta'>
+              <strong>Respuesta:</strong>
+              {{pregunta.respuesta}}
+            </div>
+            {{#if pregunta.observaciones}}
+              <div class='observaciones'>
+                <strong>Observaciones:</strong>
+                {{pregunta.observaciones}}
+              </div>
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+    {{/each}}
+
+    {{#if observacionesGenerales}}
+      <div class='seccion'>
+        <div class='seccion-titulo'>
+          <h2>Observaciones Generales</h2>
+        </div>
+        <div class='respuesta'>
+          {{observacionesGenerales}}
+        </div>
+      </div>
+    {{/if}}
+
+    <div class='firma'>
+      <div class='linea-firma'></div>
+      <p>Dr. {{medico.nombre}}</p>
+      <p>{{medico.especialidad}}</p>
+      <p>Lic. {{medico.licencia}}</p>
+    </div>
+
+    <div class='footer'>
+      <p>Documento generado el {{fechaGeneracion}} - Confidencial</p>
+    </div>
+  </body>
+</html>

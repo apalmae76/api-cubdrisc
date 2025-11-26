@@ -15,8 +15,12 @@ import {
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { EmailJobData } from 'src/domain/adapters/email-job-data';
 import { BooleanDataResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
+import { FinishPersonSurveyUseCases } from 'src/usecases/patient/finish-person-survey.usecases';
 import { ManagePersonSurveyAnswerUseCases } from 'src/usecases/patient/manage-person-survey-answer.usecases';
 import { ManagePersonSurveyUseCases } from 'src/usecases/patient/manage-person-survey.usecases';
 import { ValidSurveyIdDto } from '../admin/manage-survey-dto.class';
@@ -50,6 +54,9 @@ export class ManagePersonSurveyController {
     private readonly managePersonSurveyProxyUC: UseCaseProxy<ManagePersonSurveyUseCases>,
     @InjectUseCase(ManagePersonSurveyAnswerUseCases)
     private readonly managePSAnswerProxyUC: UseCaseProxy<ManagePersonSurveyAnswerUseCases>,
+    @InjectUseCase(FinishPersonSurveyUseCases)
+    private readonly finishPersonSurveyProxyUC: UseCaseProxy<FinishPersonSurveyUseCases>,
+    @InjectQueue('email') private readonly emailSyncQueue: Queue<EmailJobData>,
   ) { }
 
   // Get active survey base data ---------------------------------------------------------------------
@@ -171,5 +178,22 @@ export class ManagePersonSurveyController {
     return await this.managePSAnswerProxyUC
       .getInstance()
       .putAnswer(surveyId, questionId, dataDto);
+  }
+
+  @Patch('survey/finish')
+  @ApiCreatedResponse({ type: GetPersonSurveyPresenter })
+  @ApiBody({ type: ReferenceIdDto })
+  @ApiOperation({
+    description: '',
+    summary:
+      'Allows persons to ends survey and save final data. Use ones referenceId its available, as end request',
+    operationId: 'postSurveyFinish',
+  })
+  async postSurveyFinish(
+    @Body() { referenceId }: ReferenceIdDto,
+  ): Promise<GetPersonSurveyPresenter> {
+    return await this.finishPersonSurveyProxyUC
+      .getInstance()
+      .execute(referenceId, this.emailSyncQueue);
   }
 }

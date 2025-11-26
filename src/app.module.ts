@@ -28,6 +28,7 @@ import { JwtModule as JwtServiceModule } from './infrastructure/services/jwt/jwt
 import { ApiLoggerModule } from './infrastructure/services/logger/logger.module';
 import { ApiLoggerService } from './infrastructure/services/logger/logger.service';
 import { MailModule } from './infrastructure/services/mail/mail.module';
+import { PdfGeneratorModule } from './infrastructure/services/pdf-generator/pdf-generator.module';
 import { getRedisConfForBull } from './infrastructure/services/redis/redis.config';
 import { ApiRedisModule } from './infrastructure/services/redis/redis.module';
 import { SystemModule } from './infrastructure/services/system/system.module';
@@ -79,6 +80,7 @@ import { UsecasesProxyModule } from './infrastructure/usecases-proxy/usecases-pr
     ControllersModule,
     AdminControllersModule,
     RepositoriesModule,
+    PdfGeneratorModule,
   ],
   providers: [
     JwtStrategy,

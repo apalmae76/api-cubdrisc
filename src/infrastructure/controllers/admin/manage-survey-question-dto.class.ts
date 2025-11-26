@@ -33,6 +33,7 @@ export class CreateSurveyQuestionDto {
       '¿ Algún miembro de su familia ha sido diagnosticado con diabetes tipo 1 o tipo 2 ?',
     required: true,
   })
+  @Transform(({ value }) => value?.trim() ?? '')
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @MinLength(10, { message: i18nValidationMessage('validation.MIN_LENGTH') })
@@ -71,6 +72,9 @@ export class UpdateSurveyQuestionDto {
       '¿ Algún miembro de su familia ha sido diagnosticado con diabetes tipo 1 o tipo 2 ?',
     required: false,
   })
+  @Transform(({ value }) =>
+    value !== undefined ? (value?.trim() ?? '') : value,
+  )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })

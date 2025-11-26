@@ -252,6 +252,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       .select([
         'srcr.survey_id as "surveyId"',
         'srcr.id as "id"',
+        'srcr.label as "label"',
         'srcr.description as "description"',
         'srcr.min_range as "minRange"',
         'srcr.max_range as "maxRange"',
@@ -386,6 +387,38 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     return surveyRCR;
   }
 
+  async getSurveyRules(
+    surveyId: number,
+    useCache = true,
+  ): Promise<SurveyRiskCalculationRulesModel[]> {
+    let cacheKey = null;
+    let surveyRCRs: SurveyRiskCalculationRulesModel[] = [];
+    if (useCache) {
+      cacheKey = `${this.cacheKey}${surveyId}`;
+      surveyRCRs =
+        await this.redisService.get<SurveyRiskCalculationRulesModel[]>(
+          cacheKey,
+        );
+      if (surveyRCRs) {
+        return surveyRCRs;
+      }
+    }
+    const query = await this.getBasicQuery();
+    const surveyQry = await query
+      .where('survey_id = :surveyId', { surveyId })
+      .getRawMany();
+
+    surveyRCRs = surveyQry.map((surveyRCR) => this.toModel(surveyRCR, true));
+    if (cacheKey) {
+      await this.redisService.set<SurveyRiskCalculationRulesModel[]>(
+        cacheKey,
+        surveyRCRs,
+        this.cacheTime,
+      );
+    }
+    return surveyRCRs;
+  }
+
   private toModelPanel(
     entity: SurveyRiskCalculationRules,
     isForDetails = false,
@@ -398,11 +431,12 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       model.id = Number(entity.id);
     }
 
+    model.label = entity.label;
     model.description = entity.description;
-    model.minRange = entity.minRange;
-    model.maxRange = entity.maxRange;
-    model.percent = entity.percent;
-    model.order = entity.order;
+    model.minRange = Number(entity.minRange);
+    model.maxRange = Number(entity.maxRange);
+    model.percent = Number(entity.percent);
+    model.order = Number(entity.order);
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
@@ -422,11 +456,12 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     if (!isForPanel) {
       model.id = Number(entity.id);
     }
+    model.label = entity.label;
     model.description = entity.description;
-    model.minRange = entity.minRange;
-    model.maxRange = entity.maxRange;
-    model.percent = entity.percent;
-    model.order = entity.order;
+    model.minRange = Number(entity.minRange);
+    model.maxRange = Number(entity.maxRange);
+    model.percent = Number(entity.percent);
+    model.order = Number(entity.order);
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

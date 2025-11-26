@@ -27,13 +27,13 @@ export const getMailModuleOptions = (
     defaults: {
       from: `"${envCfgServ.getSmtpFromUser()}" <${envCfgServ.getSmtpFromAddress()}>`,
     },
-    // TODO Later review the topic, when the design comes out
     // dist\src\infrastructure\services\mail\templates
     template: {
-      dir: path.join(__dirname, 'templates'),
+      dir: path.join(__dirname, '../../templates'),
       adapter: new HandlebarsAdapter(),
       options: {
         strict: true,
+        htmlMinifierOptions: false,
       },
     },
   };

@@ -30,15 +30,17 @@ export class CreateSurveyRiskCalculationDto {
     example: '',
     required: false,
   })
+  @Transform(({ value }) => value?.trim() ?? '')
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(2, 250, { message: i18nValidationMessage('validation.LENGTH') })
+  @Length(2, 50, { message: i18nValidationMessage('validation.LENGTH') })
   label: string;
 
   @ApiProperty({
     example: '',
     required: true,
   })
+  @Transform(({ value }) => value?.trim() ?? '')
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @MinLength(4, { message: i18nValidationMessage('validation.MIN_LENGTH') })
@@ -85,16 +87,22 @@ export class UpdateSurveyRiskCalculationDto {
     example: '',
     required: false,
   })
+  @Transform(({ value }) =>
+    value !== undefined ? (value?.trim() ?? '') : value,
+  )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(2, 250, { message: i18nValidationMessage('validation.LENGTH') })
+  @Length(2, 50, { message: i18nValidationMessage('validation.LENGTH') })
   label: string;
 
   @ApiProperty({
     example: '',
     required: true,
   })
+  @Transform(({ value }) =>
+    value !== undefined ? (value?.trim() ?? '') : value,
+  )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })

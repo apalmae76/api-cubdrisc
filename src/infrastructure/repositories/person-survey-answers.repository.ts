@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  AnswerModel,
   PersonSurveyAnswersCreateModel,
   PersonSurveyAnswersModel,
 } from 'src/domain/model/personSurveyAnswers';
@@ -10,6 +11,8 @@ import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { PersonSurveyAnswers } from '../entities/person-survey-answers.entity';
+import { SurveyQuestionsPossibleAnswers } from '../entities/survey-questions-possible-answers.entity';
+import { SurveyQuestions } from '../entities/survey-questions.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
@@ -104,7 +107,7 @@ export class DatabasePersonSurveyAnswersRepository
     surveyQuestionId: number;
     surveyQuestionAnswerId?: number | null;
   }) {
-    if (surveyQuestionAnswerId === null) {
+    if (!surveyQuestionAnswerId) {
       const pattern = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}:${surveyQuestionId}:*`;
       await this.redisService.removeAllKeysWithPattern(pattern);
       return;
@@ -270,15 +273,54 @@ export class DatabasePersonSurveyAnswersRepository
     surveyQuestionId: number,
     useCache = true,
   ): Promise<boolean> {
+    const survQPAQry = await this.getQuestionAnswer(
+      personId,
+      surveyId,
+      personSurveyId,
+      surveyQuestionId,
+      true,
+      useCache,
+    );
+    return survQPAQry ? true : false;
+  }
+
+  async getQuestionAnswer(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+    surveyQuestionId: number,
+    forEnsureExist = false,
+    useCache = true,
+  ): Promise<AnswerModel | null> {
     let cacheKey = null;
     if (useCache) {
       cacheKey = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}:${surveyQuestionId}:wasAnswered`;
-      const wasAnswered = await this.redisService.get<boolean>(cacheKey);
-      if (wasAnswered === true || wasAnswered === false) {
-        return wasAnswered;
+      const answer = await this.redisService.get<AnswerModel>(cacheKey);
+      if (answer) {
+        return answer;
       }
     }
-    const query = await this.getBasicQuery();
+    const query = this.getBasicQuery();
+    if (forEnsureExist === false) {
+      query
+        .addSelect([
+          'sq.question as "question"',
+          'spa.answer as "answer"',
+          'spa.educational_tip as "educationalTip"',
+          'spa.value as "value"',
+        ])
+        .innerJoin(
+          SurveyQuestions,
+          'sq',
+          `sq.survey_id = psa.survey_id and sq.id = psa.survey_question_id`,
+        )
+        .innerJoin(
+          SurveyQuestionsPossibleAnswers,
+          'spa',
+          `spa.survey_id = psa.survey_id and spa.survey_question_id = psa.survey_question_id and
+            spa.id = psa.survey_question_answer_id`,
+        );
+    }
     const survQPAQry = await query
       .where(
         `psa.person_id = :personId and psa.survey_id = :surveyId and psa.person_survey_id = :personSurveyId and
@@ -291,9 +333,20 @@ export class DatabasePersonSurveyAnswersRepository
         },
       )
       .getRawOne();
-    const response = survQPAQry ? true : false;
-    if (cacheKey) {
-      await this.redisService.set<boolean>(cacheKey, response, this.cacheTime);
+    let response: AnswerModel | null = null;
+    if (cacheKey && survQPAQry) {
+      response = {
+        question: survQPAQry.question,
+        answerId: Number(survQPAQry.surveyQuestionAnswerId),
+        answer: survQPAQry.answer,
+        educationalTip: survQPAQry.educationalTip,
+        value: Number(survQPAQry.value),
+      };
+      await this.redisService.set<AnswerModel>(
+        cacheKey,
+        response,
+        this.cacheTime,
+      );
     }
     return response;
   }
