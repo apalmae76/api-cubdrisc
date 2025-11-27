@@ -49,7 +49,7 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
     dataDto: CreateSurveyQuestionAnswerDto,
   ): Promise<BaseResponsePresenter<SurveyQuestionAnswerPresenter>> {
     // validate if survey exist
-    await this.surveyRepo.ensureExistOrFail(surveyId);
+    await this.surveyRepo.canUpdate(surveyId);
     await this.surveyQuestionRepo.ensureExistOrFail(surveyId, surveyQuestionId);
     const newData: SurveyQuestionPossibleAnswerCreateModel = {
       ...dataDto,
@@ -126,8 +126,6 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
     newData: SurveyQuestionPossibleAnswerUpdateModel | null;
     answer: SurveyQuestionPossibleAnswerModel;
   }> {
-    await this.surveyRepo.getByIdOrFail(surveyId);
-    await this.surveyQuestionRepo.getByIdOrFail(surveyId, questionId);
     const answer = await this.surveyQAnsRepo.canUpdate(
       surveyId,
       questionId,

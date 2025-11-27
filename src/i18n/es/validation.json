@@ -180,10 +180,12 @@
     "ALREADY_DELETED": "El test ya ha sido eliminado, por favor verifique",
     "DESCRIPTION_IS_UNIQUE": "Ya existe un test con ese mismo nombre y debe ser único, por favor verifique",
     "ORDER_IS_UNIQUE": "El número de orden debe ser único, verifique",
+    "CAN_UPDATE_ONLY_DRAFT": "Solo es posible modificar información de un test en estado BORRADOR, por favor verifique",
     "CANT_ACTIVATE_DELETED": "El test ha sido eliminado, no es posible activarlo, por favor verifique",
     "CANT_ACTIVATE_MIN_RULES": "Para activar el test, debe tener definidas como mínimo, dos reglas para el cálculo de riesgo, por favor verifique",
     "CANT_ACTIVATE_MIN_QUESTIONS": "Para activar el test, debe tener como mínimo una pregunta, por favor verifique",
-    "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "Para activar el test, cada pregunta debe tener como mínimo dos posibles respuestas, por favor verifique"
+    "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "Para activar el test, cada pregunta debe tener como mínimo dos posibles respuestas, por favor verifique",
+    "CANT_ACTIVATE_WRONG_RULES_MIN_MAX": "Para activar el test, las reglas deben cubrir la suma de los valores mínimos y máximos definidos en las posibles respuestas ({value1} debe ser mayor que {value2}), por favor verifique"
   },
   "survey_question": {
     "NOT_FOUND": "La pregunta no se encuentra o no ha sido registrada, por favor verifique",
@@ -202,7 +204,8 @@
     "DESCRIPTION_IS_UNIQUE": "Ya existe una regla con esa descripción y debe ser única, por favor verifique",
     "MIN_MOST_BE_LESS_THAN_MAX": "El rango mínimo debe ser menor que el rago máximo, por favor verifique",
     "UPDATE_MIN_MAX_REQUIRED_TOGETHER": "Para modificar uno de los dos rangos, debe enviar ambos valores, por favor verifique",
-    "RULE_OVERLAP_EXISTING": "Existe al menos una regla que se solapa con estos valores de mínimo y máximo, por favor verifique"
+    "RULE_OVERLAP_EXISTING": "Existe al menos una regla que se solapa con estos valores de mínimo y máximo, por favor verifique",
+    "RULE_WRONG_MIN_VALUE": "El rango mínimo debe ser un número continuo al valor del rango máximo de la regla anterior o última (debe ser {minRange}), por favor verifique"
   },
   "survey_question_answer": {
     "NOT_FOUND": "La respuesta no se encuentra o no ha sido registrada, por favor verifique",

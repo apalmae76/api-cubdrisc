@@ -77,14 +77,6 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     surveyId: number,
     dataDto: CreateSurveyRiskCalculationDto,
   ) {
-    await Promise.all([
-      this.surveyRepo.ensureExistOrFail(surveyId),
-      this.surveyRiscCRepo.ensureMinMaxDoNotOverlap(
-        surveyId,
-        dataDto.minRange,
-        dataDto.maxRange,
-      ),
-    ]);
     if (dataDto.minRange >= dataDto.maxRange) {
       throw new BadRequestException({
         message: [
@@ -92,6 +84,14 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
         ],
       });
     }
+    await Promise.all([
+      this.surveyRepo.canUpdate(surveyId),
+      this.surveyRiscCRepo.ensureMinMaxDoNotOverlap(
+        surveyId,
+        dataDto.minRange,
+        dataDto.maxRange,
+      ),
+    ]);
   }
 
   @UseCaseLogger()
@@ -140,7 +140,6 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     newData: SurveyRiskCalculationRulesUpdateModel | null;
     rule: SurveyRiskCalculationRulesModel;
   }> {
-    await this.surveyRepo.ensureExistOrFail(surveyId);
     const rule = await this.surveyRiscCRepo.canUpdate(surveyId, ruleId);
 
     const newData: SurveyRiskCalculationRulesUpdateModel = {};
@@ -193,8 +192,8 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
       }
       await this.surveyRiscCRepo.ensureMinMaxDoNotOverlap(
         surveyId,
-        newData.minRange,
-        newData.maxRange,
+        newData.minRange ?? dataDto.minRange,
+        newData.maxRange ?? dataDto.maxRange,
         ruleId,
       );
     }
@@ -245,9 +244,9 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
     surveyId: number,
     ruleId: number,
   ): Promise<BooleanDataResponsePresenter> {
-    const question = await this.surveyRiscCRepo.canUpdate(surveyId, ruleId);
+    const rcRule = await this.surveyRiscCRepo.canUpdate(surveyId, ruleId);
     const jsonIds = `{"surveyId":"${surveyId}","ruleId":"${ruleId}"}`;
-    if (question.deletedAt) {
+    if (rcRule.deletedAt) {
       const response = new BooleanDataResponsePresenter(
         `messages.survey_risk_calculation.DELETED|${jsonIds}`,
         true,
@@ -276,7 +275,7 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
         toUserId: null,
         actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_DELETE,
         reason: `Deshabilitar regla de forma permanente: ${result}`,
-        details: question,
+        details: rcRule,
       };
       await this.operActionRepo.create(opPayload, em);
       return result;

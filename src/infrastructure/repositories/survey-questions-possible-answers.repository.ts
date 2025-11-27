@@ -8,6 +8,7 @@ import { ListToUpdOrderModel } from 'src/domain/model/surveyQuestion';
 import {
   SurveyQuestionPossibleAnswerCreateModel,
   SurveyQuestionPossibleAnswerModel,
+  SurveyQuestionPossibleAnswerStatusModel,
   SurveyQuestionPossibleAnswerUpdateModel,
 } from 'src/domain/model/surveyQuestionPossibleAnswers';
 import { ISurveyQuestionsPossibleAnswersRepository } from 'src/domain/repositories/surveyQuestionPossibleAnswersRepository.interface';
@@ -20,6 +21,7 @@ import { SurveyQuestionsPossibleAnswers } from '../entities/survey-questions-pos
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
+import { DatabaseSurveyQuestionsRepository } from './survey-questions.repository';
 @Injectable()
 export class DatabaseSurveyQuestionsPossibleAnswersRepository
   extends BaseRepository
@@ -29,6 +31,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
   constructor(
     @InjectRepository(SurveyQuestionsPossibleAnswers)
     private readonly surveyQPAEntity: Repository<SurveyQuestionsPossibleAnswers>,
+    private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     private readonly redisService: ApiRedisService,
     protected readonly logger: ApiLoggerService,
   ) {
@@ -212,18 +215,31 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     return null;
   }
 
-  async getCount(surveyId: number): Promise<number[]> {
+  async getCount(
+    surveyId: number,
+  ): Promise<SurveyQuestionPossibleAnswerStatusModel[]> {
     const questionsPACount = await this.surveyQPAEntity
       .createQueryBuilder('sqans')
       .select([
-        'survey_question_id as "surveyQuestionId"',
+        'sqans.survey_question_id as "surveyQuestionId"',
         'count(1) as "count"',
+        'min(sqans.value) as "minValue"',
+        'max(sqans.value) as "maxValue"',
       ])
       .where('survey_id = :surveyId', { surveyId })
       .groupBy('survey_question_id')
       .orderBy('survey_question_id', 'ASC')
       .getRawMany();
-    return questionsPACount.map((answer) => Number(answer.count));
+    const caracts = questionsPACount.map((answer) => {
+      const status: SurveyQuestionPossibleAnswerStatusModel = {
+        surveyQuestionId: answer.surveyQuestionId,
+        count: Number(answer.count),
+        minValue: Number(answer.minValue),
+        maxValue: Number(answer.maxValue),
+      };
+      return status;
+    });
+    return caracts;
   }
 
   async cleanCacheData(surveyId: number, surveyQuestionId: number) {
@@ -420,6 +436,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     questionId: number,
     id: number,
   ): Promise<SurveyQuestionPossibleAnswerModel> {
+    await this.surveyQuestionRepo.canUpdate(surveyId, questionId);
     const answer = await this.getByIdOrFail(surveyId, questionId, id);
     return answer;
   }

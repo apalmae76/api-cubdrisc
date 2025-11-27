@@ -20,6 +20,7 @@ import { SurveyRiskCalculationRules } from '../entities/survey-rules-for-risk-ca
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
+import { DatabaseSurveyRepository } from './survey.repository';
 
 @Injectable()
 export class DatabaseSurveyRiskCalculationRulesRepository
@@ -30,6 +31,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
   constructor(
     @InjectRepository(SurveyRiskCalculationRules)
     private readonly surveyRCRulesEntity: Repository<SurveyRiskCalculationRules>,
+    private readonly surveyRepo: DatabaseSurveyRepository,
     private readonly redisService: ApiRedisService,
     protected readonly logger: ApiLoggerService,
   ) {
@@ -133,6 +135,31 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     if (overlap?.total && Number(overlap?.total) > 0) {
       throw new BadRequestException({
         message: [`validation.survey_risk_calculation.RULE_OVERLAP_EXISTING`],
+      });
+    }
+
+    const query2 = this.surveyRCRulesEntity
+      .createQueryBuilder('srcr')
+      .select('max(max_range) as "maxRange"')
+      .where('survey_id = :surveyId', { surveyId });
+
+    if (id) {
+      query2.andWhere('id <> :id', { id });
+    }
+    const continuo = await query2.getRawOne();
+    const lastMaxRange = continuo ? Number(continuo.maxRange) : 0;
+    console.log(
+      `minRange (${minRange}) !== lastMaxRange + 1 (${lastMaxRange + 1})`,
+    );
+    if (minRange !== lastMaxRange + 1) {
+      const args = {
+        minRange: lastMaxRange + 1,
+        technicalError: `minRange most be equal to last rule maxRange + 1 (${lastMaxRange + 1}), please check`,
+      };
+      throw new BadRequestException({
+        message: [
+          `validation.survey_risk_calculation.RULE_WRONG_MIN_VALUE|${JSON.stringify(args)}`,
+        ],
       });
     }
   }
@@ -269,6 +296,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     surveyId: number,
     id: number,
   ): Promise<SurveyRiskCalculationRulesModel> {
+    await this.surveyRepo.ensureIsDraftOrFail(surveyId);
     const rule = await this.getByIdOrFail(surveyId, id);
     return rule;
   }

@@ -201,6 +201,15 @@ export class DatabaseSurveyRepository
     await this.getByIdOrFail(id);
   }
 
+  async ensureIsDraftOrFail(id: number) {
+    const survey = await this.getByIdOrFail(id);
+    if (survey.draft === false) {
+      throw new NotFoundException({
+        message: [`validation.survey.CAN_UPDATE_ONLY_DRAFT|{"id":"${id}"}`],
+      });
+    }
+  }
+
   async getByIdOrFail(id: number): Promise<SurveyModel> {
     const survey = await this.getById(id);
     if (!survey) {
@@ -269,7 +278,7 @@ export class DatabaseSurveyRepository
     const survey = await this.getByIdOrFail(id);
     if (survey.draft === false && onErrorFail) {
       throw new NotFoundException({
-        message: [`validation.survey.ALREADY_ACTIVE|{"id":"${id}"}`],
+        message: [`validation.survey.CAN_UPDATE_ONLY_DRAFT|{"id":"${id}"}`],
       });
     }
     return survey;

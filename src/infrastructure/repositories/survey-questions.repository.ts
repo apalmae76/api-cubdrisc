@@ -20,6 +20,7 @@ import { SurveyQuestions } from '../entities/survey-questions.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
+import { DatabaseSurveyRepository } from './survey.repository';
 @Injectable()
 export class DatabaseSurveyQuestionsRepository
   extends BaseRepository
@@ -29,6 +30,7 @@ export class DatabaseSurveyQuestionsRepository
   constructor(
     @InjectRepository(SurveyQuestions)
     private readonly surveyQuestionEntity: Repository<SurveyQuestions>,
+    private readonly surveyRepo: DatabaseSurveyRepository,
     private readonly redisService: ApiRedisService,
     protected readonly logger: ApiLoggerService,
   ) {
@@ -332,6 +334,7 @@ export class DatabaseSurveyQuestionsRepository
   }
 
   async canUpdate(surveyId: number, id: number): Promise<SurveyQuestionModel> {
+    await this.surveyRepo.ensureIsDraftOrFail(surveyId);
     const question = await this.getByIdOrFail(surveyId, id);
     return question;
   }

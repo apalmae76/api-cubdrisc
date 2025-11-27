@@ -39,7 +39,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
     private readonly personSurveyRepo: DatabasePersonSurveyRepository,
     private readonly surveyRepo: DatabaseSurveyRepository,
     private readonly personSurveyAnswerRepo: DatabasePersonSurveyAnswersRepository,
-    private readonly surveyRiscCRepo: DatabaseSurveyRiskCalculationRulesRepository,
+    private readonly surveyRCRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
     private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     private readonly pdfGenerator: PdfGeneratorService,
     private readonly redisService: ApiRedisService,
@@ -141,7 +141,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
     newPersonSurveyData.totalScore = totalScore;
 
     //Calculate estimatedRisk
-    const testRules = await this.surveyRiscCRepo.getSurveyRules(surveyId);
+    const testRules = await this.surveyRCRulesRepo.getSurveyRules(surveyId);
     const estimatedRiskRule = testRules.find(
       (rule) => totalScore >= rule.minRange && totalScore <= rule.maxRange,
     );

@@ -181,10 +181,12 @@
     "ALREADY_DELETED": "Survey is already deleted, please check",
     "DESCRIPTION_IS_UNIQUE": "Survey with that description already exists and it must be unique; please check",
     "ORDER_IS_UNIQUE": "The order number must be unique, please verify",
+    "CAN_UPDATE_ONLY_DRAFT": "It is only possible to modify information in a DRAFT test, please check",
     "CANT_ACTIVATE_DELETED": "The survey has been removed; we are unable to activate it; please check",
     "CANT_ACTIVATE_MIN_RULES": "To activate the test, you must have defined at least, two risk calculation rules; please check",
     "CANT_ACTIVATE_MIN_QUESTIONS": "To activate the test, you must have at least one question; please check",
-    "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "To activate the test, each question must have at least two possible answers, please check"
+    "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "To activate the test, each question must have at least two possible answers; please check",
+    "CANT_ACTIVATE_WRONG_RULES_MIN_MAX": "To activate the test, the rules must cover the minimum and maximum values ​​defined in the possible answers; please check"
   },
   "survey_question": {
     "NOT_FOUND": "Question is not found or has not been registered, please check",
@@ -203,7 +205,8 @@
     "DESCRIPTION_IS_UNIQUE": "A rule with that description already exists and it must be unique; please check",
     "MIN_MOST_BE_LESS_THAN_MAX": "The minimum range must be less than the maximum range, please check",
     "UPDATE_MIN_MAX_REQUIRED_TOGETHER": "To modify one of the two ranges, you must send both values, please check",
-    "RULE_OVERLAP_EXISTING": "There is at least one rule that overlaps with these minimum and maximum values, please check"
+    "RULE_OVERLAP_EXISTING": "There is at least one rule that overlaps with these minimum and maximum values, please check",
+    "RULE_WRONG_MIN_VALUE": "The minimum range must be a number consecutive to the maximum range value of the previous or last rule (most be {minRange}); please check"
   },
   "survey_question_answer": {
     "NOT_FOUND": "Answer is not found or has not been registered, please check",

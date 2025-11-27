@@ -27,7 +27,7 @@ import { UseCaseBase } from '../usecases.base';
 export class ManageSurveyUseCases extends UseCaseBase {
   constructor(
     private readonly surveyRepo: DatabaseSurveyRepository,
-    private readonly surveyRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
+    private readonly surveyRCRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
     private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     private readonly surveyQuestionPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
@@ -216,12 +216,6 @@ export class ManageSurveyUseCases extends UseCaseBase {
       });
     }
     const errors: string[] = [];
-    const rulesCount = await this.surveyRulesRepo.getCount(surveyId);
-    if (rulesCount < 2) {
-      errors.push(
-        `validation.survey.CANT_ACTIVATE_MIN_RULES|{"id":"${surveyId}"}`,
-      );
-    }
 
     const questionsCount = await this.surveyQuestionRepo.getCount(surveyId);
     if (questionsCount < 1) {
@@ -230,16 +224,56 @@ export class ManageSurveyUseCases extends UseCaseBase {
       );
     }
 
+    let questionsPAMinValue = 0;
+    let questionsPAMaxValue = 0;
     if (questionsCount > 0) {
-      const questionsPACount =
+      const questionsPAStatus =
         await this.surveyQuestionPARepo.getCount(surveyId);
       const isAnyWithMin =
-        questionsPACount.length > 0
-          ? questionsPACount.filter((count) => count < 2).length > 0
+        questionsPAStatus.length > 0
+          ? questionsPAStatus.filter((status) => status.count < 2).length > 0
           : true;
       if (isAnyWithMin) {
         errors.push(
           `validation.survey.CANT_ACTIVATE_MIN_QUESTIONS_ANSWER|{"id":"${surveyId}"}`,
+        );
+      }
+      for (const status of questionsPAStatus) {
+        questionsPAMinValue = questionsPAMinValue + status.minValue;
+        questionsPAMaxValue = questionsPAMaxValue + status.maxValue;
+      }
+      // add 3 points of max imc
+      questionsPAMaxValue = questionsPAMaxValue + 3;
+    }
+
+    const testRules = await this.surveyRCRulesRepo.getSurveyRules(surveyId);
+    const rulesCount = testRules.length;
+    if (rulesCount < 2) {
+      errors.push(
+        `validation.survey.CANT_ACTIVATE_MIN_RULES|{"id":"${surveyId}"}`,
+      );
+    } else {
+      let rulesMinValue = 10000;
+      let rulesMaxValue = 0;
+      for (const rule of testRules) {
+        if (rule.minRange < rulesMinValue) {
+          rulesMinValue = rule.minRange;
+        }
+        if (rule.maxRange > rulesMaxValue) {
+          rulesMaxValue = rule.maxRange;
+        }
+      }
+      const isMinWrong = rulesMinValue > questionsPAMinValue;
+      const isMaxWrong = rulesMaxValue < questionsPAMaxValue;
+      if (isMinWrong || isMaxWrong) {
+        const args = {
+          id: surveyId,
+          value1: rulesMaxValue,
+          value2: questionsPAMaxValue,
+          technicalError: `Ranges validation fails (rulesMinValue[${rulesMinValue}] > questionsPAMinValue[${questionsPAMinValue}] = ${isMinWrong}) or (rulesMaxValue[${rulesMaxValue}] > questionsPAMaxValue[${questionsPAMaxValue}] = ${isMaxWrong}), cant activate`,
+        };
+        errors.push(
+          `validation.survey.CANT_ACTIVATE_WRONG_RULES_MIN_MAX|${JSON.stringify(args)}`,
         );
       }
     }

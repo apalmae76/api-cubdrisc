@@ -15,6 +15,10 @@ export class SurveyRiskCalculationPresenter {
 
   @ApiProperty()
   @IsString()
+  label: string;
+
+  @ApiProperty()
+  @IsString()
   description: string;
 
   @ApiProperty({ type: 'integer' })
@@ -48,6 +52,7 @@ export class SurveyRiskCalculationPresenter {
   constructor(rule: SurveyRiskCalculationRulesModel) {
     this.surveyId = rule.surveyId;
     this.id = rule.id;
+    this.label = rule.label;
     this.description = rule.description;
     this.minRange = rule.minRange;
     this.maxRange = rule.maxRange;

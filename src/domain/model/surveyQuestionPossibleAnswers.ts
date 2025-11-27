@@ -22,3 +22,10 @@ export class SurveyQuestionPossibleAnswerModel extends SurveyQuestionPossibleAns
   updatedAt?: Date;
   deletedAt?: Date;
 }
+
+export class SurveyQuestionPossibleAnswerStatusModel {
+  surveyQuestionId: number;
+  count: number;
+  minValue: number;
+  maxValue: number;
+}
