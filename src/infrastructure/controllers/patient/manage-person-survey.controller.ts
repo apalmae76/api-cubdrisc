@@ -155,7 +155,7 @@ export class ManagePersonSurveyController {
   @ApiOkResponse({ type: BooleanDataResponsePresenter })
   @ApiOperation({
     description: '',
-    summary: 'Allows admins, to update survey question data',
+    summary: 'Allows users, to answer test questions',
     operationId: 'putAnswer',
   })
   @ApiParam({

@@ -186,7 +186,7 @@
     "CANT_ACTIVATE_MIN_RULES": "To activate the test, you must have defined at least, two risk calculation rules; please check",
     "CANT_ACTIVATE_MIN_QUESTIONS": "To activate the test, you must have at least one question; please check",
     "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "To activate the test, each question must have at least two possible answers; please check",
-    "CANT_ACTIVATE_WRONG_RULES_MIN_MAX": "To activate the test, the rules must cover the minimum and maximum values ​​defined in the possible answers; please check"
+    "CANT_ACTIVATE_WRONG_RULES_MIN_MAX": "The risk scale must consider all possible outcomes, therefore it must define the levels between the {min} and {max} ranges; please check"
   },
   "survey_question": {
     "NOT_FOUND": "Question is not found or has not been registered, please check",

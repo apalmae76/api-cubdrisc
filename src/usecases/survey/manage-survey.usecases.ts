@@ -268,8 +268,8 @@ export class ManageSurveyUseCases extends UseCaseBase {
       if (isMinWrong || isMaxWrong) {
         const args = {
           id: surveyId,
-          value1: rulesMaxValue,
-          value2: questionsPAMaxValue,
+          min: rulesMinValue,
+          max: questionsPAMaxValue,
           technicalError: `Ranges validation fails (rulesMinValue[${rulesMinValue}] > questionsPAMinValue[${questionsPAMinValue}] = ${isMinWrong}) or (rulesMaxValue[${rulesMaxValue}] > questionsPAMaxValue[${questionsPAMaxValue}] = ${isMaxWrong}), cant activate`,
         };
         errors.push(

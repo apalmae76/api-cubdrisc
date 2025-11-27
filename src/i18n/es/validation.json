@@ -185,7 +185,7 @@
     "CANT_ACTIVATE_MIN_RULES": "Para activar el test, debe tener definidas como mínimo, dos reglas para el cálculo de riesgo, por favor verifique",
     "CANT_ACTIVATE_MIN_QUESTIONS": "Para activar el test, debe tener como mínimo una pregunta, por favor verifique",
     "CANT_ACTIVATE_MIN_QUESTIONS_ANSWER": "Para activar el test, cada pregunta debe tener como mínimo dos posibles respuestas, por favor verifique",
-    "CANT_ACTIVATE_WRONG_RULES_MIN_MAX": "Para activar el test, las reglas deben cubrir la suma de los valores mínimos y máximos definidos en las posibles respuestas ({value1} debe ser mayor que {value2}), por favor verifique"
+    "CANT_ACTIVATE_WRONG_RULES_MIN_MAX": "La escala de riesgo debe contemplar todos los posibles resultados, por lo que debe definir los niveles entre los rangos {min} y {max}, por favor verifique"
   },
   "survey_question": {
     "NOT_FOUND": "La pregunta no se encuentra o no ha sido registrada, por favor verifique",

@@ -269,7 +269,9 @@ export class DatabaseSurveyRiskCalculationRulesRepository
   }
 
   async cleanCacheData(surveyId: number) {
-    const pattern = `${this.cacheKey}${surveyId}:*`;
+    const cacheKey = `${this.cacheKey}${surveyId}`;
+    await this.redisService.del(cacheKey);
+    const pattern = `${cacheKey}:*`;
     await this.redisService.removeAllKeysWithPattern(pattern);
   }
 

@@ -91,7 +91,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
               surveyId: dataDto.surveyId,
               personCi: dataDto.ci,
               date: format(date, "dd 'de' MMMM 'de' yyyy", { locale: es }),
-              technicalError: `Person (${personDb.id}), has a valid test. next test can be taken from ${date}`,
+              technicalError: `Person (${personDb.id}), has a valid test; next test can be taken from ${date}`,
             };
             throw new BadRequestException({
               message: [

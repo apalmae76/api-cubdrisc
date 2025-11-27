@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   AnswerModel,
@@ -10,6 +14,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
+import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { PersonSurveyAnswers } from '../entities/person-survey-answers.entity';
 import { SurveyQuestionsPossibleAnswers } from '../entities/survey-questions-possible-answers.entity';
 import { SurveyQuestions } from '../entities/survey-questions.entity';
@@ -65,21 +70,72 @@ export class DatabasePersonSurveyAnswersRepository
       surveyQuestionId,
     );
 
-    if (questionWasAnswered) {
-      await repo.update(
-        { personId, surveyId, personSurveyId, surveyQuestionId },
-        { surveyQuestionAnswerId },
+    try {
+      if (questionWasAnswered) {
+        await repo.update(
+          { personId, surveyId, personSurveyId, surveyQuestionId },
+          { surveyQuestionAnswerId },
+        );
+      } else {
+        await this.create(data, em);
+      }
+      await this.cleanCacheData({
+        personId,
+        surveyId,
+        personSurveyId,
+        surveyQuestionId,
+      });
+      return true;
+    } catch (er: unknown) {
+      await this.manageErrors(
+        personId,
+        surveyId,
+        personSurveyId,
+        surveyQuestionId,
+        surveyQuestionAnswerId,
+        er,
       );
-    } else {
-      await this.create(data, em);
+      throw er;
     }
-    await this.cleanCacheData({
-      personId,
-      surveyId,
-      personSurveyId,
-      surveyQuestionId,
-    });
-    return true;
+  }
+
+  private async manageErrors(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+    surveyQuestionId: number,
+    surveyQuestionAnswerId: number,
+    er: unknown,
+  ) {
+    const { message } = extractErrorDetails(er);
+
+    if (message) {
+      if (message.includes('FK_6cc401cc319009d750ac4d7c87e')) {
+        const addInfo = {
+          technicalError: `Submitted surveyId (${surveyId}) - personId (${personId}) - personSurveyId (${personSurveyId}); does not exist, check`,
+          surveyId,
+          personId,
+          personSurveyId,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.person_survey.NOT_EXIST_OR_EXPIRED|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      } else if (message.includes('FK_ad1be1c0fbf5b79782079c7e5d1')) {
+        const addInfo = {
+          technicalError: `Submitted answer (${surveyId}-${surveyQuestionId}-${surveyQuestionAnswerId}) does not exist, check`,
+          surveyId,
+          surveyQuestionId,
+          surveyQuestionAnswerId,
+        };
+        throw new BadRequestException({
+          message: [
+            `validation.survey_question_answer.NOT_FOUND|${JSON.stringify(addInfo)}`,
+          ],
+        });
+      }
+    }
   }
 
   private toCreate(model: PersonSurveyAnswersCreateModel): PersonSurveyAnswers {
