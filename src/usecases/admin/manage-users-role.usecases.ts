@@ -42,9 +42,9 @@ export class ManageUsersRole extends UseCaseBase {
       const response = await this.dataSource.transaction(async (em) => {
         const payload = <OperatorsActionCreateModel>{
           operatorId,
-          toUserId,
-          reason: '',
+          reason: 'Adiciona rol',
           actionId: EOperatorsActions.ADD_USER_ROLE,
+          details: { toUserId, role },
         };
         await this.operActionRepo.create(payload, em);
         await this.userRepo.addRole(toUserId, role, em);
@@ -84,9 +84,9 @@ export class ManageUsersRole extends UseCaseBase {
       const response = await this.dataSource.transaction(async (em) => {
         const payload = <OperatorsActionCreateModel>{
           operatorId,
-          toUserId,
-          reason: '',
+          reason: 'Eliminar role',
           actionId: EOperatorsActions.REMOVE_USER_ROLE,
+          details: { toUserId, role },
         };
         await this.operActionRepo.create(payload, em);
         await this.userRepo.removeRole(toUserId, role, em);

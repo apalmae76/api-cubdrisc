@@ -102,7 +102,6 @@ export class MoveSurveyRiskCalculationUseCases extends UseCaseBase {
     let newPos = refPos;
     const opPayload: OperatorsActionCreateModel = {
       operatorId,
-      toUserId: null,
       actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_MOVE,
       details: { officeToMoveId: ruleToMoveId, ...data },
       reason:

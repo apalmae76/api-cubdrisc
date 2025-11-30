@@ -61,7 +61,6 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
       if (newAnswer) {
         const opPayload: OperatorsActionCreateModel = {
           operatorId,
-          toUserId: null,
           actionId: EOperatorsActions.SURVEY_QUESTION_ANSWER_CREATE,
           reason: 'Adiciona nueva posible respuesta, a una pregunta de un test',
           details: newAnswer,
@@ -180,7 +179,6 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
       if (updQuestion) {
         const opPayload: OperatorsActionCreateModel = {
           operatorId: operatorId,
-          toUserId: null,
           actionId: EOperatorsActions.SURVEY_QUESTION_ANSWER_UPDATE,
           reason: 'Modifica una posible respuesta',
           details: payload,
@@ -237,7 +235,6 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
       );
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
-        toUserId: null,
         actionId: EOperatorsActions.SURVEY_QUESTION_ANSWER_DELETE,
         reason: `Deshabilitar respuesta de forma permanente: ${result}`,
         details: question,

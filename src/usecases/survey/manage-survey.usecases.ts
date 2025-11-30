@@ -48,7 +48,6 @@ export class ManageSurveyUseCases extends UseCaseBase {
       const newSurvey = await this.surveyRepo.create(dataDto, em);
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
-        toUserId: null,
         actionId: EOperatorsActions.SURVEY_CREATE,
         reason: 'Adiciona nuevo test',
         details: newSurvey,
@@ -134,7 +133,6 @@ export class ManageSurveyUseCases extends UseCaseBase {
       if (updSurvey) {
         const opPayload: OperatorsActionCreateModel = {
           operatorId,
-          toUserId: null,
           actionId: EOperatorsActions.SURVEY_UPDATE,
           reason: 'Modifica un test',
           details: payload,
@@ -188,7 +186,6 @@ export class ManageSurveyUseCases extends UseCaseBase {
       }
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
-        toUserId: null,
         actionId: EOperatorsActions.SURVEY_ACTIVE,
         reason: `Poner test como ${action ? 'habilitado' : 'deshabilitado'}`,
         details: survey,
@@ -311,7 +308,6 @@ export class ManageSurveyUseCases extends UseCaseBase {
       const result = await this.surveyRepo.softDelete(surveyId, em);
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
-        toUserId: null,
         actionId: EOperatorsActions.SURVEY_DELETE,
         reason: `Deshabilitar test de forma permanente: ${result}`,
         details: survey,

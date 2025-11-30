@@ -109,7 +109,6 @@ export class MoveSurveyQuestionAnswerUseCases extends UseCaseBase {
     let newPos = refPos;
     const opPayload: OperatorsActionCreateModel = {
       operatorId,
-      toUserId: null,
       actionId: EOperatorsActions.SURVEY_QUESTION_MOVE,
       details: { officeToMoveId: answerToMoveId, ...data },
       reason: 'Modifica una respuesta (cambia el orden de presentación)',

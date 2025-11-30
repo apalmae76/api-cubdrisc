@@ -40,7 +40,5 @@ export interface IOperatorsActionsRepository {
   ): Promise<PageDto<OperatorsActionPanelModel>>;
   getOrFail(id: number): Promise<OperatorsActionModel>;
   getAll(): Promise<OperatorsActionModel[]>;
-  getLastLockingActionIdFromUser(toUserId: number): Promise<number>;
   getAllByOperator(userId: number): Promise<OperatorsActionModel[]>;
-  getAllByAffectedUser(userId: number): Promise<OperatorsActionModel[]>;
 }

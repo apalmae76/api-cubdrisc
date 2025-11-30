@@ -12,8 +12,8 @@ import { EOperatorsActions } from '../common/utils/constants';
 import { User } from './user.entity';
 
 @Entity('operators_actions')
-@Index(['operatorId', 'toUserId'], { unique: false })
-@Index(['createdAt'], { unique: false })
+@Index(['operatorId'])
+@Index(['createdAt'])
 export class OperatorsActions {
   @PrimaryGeneratedColumn({
     name: 'id',
@@ -23,9 +23,6 @@ export class OperatorsActions {
 
   @Column({ name: 'operator_id', type: 'bigint' })
   operatorId: number;
-
-  @Column({ name: 'to_user_id', type: 'bigint', nullable: true })
-  toUserId: number;
 
   @Column({
     name: 'action_id',
@@ -66,12 +63,4 @@ export class OperatorsActions {
   })
   @JoinColumn({ name: 'operator_id' })
   operator: User;
-
-  @ManyToOne(() => User, (toUser) => toUser.id, {
-    nullable: false,
-    onDelete: 'RESTRICT',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'to_user_id' })
-  toUser: User;
 }

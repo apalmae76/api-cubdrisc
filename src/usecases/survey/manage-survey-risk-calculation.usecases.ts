@@ -59,7 +59,6 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
       const newRule = await this.surveyRiscCRepo.create(newData, em);
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
-        toUserId: null,
         actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_CREATE,
         reason: 'Adiciona nueva escala para cálculo de riesgo',
         details: newRule,
@@ -225,7 +224,6 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
       if (updQuestion) {
         const opPayload: OperatorsActionCreateModel = {
           operatorId: operatorId,
-          toUserId: null,
           actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_UPDATE,
           reason: 'Modifica escala para cálculo de riesgo',
           details: payload,
@@ -272,7 +270,6 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
       );
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
-        toUserId: null,
         actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_DELETE,
         reason: `Deshabilitar regla de forma permanente: ${result}`,
         details: rcRule,

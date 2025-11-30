@@ -73,7 +73,6 @@ export class DatabaseOperatorsActionsRepository
       .select([
         'oa.id as "id"',
         'oa.operator_id as "operatorId"',
-        'oa.to_user_id as "toUserId"',
         'oa.action_id as "actionId"',
         'oa.reason as "reason"',
         'oa.details as "details"',
@@ -96,8 +95,6 @@ export class DatabaseOperatorsActionsRepository
     let queryCount = null;
     const queryList = this.getBasicQuery()
       .addSelect([`opuser.full_name as "operator.name"`])
-      .withDeleted()
-      .addSelect(['oa.to_user_id as "userId"', `user.full_name as "user.name"`])
       .withDeleted();
 
     const opUserName = super.atrIsIncludedAndGetValOp(
@@ -125,52 +122,8 @@ export class DatabaseOperatorsActionsRepository
       queryList.innerJoin(Person, 'opuser', 'oa.operator_id = opuser.id');
     }
 
-    const userName = super.atrIsIncludedAndGetValOp(
-      queryDto.filter,
-      'user.name',
-      'varchar',
-      'toUser',
-    );
-    if (userName.condition) {
-      const toUser = userName.value;
-      if (!queryCount) {
-        queryCount = this.operActionsEntity.createQueryBuilder('oa');
-      }
-      queryCount.innerJoin(
-        Person,
-        'user',
-        `oa.to_user_id = user.id and user.full_name ${userName.condition}`,
-        { toUser },
-      );
-      queryList.innerJoin(
-        Person,
-        'user',
-        `oa.to_user_id = user.id and user.full_name ${userName.condition}`,
-        { toUser },
-      );
-    } else {
-      queryList.leftJoin(Person, 'user', 'oa.to_user_id = user.id');
-    }
-
-    const userId = super.atrIsIncludedAndGetValOp(
-      queryDto.filter,
-      'userId',
-      'bigint',
-      'toUserId',
-    );
-    if (userId.condition) {
-      const toUserId = userId.value;
-      if (!queryCount) {
-        queryCount = this.operActionsEntity.createQueryBuilder('oa');
-      }
-      queryCount.andWhere(`oa.to_user_id ${userId.condition}`, { toUserId });
-      queryList.andWhere(`oa.to_user_id ${userId.condition}`, { toUserId });
-    }
-
     const addAtrs: KeyValueObjectList<string> = {
       'operator.name': 'varchar',
-      userId: 'bigint',
-      'user.name': 'varchar',
     };
 
     const data = await super.getByQueryBase<OperatorsActions>({
@@ -199,14 +152,6 @@ export class DatabaseOperatorsActionsRepository
       id: Number(entity['operatorId']),
       name: entity['operator.name'],
     };
-    if (entity['userId']) {
-      model.user = {
-        id: Number(entity['userId']),
-        name: entity['user.name'],
-      };
-    } else {
-      model.user = null;
-    }
     model.action = {
       id: EOperatorsActions[entity.actionId],
       name: EOperatorsActionsES[EOperatorsActions[entity.actionId]],
@@ -233,26 +178,6 @@ export class DatabaseOperatorsActionsRepository
       return null;
     }
     return this.toModel(operation);
-  }
-
-  async getLastLockingActionIdFromUser(toUserId: number): Promise<number> {
-    const actionId = EOperatorsActions.USER_LOCK;
-    const lastAction = await this.operActionsEntity
-      .createQueryBuilder('oa')
-      .select('oa.id as "id"')
-      .where('oa.toUserId = :toUserId and oa.actionId = :actionId', {
-        toUserId,
-        actionId,
-      })
-      .orderBy('created_at', 'DESC')
-      .limit(1)
-      .getRawOne();
-
-    if (!lastAction) {
-      return null;
-    }
-
-    return lastAction.id;
   }
 
   async getOrFail(id: number): Promise<OperatorsActionModel> {
@@ -287,21 +212,11 @@ export class DatabaseOperatorsActionsRepository
     return actions.map((obj) => this.toModel(obj));
   }
 
-  async getAllByAffectedUser(userId: number): Promise<OperatorsActionModel[]> {
-    const actions = await this.operActionsEntity
-      .createQueryBuilder('op')
-      .where('oa.to_user_id = :userId', { userId })
-      .getRawMany();
-
-    return actions.map((obj) => this.toModel(obj));
-  }
-
   private toModel(entity: OperatorsActions): OperatorsActionModel {
     const model = new OperatorsActionModel();
 
     model.id = Number(entity.id);
     model.operatorId = entity.operatorId;
-    model.toUserId = entity.toUserId;
     model.actionId = entity.actionId;
     model.reason = entity.reason;
     model.details = entity.details;
@@ -314,7 +229,6 @@ export class DatabaseOperatorsActionsRepository
     const entity = new OperatorsActions();
 
     entity.operatorId = model.operatorId;
-    entity.toUserId = model.toUserId;
     entity.actionId = model.actionId;
     entity.reason = model.reason;
     entity.details = model.details;

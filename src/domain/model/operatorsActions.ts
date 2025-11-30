@@ -3,7 +3,6 @@ import { EntityIdName, EntityIdStrName } from './user';
 
 export class OperatorsActionCreateModel {
   operatorId: number;
-  toUserId: number | null;
   actionId: EOperatorsActions;
   reason: string;
   details?: object;
@@ -17,7 +16,6 @@ export class OperatorsActionModel extends OperatorsActionCreateModel {
 export class OperatorsActionPanelModel {
   id: number;
   operator: EntityIdName;
-  user: EntityIdName;
   action: EntityIdStrName;
   reason: string;
   details: object;

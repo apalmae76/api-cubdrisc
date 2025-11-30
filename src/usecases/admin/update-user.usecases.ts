@@ -46,7 +46,6 @@ export class UpdateUserUseCases extends UseCaseBase {
       );
       const opPayload: OperatorsActionCreateModel = {
         operatorId: adminUser.id,
-        toUserId,
         actionId: EOperatorsActions.USER_UPDATE,
         reason: `Modificar registro de usuario: ${result}`,
         details: {
@@ -141,7 +140,6 @@ export class UpdateUserUseCases extends UseCaseBase {
       const result = await this.userRepo.softDelete(toUserId, em);
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
-        toUserId,
         actionId: EOperatorsActions.USER_DELETE,
         reason: `Eliminar registro de usuario: ${result}`,
         details: user,
