@@ -71,7 +71,7 @@ export class ManagePersonSurveyController {
     return await this.managePSAnswerProxyUC.getInstance().getSurvey();
   }
 
-  @Get('survey/:surveyId/question/:questionId')
+  @Post('survey/:surveyId/question/:questionId')
   @ApiOkResponse({ type: GetPublicSurveyQuestionPresenter })
   @ApiBody({ type: ReferenceIdDto })
   @ApiOperation({
