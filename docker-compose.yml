@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: tesis-api
+
+    ports:
+      - '3002:3002'
+
+    env_file:
+      - ./.env.docker
+
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+    restart: always

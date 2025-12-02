@@ -100,6 +100,30 @@ export class DatabaseSurveyRepository
     }
   }
 
+  async delete(id: number, em: EntityManager = null): Promise<boolean> {
+    const repo = em ? em.getRepository(Survey) : this.surveyEntity;
+
+    const { affected } = await repo.delete(id);
+
+    if (affected > 0) {
+      await this.cleanCacheData(id);
+      return true;
+    } else {
+      const rowIsDeleted = await this.isRowDeleted(id);
+      if (rowIsDeleted === null) {
+        this.logger.warn(
+          `Survey repository, delete: Sended id does not exist `,
+          {
+            affected,
+            rowIsDeleted: rowIsDeleted ? rowIsDeleted : 'NULL',
+            context: `${DatabaseSurveyRepository.name}.delete`,
+          },
+        );
+      }
+      return false;
+    }
+  }
+
   async softDelete(id: number, em: EntityManager = null): Promise<boolean> {
     const repo = em ? em.getRepository(Survey) : this.surveyEntity;
 

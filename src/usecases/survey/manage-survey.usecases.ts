@@ -70,7 +70,7 @@ export class ManageSurveyUseCases extends UseCaseBase {
     const context = `${this.context}update`;
     const { newData, survey } = await this.validateUpdate(surveyId, dataDto);
 
-    if (newData === null) {
+    if (newData === null && dataDto.active === false) {
       const response = new BaseResponsePresenter(
         `messages.survey.CREATED_SUCESSFULLY|{"name":"${dataDto.name}"}`,
         new SurveyPresenter(survey),
@@ -81,12 +81,18 @@ export class ManageSurveyUseCases extends UseCaseBase {
         this.appConfig.isProductionEnv(),
       );
     }
-
-    const updSurvey = await this.persistData(operatorId, surveyId, newData);
-    return new BaseResponsePresenter(
-      `messages.survey.UPDATED_SUCESSFULLY|{"name":"${dataDto.name}"}`,
-      updSurvey,
-    );
+    let result: BaseResponsePresenter<SurveyPresenter> | null = null;
+    if (newData) {
+      const updSurvey = await this.persistData(operatorId, surveyId, newData);
+      result = new BaseResponsePresenter(
+        `messages.survey.UPDATED_SUCESSFULLY|{"name":"${dataDto.name}"}`,
+        updSurvey,
+      );
+    }
+    if (dataDto.active) {
+      result = await this.setActive(operatorId, surveyId, true);
+    }
+    return result;
   }
 
   private async validateUpdate(
@@ -105,10 +111,6 @@ export class ManageSurveyUseCases extends UseCaseBase {
     ) {
       newData.description = dataDto.description;
     }
-    if (dataDto.active !== undefined && dataDto.active !== survey.active) {
-      newData.active = dataDto.active;
-    }
-
     if (Object.keys(newData).length === 0) {
       return { newData: null, survey };
     }
@@ -305,7 +307,9 @@ export class ManageSurveyUseCases extends UseCaseBase {
     }
 
     const result = await this.dataSource.transaction(async (em) => {
-      const result = await this.surveyRepo.softDelete(surveyId, em);
+      const result = survey.draft
+        ? await this.surveyRepo.delete(surveyId, em)
+        : await this.surveyRepo.softDelete(surveyId, em);
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
         actionId: EOperatorsActions.SURVEY_DELETE,
