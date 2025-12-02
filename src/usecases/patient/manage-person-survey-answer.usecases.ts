@@ -6,8 +6,7 @@ import {
   BooleanDataResponsePresenter,
 } from 'src/infrastructure/common/dtos/baseResponse.dto';
 import {
-  PutAnswerDto,
-  ReferenceIdDto,
+  PutAnswerDto
 } from 'src/infrastructure/controllers/patient/person-answer-dto.class';
 import {
   GetPublicSurveyPresenter,
@@ -59,7 +58,7 @@ export class ManagePersonSurveyAnswerUseCases extends UseCaseBase {
   async getSurveyQuestion(
     surveyId: number,
     questionId: number,
-    dataDto: ReferenceIdDto,
+    referenceId: string,
   ): Promise<GetPublicSurveyQuestionPresenter> {
     const [survey, question] = await Promise.all([
       this.surveyRepo.getByIdOrFail(surveyId),
@@ -72,7 +71,6 @@ export class ManagePersonSurveyAnswerUseCases extends UseCaseBase {
         questionId,
       );
       if (answersModel.length > 0) {
-        const referenceId = dataDto.referenceId;
         const cacheKey = `System:PatientSurvey:${referenceId}`;
         const personSurveyData =
           await this.redisService.get<PersonSurveyPresenter>(cacheKey);

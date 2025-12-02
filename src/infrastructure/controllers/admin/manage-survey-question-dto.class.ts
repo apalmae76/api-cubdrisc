@@ -9,6 +9,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
   Min,
   MinLength,
@@ -25,6 +26,13 @@ export class ValidQuestionIdDto {
   @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
   @Min(1, { message: i18nValidationMessage('validation.MIN') })
   readonly questionId: number;
+}
+
+export class ValidReferenceIdDto {
+  @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
+  @IsUUID('4', { message: i18nValidationMessage('validation.IS_UUID') })
+  readonly referenceId: string;
 }
 
 export class CreateSurveyQuestionDto {

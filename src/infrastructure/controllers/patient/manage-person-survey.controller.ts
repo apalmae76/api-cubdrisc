@@ -24,7 +24,10 @@ import { FinishPersonSurveyUseCases } from 'src/usecases/patient/finish-person-s
 import { ManagePersonSurveyAnswerUseCases } from 'src/usecases/patient/manage-person-survey-answer.usecases';
 import { ManagePersonSurveyUseCases } from 'src/usecases/patient/manage-person-survey.usecases';
 import { ValidSurveyIdDto } from '../admin/manage-survey-dto.class';
-import { ValidQuestionIdDto } from '../admin/manage-survey-question-dto.class';
+import {
+  ValidQuestionIdDto,
+  ValidReferenceIdDto,
+} from '../admin/manage-survey-question-dto.class';
 import {
   CreatePersonSurveyDto,
   PatchPersonSurveyDto,
@@ -71,7 +74,7 @@ export class ManagePersonSurveyController {
     return await this.managePSAnswerProxyUC.getInstance().getSurvey();
   }
 
-  @Post('survey/:surveyId/question/:questionId')
+  @Get('survey/:surveyId/question/:questionId/:referenceId')
   @ApiOkResponse({ type: GetPublicSurveyQuestionPresenter })
   @ApiBody({ type: ReferenceIdDto })
   @ApiOperation({
@@ -92,14 +95,20 @@ export class ManagePersonSurveyController {
     example: 34,
     description: 'Survey ID that will be affected',
   })
+  @ApiParam({
+    name: 'referenceId',
+    type: 'uuid',
+    example: '9d77c4db-ccec-4434-9764-e86d685e7b86',
+    description: 'Proccess reference id',
+  })
   async getSurveyQuestion(
     @Param() { surveyId }: ValidSurveyIdDto,
     @Param() { questionId }: ValidQuestionIdDto,
-    @Body() dataDto: ReferenceIdDto,
+    @Param() { referenceId }: ValidReferenceIdDto,
   ): Promise<GetPublicSurveyQuestionPresenter> {
     return await this.managePSAnswerProxyUC
       .getInstance()
-      .getSurveyQuestion(surveyId, questionId, dataDto);
+      .getSurveyQuestion(surveyId, questionId, referenceId);
   }
 
   // Manage patients & patiens survey answers --------------------------------------------------------
