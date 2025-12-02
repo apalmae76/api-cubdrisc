@@ -176,8 +176,8 @@ export class DatabaseUserRepository
     }
   }
 
-  getBasicQuery() {
-    return this.userEntity
+  getBasicQuery(isLogin = false) {
+    const query = this.userEntity
       .createQueryBuilder('user')
       .select([
         'user.id as "id"',
@@ -198,8 +198,14 @@ export class DatabaseUserRepository
         'user.created_at as "createdAt"',
         'user.updated_at as "updatedAt"',
         'user.deleted_at as "deletedAt"',
-      ])
-      .withDeleted()
+      ]);
+    if (isLogin) {
+      query.where('user.deleted_at is null');
+    } else {
+      query.withDeleted();
+    }
+
+    query
       .innerJoin(Person, 'pers', 'pers.id = user.id')
       .innerJoin(
         MedicalSpecialty,
@@ -207,11 +213,13 @@ export class DatabaseUserRepository
         'user.medical_specialty_id = mspec.id',
       )
       .withDeleted();
+
+    return query;
   }
 
   async getByIdForPanel(id: number): Promise<UserModel> {
     const query = this.getBasicQuery();
-    query.where('user.id = :id', { id });
+    query.andWhere('user.id = :id', { id });
     const user = await query.getRawOne();
     if (!user) {
       return null;
@@ -459,8 +467,8 @@ export class DatabaseUserRepository
   }
 
   async getByPhone(phone: string, isLogin = false): Promise<UserModel> {
-    const query = this.getBasicQuery();
-    query.where('user.phone = :phone', { phone });
+    const query = this.getBasicQuery(isLogin);
+    query.andWhere('user.phone = :phone', { phone });
     const user = await query.getRawOne();
     if (!user) {
       return null;
@@ -480,8 +488,8 @@ export class DatabaseUserRepository
   }
 
   async getByEmail(email: string, isLogin = false): Promise<UserModel> {
-    const query = this.getBasicQuery();
-    query.where('user.email = :email', { email });
+    const query = this.getBasicQuery(isLogin);
+    query.andWhere('user.email = :email', { email });
     const user = await query.getRawOne();
     if (!user) {
       return null;
