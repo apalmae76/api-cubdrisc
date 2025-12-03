@@ -446,6 +446,17 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     return surveyRCRs;
   }
 
+  async getEstimatedRiskRule(
+    surveyId: number,
+    totalScore: number,
+    useCache = true,
+  ): Promise<SurveyRiskCalculationRulesModel | null> {
+    const testRules = await this.getSurveyRules(surveyId, useCache);
+    return testRules.find(
+      (rule) => totalScore >= rule.minRange && totalScore <= rule.maxRange,
+    );
+  }
+
   private toModelPanel(
     entity: SurveyRiskCalculationRules,
     isForDetails = false,

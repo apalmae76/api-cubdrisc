@@ -36,6 +36,7 @@ import {
   ReferenceIdDto,
 } from './person-answer-dto.class';
 import {
+  GetPersonSurveyFinishPresenter,
   GetPersonSurveyPresenter,
   GetPublicSurveyPresenter,
   GetPublicSurveyQuestionPresenter,
@@ -190,7 +191,7 @@ export class ManagePersonSurveyController {
   }
 
   @Patch('survey/finish')
-  @ApiCreatedResponse({ type: GetPersonSurveyPresenter })
+  @ApiCreatedResponse({ type: GetPersonSurveyFinishPresenter })
   @ApiBody({ type: ReferenceIdDto })
   @ApiOperation({
     description: '',
@@ -200,7 +201,7 @@ export class ManagePersonSurveyController {
   })
   async postSurveyFinish(
     @Body() { referenceId }: ReferenceIdDto,
-  ): Promise<GetPersonSurveyPresenter> {
+  ): Promise<GetPersonSurveyFinishPresenter> {
     return await this.finishPersonSurveyProxyUC
       .getInstance()
       .execute(referenceId, this.emailSyncQueue);

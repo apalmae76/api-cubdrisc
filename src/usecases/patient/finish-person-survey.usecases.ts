@@ -12,8 +12,9 @@ import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseRespon
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import {
-  GetPersonSurveyPresenter,
-  PersonSurveyPresenter,
+  GetPersonSurveyFinishPresenter,
+  PersonSurveyFinishPresenter,
+  PersonSurveyPresenter
 } from 'src/infrastructure/controllers/patient/person-survey.presenter';
 import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/person-survey-answers.repository';
 import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/person-survey.repository';
@@ -56,7 +57,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
   async execute(
     referenceId: string,
     emailSyncQueue: Queue<EmailJobData>,
-  ): Promise<GetPersonSurveyPresenter> {
+  ): Promise<GetPersonSurveyFinishPresenter> {
     const {
       personSurveyData,
       personSurvey,
@@ -66,7 +67,9 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
 
     const updSurvey = await this.persistIMCData(
       personSurveyData,
+      personSurvey,
       newPersonSurveyData,
+      answeredQuestions,
     );
 
     await this.sendConfirmationEmail(
@@ -141,9 +144,9 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
     newPersonSurveyData.totalScore = totalScore;
 
     //Calculate estimatedRisk
-    const testRules = await this.surveyRCRulesRepo.getSurveyRules(surveyId);
-    const estimatedRiskRule = testRules.find(
-      (rule) => totalScore >= rule.minRange && totalScore <= rule.maxRange,
+    const estimatedRiskRule = await this.surveyRCRulesRepo.getEstimatedRiskRule(
+      surveyId,
+      totalScore,
     );
     if (estimatedRiskRule) {
       newPersonSurveyData.estimatedRisk = estimatedRiskRule.label;
@@ -178,14 +181,15 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
       newPersonSurveyData,
       answeredQuestions,
     };
-    // console.log('--response--'); console.log(response);
     return response;
   }
 
   async persistIMCData(
     personSurveyData: PersonSurveyPresenter,
+    personSurvey: PersonSurveyFullModel,
     newPersonSurveyData: PersonSurveyUpdateModel,
-  ): Promise<PersonSurveyPresenter> {
+    answeredQuestions: AnswerModel[],
+  ): Promise<PersonSurveyFinishPresenter> {
     const context = `${this.context}persistIMCData`;
     this.logger.debug('Saving data', {
       context,
@@ -202,7 +206,20 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
     );
     const cacheKey = this.getCacheKey(personSurveyData.referenceId);
     await this.redisService.set(cacheKey, personSurveyData, this.surveyTtl);
-    return personSurveyData;
+
+    const recommendations: string[] = answeredQuestions
+      .map((ansQ) => ansQ.educationalTip)
+      .filter((rec) => rec && rec.length > 0);
+    return {
+      ...personSurveyData,
+      testName: personSurvey.surveyName,
+      testDescription: personSurvey.surveyDescription,
+      totalScore: newPersonSurveyData.totalScore!,
+      riskPercentage: personSurvey.estimatedRiskPercent!,
+      riskLabel: newPersonSurveyData.estimatedRisk!,
+      riskDescription: personSurvey.estimatedRiskDescription!,
+      recommendations,
+    };
   }
 
   async validateBase(referenceId: string): Promise<PersonSurveyPresenter> {

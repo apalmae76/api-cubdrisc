@@ -154,3 +154,70 @@ export class GetPersonSurveyPresenter extends BaseResponsePresenter<PersonSurvey
   @Type(() => PersonSurveyPresenter)
   data: PersonSurveyPresenter;
 }
+
+export class PersonSurveyFinishPresenter {
+  @ApiProperty()
+  @IsUUID()
+  referenceId: string;
+
+  @ApiProperty()
+  personCi: string;
+
+  @ApiProperty({ type: 'integer' })
+  @IsNumber()
+  personId: number;
+
+  @ApiProperty({ type: 'integer' })
+  @IsNumber()
+  surveyId: number;
+
+  @ApiProperty({ type: 'integer' })
+  @IsNumber()
+  personSurveyId: number;
+
+  @ApiProperty()
+  testName: string;
+
+  @ApiProperty()
+  testDescription: string;
+
+  @ApiProperty({ type: 'integer' })
+  @IsNumber()
+  totalScore: number;
+
+  @ApiProperty({ type: 'integer' })
+  @IsNumber()
+  riskPercentage: number;
+
+  @ApiProperty()
+  riskLabel: string;
+
+  @ApiProperty()
+  riskDescription: string;
+
+  @ApiProperty({ type: () => String, isArray: true })
+  recommendations: string[];
+
+  constructor(
+    referenceId: string,
+    personCi: string,
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+  ) {
+    this.referenceId = referenceId;
+    this.personCi = personCi;
+    this.personId = personId;
+    this.surveyId = surveyId;
+    this.personSurveyId = personSurveyId;
+  }
+}
+
+export class GetPersonSurveyFinishPresenter extends BaseResponsePresenter<PersonSurveyFinishPresenter> {
+  @ApiProperty({
+    description: 'Patient survey finish data',
+    type: PersonSurveyFinishPresenter,
+  })
+  @Type(() => PersonSurveyFinishPresenter)
+  data: PersonSurveyFinishPresenter;
+}
