@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  PersonSurveyAnalysisModel,
   PersonSurveyCreateModel,
+  PersonSurveyFullModel,
   PersonSurveyModel,
   PersonSurveyUpdateModel,
 } from 'src/domain/model/personSurvey';
@@ -14,8 +16,11 @@ import { EntityManager, Repository } from 'typeorm';
 import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
+import { KeyValueObjectList } from '../common/interfaces/common';
 import { extractErrorDetails } from '../common/utils/extract-error-details';
+import { Person } from '../entities/person.entity';
 import { PersonSurvey } from '../entities/personSurvey.entity';
+import { State } from '../entities/state.entity';
 import { ApiLoggerService } from '../services/logger/logger.service';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
@@ -170,16 +175,59 @@ export class DatabasePersonSurveyRepository
   async getByQuery(
     queryDto: GetGenericAllDto,
   ): Promise<PageDto<PersonSurveyModel>> {
-    const queryList = this.getBasicQuery();
+    const queryList = this.getBasicQuery()
+      .addSelect([
+        'pe.ci as "ci"',
+        'pe.full_name as "fullName"',
+        'pe.date_of_birth as "dateOfBirth"',
+        'pe.gender as "gender"',
+        'st.name as "stateName"',
+      ])
+      .withDeleted()
+      .innerJoin(State, 'st', 'st.id = ps.state_id')
+      .where('ps.estimated_risk is not null')
+      .orderBy('pe.full_name', 'ASC');
 
+    const queryCount = this.personSurveyEntity
+      .createQueryBuilder('ps')
+      .where('ps.estimated_risk is not null');
+    const { filter } = queryDto;
+
+    const fullName = filter
+      ? this.atrIsIncludedAndGetValOp(filter, 'fullName', 'varchar')
+      : null;
+
+    if (fullName && fullName.condition) {
+      const value = fullName.value;
+      queryCount.innerJoin(
+        Person,
+        'pe',
+        `pe.id = ps.person_id and pe.full_name ${fullName.condition}`,
+        { value },
+      );
+      queryList.innerJoin(
+        Person,
+        'pe',
+        `pe.id = ps.person_id and pe.full_name ${fullName.condition}`,
+        { value },
+      );
+    } else {
+      queryList.innerJoin(Person, 'pe', 'pe.id = ps.person_id');
+    }
+
+    const addAtrs: KeyValueObjectList<string> = {
+      fullName: 'varchar',
+    };
     const query = await super.getByQueryBase<PersonSurvey>({
       queryDto,
       alias: 'ps',
       queryList,
+      queryCount,
+      addAtrs,
     });
 
     const survQuestions = query.entities.map((survQuestion) =>
-      this.toModelPanel(survQuestion),
+      this.toModelAnalysis(survQuestion),
     );
 
     const pageMetaDto = new PageMetaDto({
@@ -264,14 +312,46 @@ export class DatabasePersonSurveyRepository
     return personSurvy ? this.toModel(personSurvy) : null;
   }
 
-  private toModelPanel(entity: PersonSurvey): PersonSurveyModel {
-    const model = new PersonSurveyModel();
+  private toModelPanel(entity: PersonSurvey): PersonSurveyFullModel {
+    const model = new PersonSurveyFullModel();
 
     model.personId = Number(entity.personId);
     model.surveyId = Number(entity.surveyId);
     model.id = Number(entity.id);
     model.stateId = Number(entity.stateId);
+    model.ci = entity.person.ci;
+    model.fullName = entity.person.fullName;
+    model.dateOfBirth = entity.person.dateOfBirth;
     model.age = Number(entity.age);
+    model.totalScore = entity.totalScore ? Number(entity.totalScore) : null;
+    model.weight = entity.weight ? Number(entity.weight) : null;
+    model.size = entity.size ? Number(entity.size) : null;
+    model.imcValue = entity.imcValue ? Number(entity.imcValue) : null;
+    model.imcPoints = entity.imcPoints ? Number(entity.imcPoints) : null;
+    model.imcCategory = entity.imcCategory ?? null;
+    model.estimatedRisk = entity.estimatedRisk ?? null;
+    model.phone = entity.phone;
+    model.email = entity.email;
+
+    model.createdAt = entity.createdAt;
+    model.updatedAt = entity.updatedAt;
+
+    return model;
+  }
+
+  private toModelAnalysis(entity: PersonSurvey): PersonSurveyAnalysisModel {
+    const model = new PersonSurveyAnalysisModel();
+
+    model.personId = Number(entity.personId);
+    model.surveyId = Number(entity.surveyId);
+    model.id = Number(entity.id);
+    model.stateId = Number(entity.stateId);
+    model.ci = entity['ci'];
+    model.fullName = entity['fullName'];
+    model.dateOfBirth = entity['dateOfBirth'];
+    model.state = entity['stateName'];
+    model.age = Number(entity.age);
+    model.gender = entity['gender'];
     model.totalScore = entity.totalScore ? Number(entity.totalScore) : null;
     model.weight = entity.weight ? Number(entity.weight) : null;
     model.size = entity.size ? Number(entity.size) : null;

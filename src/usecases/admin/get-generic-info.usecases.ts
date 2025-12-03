@@ -42,7 +42,7 @@ export class GetGenericInfoUseCases extends UseCaseBase {
     private readonly surveyRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
     private readonly surveysQuestionsRepo: DatabaseSurveyQuestionsRepository,
     private readonly surveysQuestionsPARepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
-    private readonly patientSurveyRepo: DatabasePersonSurveyRepository,
+    private readonly personSurveyRepo: DatabasePersonSurveyRepository,
     private readonly patientSARepo: DatabasePersonSurveyAnswersRepository,
     private readonly opActionsRepo: DatabaseOperatorsActionsRepository,
     protected readonly logger: ApiLoggerService,

@@ -14,6 +14,7 @@ export enum EEntitiesForGetEntity {
   PERSON = 'person',
   USERS = 'users',
   PATIENT = 'patient',
+
   USER_PHONES = 'phones',
   USER_EMAILS = 'emails',
   OPER_ACTIONS = 'operatorsActions',
@@ -22,6 +23,8 @@ export enum EEntitiesForGetEntity {
   SURVEY_QUESTIONS = 'surveysQuestions',
   SURVEY_RULES = 'surveysRules',
   SURVEY_QUESTIONS_PA = 'surveysQuestionsPA',
+
+  PERSON_SURVEY = 'personSurvey',
 }
 
 export enum ERepoRefForGetEntity {
@@ -37,7 +40,7 @@ export enum ERepoRefForGetEntity {
   surveysQuestions = 'surveysQuestionsRepo',
   surveysQuestionsPA = 'surveysQuestionsPARepo',
 
-  patientSurvey = 'patientSurveyRepo',
+  personSurvey = 'personSurveyRepo',
   patientSA = 'patientSARepo',
 }
 

@@ -49,3 +49,22 @@ export class PersonSurveyFullModel extends PersonSurveyModel {
   estimatedRiskDescription: string;
   estimatedRiskPercent: number;
 }
+
+export class PersonSurveyAnalysisModel extends PersonSurveyModel {
+  surveyName: string;
+  surveyDescription: string;
+  ci: string;
+  age: number;
+  fullName: string;
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  secondLastName?: string | null;
+  dateOfBirth: Date;
+  gender: string;
+  state: string;
+  phone: string;
+  email: string;
+
+  percent: number;
+}
