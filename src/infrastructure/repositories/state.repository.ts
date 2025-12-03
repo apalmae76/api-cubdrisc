@@ -120,7 +120,7 @@ export class DatabaseStateRepository implements IStateRepository {
       }
     }
     const states = await this.getBasicQuery()
-      .orderBy('state.name', 'ASC')
+      .orderBy('state.code', 'ASC')
       .getRawMany();
     if (states && states.length > 0) {
       const data: StateModel[] = states.map((obj) => this.toModel(obj));

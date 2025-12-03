@@ -132,6 +132,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       query.andWhere('id <> :id', { id });
     }
     const overlap = await query.getRawOne();
+    console.log(overlap);
     if (overlap?.total && Number(overlap?.total) > 0) {
       throw new BadRequestException({
         message: [`validation.survey_risk_calculation.RULE_OVERLAP_EXISTING`],
@@ -148,10 +149,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     }
     const continuo = await query2.getRawOne();
     const lastMaxRange = continuo ? Number(continuo.maxRange) : 0;
-    console.log(
-      `minRange (${minRange}) !== lastMaxRange + 1 (${lastMaxRange + 1})`,
-    );
-    if (minRange !== lastMaxRange + 1) {
+    if (lastMaxRange > 0 && minRange !== lastMaxRange + 1) {
       const args = {
         minRange: lastMaxRange + 1,
         technicalError: `minRange most be equal to last rule maxRange + 1 (${lastMaxRange + 1}), please check`,

@@ -181,7 +181,9 @@ async function bootstrap() {
     `[APP-START] ${appName} started in "${nodeEnv}" env, on port "${port}", version ${appVersion}`,
   );
 
-  await app.listen(port);
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`API running on port ${port} - accessible from network`);
+  });
 }
 
 bootstrap();
