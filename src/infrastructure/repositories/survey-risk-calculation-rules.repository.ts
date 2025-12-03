@@ -132,7 +132,6 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       query.andWhere('id <> :id', { id });
     }
     const overlap = await query.getRawOne();
-    console.log(overlap);
     if (overlap?.total && Number(overlap?.total) > 0) {
       throw new BadRequestException({
         message: [`validation.survey_risk_calculation.RULE_OVERLAP_EXISTING`],

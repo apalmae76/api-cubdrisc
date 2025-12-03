@@ -16,10 +16,6 @@ import { SurveyQuestions } from './survey-questions.entity';
 
 @Entity('survey_questions_possible_answers')
 @Index(['order'], { where: 'deleted_at IS NULL' })
-@Index(['surveyId', 'surveyQuestionId', 'answer'], {
-  unique: true,
-  where: 'deleted_at IS NULL',
-})
 export class SurveyQuestionsPossibleAnswers {
   @ManyToOne(() => SurveyQuestions, (question) => question.possibleAnswers, {
     nullable: false,
