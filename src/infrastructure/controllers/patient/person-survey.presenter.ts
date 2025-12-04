@@ -25,17 +25,10 @@ export class PublicSurveyPresenter {
   @IsDate()
   updatedAt: Date;
 
-  @ApiProperty({
-    description: 'Array of survey questions ids',
-    type: () => Number,
-  })
-  questionIds: number[];
-
-  constructor(survey: SurveyModel, questionIds: number[]) {
+  constructor(survey: SurveyModel) {
     this.id = survey.id;
     this.name = survey.name;
     this.description = survey.description;
-    this.questionIds = questionIds;
 
     this.updatedAt = survey.updatedAt;
   }
@@ -48,6 +41,27 @@ export class GetPublicSurveyPresenter extends BaseResponsePresenter<PublicSurvey
   })
   @Type(() => PublicSurveyPresenter)
   data: PublicSurveyPresenter;
+}
+
+export class PublicSurveyQuestionsPresenter {
+  @ApiProperty({
+    description: 'Array of survey questions ids',
+    type: () => Number,
+  })
+  questionIds: number[];
+
+  constructor(questionIds: number[]) {
+    this.questionIds = questionIds;
+  }
+}
+
+export class GetPublicSurveyQuestionsPresenter extends BaseResponsePresenter<PublicSurveyQuestionsPresenter> {
+  @ApiProperty({
+    description: 'Public survey questions data',
+    type: PublicSurveyQuestionsPresenter,
+  })
+  @Type(() => PublicSurveyQuestionsPresenter)
+  data: PublicSurveyQuestionsPresenter;
 }
 
 export class PublicAnswerPresenter {
@@ -119,6 +133,9 @@ export class PersonSurveyPresenter {
   @ApiProperty()
   personCi: string;
 
+  @ApiProperty()
+  gender: string;
+
   @ApiProperty({ type: 'integer' })
   @IsNumber()
   personId: number;
@@ -134,12 +151,14 @@ export class PersonSurveyPresenter {
   constructor(
     referenceId: string,
     personCi: string,
+    gender: string,
     personId: number,
     surveyId: number,
     personSurveyId: number,
   ) {
     this.referenceId = referenceId;
     this.personCi = personCi;
+    this.gender = gender;
     this.personId = personId;
     this.surveyId = surveyId;
     this.personSurveyId = personSurveyId;

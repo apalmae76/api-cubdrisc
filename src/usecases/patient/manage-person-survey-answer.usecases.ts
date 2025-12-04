@@ -5,16 +5,16 @@ import {
   BaseResponsePresenter,
   BooleanDataResponsePresenter,
 } from 'src/infrastructure/common/dtos/baseResponse.dto';
-import {
-  PutAnswerDto
-} from 'src/infrastructure/controllers/patient/person-answer-dto.class';
+import { PutAnswerDto } from 'src/infrastructure/controllers/patient/person-answer-dto.class';
 import {
   GetPublicSurveyPresenter,
   GetPublicSurveyQuestionPresenter,
+  GetPublicSurveyQuestionsPresenter,
   PersonSurveyPresenter,
   PublicAnswerPresenter,
   PublicSurveyPresenter,
   PublicSurveyQuestionPresenter,
+  PublicSurveyQuestionsPresenter,
 } from 'src/infrastructure/controllers/patient/person-survey.presenter';
 import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/person-survey-answers.repository';
 import { DatabaseSurveyQuestionsPossibleAnswersRepository } from 'src/infrastructure/repositories/survey-questions-possible-answers.repository';
@@ -44,13 +44,24 @@ export class ManagePersonSurveyAnswerUseCases extends UseCaseBase {
   @UseCaseLogger()
   async getSurvey(): Promise<GetPublicSurveyPresenter> {
     const survey = await this.surveyRepo.getActive();
-    let questionsIds: number[] = [];
-    if (survey) {
-      questionsIds = await this.surveyQuestionsRepo.getIds(survey.id);
-    }
-    const response = survey
-      ? new PublicSurveyPresenter(survey, questionsIds)
-      : null;
+    const response = survey ? new PublicSurveyPresenter(survey) : null;
+    return new BaseResponsePresenter('AUTO', response);
+  }
+
+  @UseCaseLogger()
+  async getSurveyQuestions(
+    surveyId: number,
+    gender: string,
+  ): Promise<GetPublicSurveyQuestionsPresenter> {
+    await this.surveyRepo.getByIdOrFail(surveyId);
+    const questionsIds = await this.surveyQuestionsRepo.getIds(
+      surveyId,
+      gender,
+    );
+    const response =
+      (questionsIds?.length ?? 0) > 0
+        ? new PublicSurveyQuestionsPresenter(questionsIds)
+        : null;
     return new BaseResponsePresenter('AUTO', response);
   }
 

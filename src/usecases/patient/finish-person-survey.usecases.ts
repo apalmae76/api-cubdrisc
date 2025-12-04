@@ -14,7 +14,7 @@ import { EnvironmentConfigService } from 'src/infrastructure/config/environment-
 import {
   GetPersonSurveyFinishPresenter,
   PersonSurveyFinishPresenter,
-  PersonSurveyPresenter
+  PersonSurveyPresenter,
 } from 'src/infrastructure/controllers/patient/person-survey.presenter';
 import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/person-survey-answers.repository';
 import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/person-survey.repository';
@@ -39,9 +39,9 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
     private readonly personRepo: DatabasePersonRepository,
     private readonly personSurveyRepo: DatabasePersonSurveyRepository,
     private readonly surveyRepo: DatabaseSurveyRepository,
+    private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     private readonly personSurveyAnswerRepo: DatabasePersonSurveyAnswersRepository,
     private readonly surveyRCRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
-    private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     private readonly pdfGenerator: PdfGeneratorService,
     private readonly redisService: ApiRedisService,
     private readonly appConfig: EnvironmentConfigService,
@@ -91,10 +91,10 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
   }> {
     const personSurveyData = await this.validateBase(referenceId);
 
-    const { personId, surveyId, personSurveyId } = personSurveyData;
+    const { personId, surveyId, gender, personSurveyId } = personSurveyData;
     const [personSurvey, testQIds] = await Promise.all([
       this.personSurveyRepo.getByIdOrFail(surveyId, personId, personSurveyId),
-      this.surveyQuestionRepo.getIds(surveyId),
+      this.surveyQuestionRepo.getIds(surveyId, gender),
     ]);
     // validate imc calulation
     if (!personSurvey.imcValue) {

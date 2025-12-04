@@ -61,7 +61,7 @@ export class DatabaseSurveyQuestionsRepository
     const { message } = extractErrorDetails(er);
 
     if (message) {
-      if (message.includes('IDX_06fa45a0837c19b436c2aeb4e3')) {
+      if (message.includes('IDX_UNIQUE_SURVEY_QUESTION_QUESTION')) {
         const addInfo = {
           technicalError: `Question exists, text must be unique (${newData.question}), check`,
           answer: newData.question,
@@ -102,7 +102,7 @@ export class DatabaseSurveyQuestionsRepository
     entity.question = model.question;
     entity.order = await this.getLastOrder(model.surveyId);
     entity.required = model.required ?? false;
-    entity.gender = model.gender ?? null;
+    entity.gender = model.gender ?? 'Ambos';
 
     return entity;
   }
@@ -305,8 +305,12 @@ export class DatabaseSurveyQuestionsRepository
     return survQuestion;
   }
 
-  async getIds(surveyId: number, useCache = true): Promise<number[]> {
-    const cacheKey = `${this.cacheKey}${surveyId}:Ids`;
+  async getIds(
+    surveyId: number,
+    gender: string,
+    useCache = true,
+  ): Promise<number[]> {
+    const cacheKey = `${this.cacheKey}${surveyId}:${gender}:Ids`;
     let questionIds: number[] = [];
     if (useCache) {
       questionIds = await this.redisService.get<number[]>(cacheKey);
@@ -316,7 +320,10 @@ export class DatabaseSurveyQuestionsRepository
     }
     const query = this.getBasicQuery();
     const survQuestionQry = await query
-      .where('sq.survey_id = :surveyId and sq.deleted_at is null', { surveyId })
+      .where(
+        `sq.survey_id = :surveyId and sq.gender in (:gender, 'Ambos') and sq.deleted_at is null`,
+        { surveyId, gender },
+      )
       .orderBy('sq.order', 'ASC')
       .getRawMany();
     if (!survQuestionQry) {

@@ -35,6 +35,16 @@ export class ValidReferenceIdDto {
   readonly referenceId: string;
 }
 
+export class ValidGenderDto {
+  @IsEnum(Gender, {
+    message: i18nValidationMessage('validation.INVALID_ENUM', {
+      acepted: genderTypesValues,
+    }),
+  })
+  @IsDefined({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  readonly gender: string;
+}
+
 export class CreateSurveyQuestionDto {
   @ApiProperty({
     example:

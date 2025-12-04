@@ -25,9 +25,11 @@ import { ManagePersonSurveyAnswerUseCases } from 'src/usecases/patient/manage-pe
 import { ManagePersonSurveyUseCases } from 'src/usecases/patient/manage-person-survey.usecases';
 import { ValidSurveyIdDto } from '../admin/manage-survey-dto.class';
 import {
+  ValidGenderDto,
   ValidQuestionIdDto,
   ValidReferenceIdDto,
 } from '../admin/manage-survey-question-dto.class';
+import { Gender } from '../profile/profile-dto.class';
 import {
   CreatePersonSurveyDto,
   PatchPersonSurveyDto,
@@ -40,6 +42,7 @@ import {
   GetPersonSurveyPresenter,
   GetPublicSurveyPresenter,
   GetPublicSurveyQuestionPresenter,
+  GetPublicSurveyQuestionsPresenter,
 } from './person-survey.presenter';
 
 @ApiTags('Patient')
@@ -110,6 +113,34 @@ export class ManagePersonSurveyController {
     return await this.managePSAnswerProxyUC
       .getInstance()
       .getSurveyQuestion(surveyId, questionId, referenceId);
+  }
+
+  @Get('survey/:surveyId/questions/:gender')
+  @ApiOkResponse({ type: GetPublicSurveyQuestionsPresenter })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows persons to get active survey questions by sex',
+    operationId: 'getSurveyQuestions',
+  })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  @ApiParam({
+    name: 'gender',
+    type: 'string',
+    example: Gender.FEMALE,
+    description: 'gender',
+  })
+  async getSurveyQuestions(
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Param() { gender }: ValidGenderDto,
+  ): Promise<GetPublicSurveyQuestionsPresenter> {
+    return await this.managePSAnswerProxyUC
+      .getInstance()
+      .getSurveyQuestions(surveyId, gender);
   }
 
   // Manage patients & patiens survey answers --------------------------------------------------------

@@ -59,6 +59,13 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     dataDto: CreatePersonSurveyDto,
   ): Promise<GetPersonSurveyPresenter> {
     const createData = await this.validateCreate(dataDto);
+    if (createData.personSurvey === null) {
+      const data: PatchPersonSurveyDto = {
+        referenceId: createData.personCi, // use ci field to get referenceId
+        ...dataDto,
+      };
+      return await this.update(data);
+    }
     const patientSurvey = await this.persistCreate(createData);
     return new BaseResponsePresenter(
       `messages.person_survey.CREATED_SUCESSFULLY|{"identityCardNumber":"${dataDto.ci}"}`,
@@ -100,16 +107,30 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
             });
           }
         } else {
-          const args = {
-            surveyId: dataDto.surveyId,
-            personCi: dataDto.ci,
-            technicalError: `Person (${personDb.id}), has already started the test (${dataDto.surveyId}). You must modify it`,
+          // take update flow
+          this.logger.verbose(
+            'Person survey was initiated allready, take update',
+            {
+              context: `${this.context}validateCreate`,
+              personSurvayData: lastTest,
+            },
+          );
+          const referenceId = uuidv4();
+          const cacheKey = this.getCacheKey(referenceId);
+          const surveyData = new PersonSurveyPresenter(
+            referenceId,
+            dataDto.ci,
+            dataDto.gender,
+            lastTest.personId,
+            lastTest.surveyId,
+            lastTest.id,
+          );
+          await this.redisService.set(cacheKey, surveyData, this.surveyTtl);
+          const response: CreatePersonSurvey = {
+            personCi: surveyData.referenceId,
+            personSurvey: null, // use this as flag
           };
-          throw new BadRequestException({
-            message: [
-              `validation.person_survey.HAS_ALREADY_STARTED|${JSON.stringify(args)}`,
-            ],
-          });
+          return response;
         }
       }
     }
@@ -160,6 +181,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     const surveyData = new PersonSurveyPresenter(
       referenceId,
       data.personCi,
+      data.person.gender,
       personSurvey.personId,
       personSurvey.surveyId,
       personSurvey.id,
