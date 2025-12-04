@@ -396,11 +396,10 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
       Object.keys(newPersonSurveyData).length === 0
         ? null
         : newPersonSurveyData;
-
     if (updPersonSurvey) {
-      const sizeMts = updPersonSurvey.size / 100;
+      const sizeMts = dataDto.size / 100;
       updPersonSurvey.imcValue = Number(
-        (updPersonSurvey.weight / (sizeMts * sizeMts)).toFixed(2),
+        (dataDto.weight / (sizeMts * sizeMts)).toFixed(2),
       );
       if (updPersonSurvey.imcValue < 25) {
         updPersonSurvey.imcPoints = 0;
