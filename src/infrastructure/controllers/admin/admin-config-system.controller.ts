@@ -11,7 +11,9 @@ import {
 } from '@nestjs/swagger';
 
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
-import RoleGuard from 'src/infrastructure/common/guards/role.guard';
+import {
+  RolesGuard,
+} from 'src/infrastructure/common/guards/role.guard';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
@@ -28,7 +30,7 @@ import { EAppRoles } from '../auth/role.enum';
 @ApiTags('System configuration')
 @Controller()
 @ApiBearerAuth('JWT')
-@UseGuards(RoleGuard(EAppRoles.ADMIN))
+@UseGuards(RolesGuard([EAppRoles.ADMIN, EAppRoles.MEDIC]))
 @ApiBadRequestResponse({ description: 'Bad request' })
 @ApiUnauthorizedResponse({ description: 'No authorization token was found' })
 @ApiNotFoundResponse({
