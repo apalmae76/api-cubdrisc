@@ -12,5 +12,5 @@ export enum EAppRolesForUpd {
 export const cRolesAppGrantAccess = {
   app: [EAppRoles.MEDIC],
   web: [EAppRoles.MEDIC],
-  panel: [EAppRoles.ADMIN],
+  panel: [EAppRoles.ADMIN, EAppRoles.MEDIC],
 };

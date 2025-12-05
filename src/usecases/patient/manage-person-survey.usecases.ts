@@ -308,19 +308,16 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
 
   private getForUpdate(personDb, dataDto): PersonUpdateModel {
     const personUpd: PersonUpdateModel = {};
-    if (dataDto.firstName && dataDto.firstName !== personDb.firstName) {
-      personUpd.firstName = dataDto.firstName;
-    }
-    if (dataDto.middleName && dataDto.middleName !== personDb.middleName) {
-      personUpd.middleName = dataDto.middleName;
-    }
-    if (dataDto.lastName && dataDto.lastName !== personDb.lastName) {
-      personUpd.lastName = dataDto.lastName;
-    }
     if (
-      dataDto.secondLastName &&
-      dataDto.secondLastName !== personDb.secondLastName
+      (dataDto.firstName && dataDto.firstName !== personDb.firstName) ||
+      (dataDto.middleName && dataDto.middleName !== personDb.middleName) ||
+      (dataDto.lastName && dataDto.lastName !== personDb.lastName) ||
+      (dataDto.secondLastName &&
+        dataDto.secondLastName !== personDb.secondLastName)
     ) {
+      personUpd.firstName = dataDto.firstName;
+      personUpd.middleName = dataDto.middleName;
+      personUpd.lastName = dataDto.lastName;
       personUpd.secondLastName = dataDto.secondLastName;
     }
     if (
@@ -333,8 +330,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     if (dataDto.gender && dataDto.gender !== personDb.gender) {
       personUpd.gender = dataDto.gender;
     }
-
-    if (Object.keys(personUpd).length === 0) {
+    if (Object.keys(personUpd).length > 0) {
       return personUpd;
     }
     return null;
