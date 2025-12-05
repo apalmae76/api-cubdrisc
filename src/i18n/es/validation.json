@@ -171,7 +171,8 @@
     "NOT_FOUND": "La provincia enviada no se encuentra o no ha sido registrada, por favor verifique"
   },
   "patient": {
-    "NOT_FOUND": "El paciente no se encuentra o no ha sido registrado, por favor verifique"
+    "NOT_FOUND": "El paciente no se encuentra o no ha sido diagnosticado, por favor verifique",
+    "ALREADY_DIAGNOSED": "El paciente ya ha sido diagnosticado, no es posible diagnosticarlo nuevamente, por favor verifique"
   },
   "survey": {
     "NOT_FOUND": "El test no se encuentra o no ha sido registrado, por favor verifique",
@@ -222,11 +223,13 @@
     "NOT_FOUND": "La respuesta a una pregunta de encuesta, no se encuentra o no ha sido registrada, por favor verifique"
   },
   "person_survey": {
+    "NOT_FOUND": "La persona enviada no ha realizado el test, por favor verifique",
     "HAS_VALID_TEST": "Cuenta con un test válido (realizado hace menos de un año). La próxima prueba podrá realizarse a partir del {date}",
     "HAS_ALREADY_STARTED": "Ya ha iniciado el test, debe modificarlo, por favor verifique",
     "NOT_EXIST_OR_EXPIRED": "El test en curso no existe o los datos han expirado. Debe iniciarlo nuevamente, por favor verifique",
     "MISSING_IMC": "Debe registrar su talla y peso antes de terminar el test, por favor verifique",
     "MISSING_ANSWERS": "Debe responder todas las preguntas para concluir el test. Quedan {count} sin responder, por favor verifique",
-    "MISSING_ESTIMATED_RISK": "No ha sido posible completar el test, consulte a soporte técnico para mas información"
+    "MISSING_ESTIMATED_RISK": "No ha sido posible completar el test, consulte a soporte técnico para mas información",
+    "MISSING_DIAGNOSE_REMOVE_REASON": "El motivo por el cual se elimina el diagnóstico es un valor requerido, por favor verifique"
   }
 }

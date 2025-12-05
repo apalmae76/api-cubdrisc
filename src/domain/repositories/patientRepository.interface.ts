@@ -1,19 +1,29 @@
 import { GetGenericAllDto } from 'src/infrastructure/common/dtos/genericRepo-dto.class';
 import { PageDto } from 'src/infrastructure/common/dtos/page.dto';
 import { EntityManager } from 'typeorm';
-import { PatientModel, PatientUpdateModel } from '../model/patient';
+import { PatientCreateModel, PatientModel } from '../model/patient';
 
 export interface IPatientRepository {
-  ensureExistOrFail(personId: number): Promise<void>;
-  create(patient: PatientModel, em: EntityManager): Promise<PatientModel>;
-  softDelete(personId: number, em?: EntityManager): Promise<boolean>;
-  update(
+  ensureExistOrFail(
     personId: number,
-    patient: PatientUpdateModel,
-    em: EntityManager,
-  ): Promise<boolean>;
+    surveyId: number,
+    personSurveyId: number,
+  ): Promise<void>;
+  create(patient: PatientCreateModel, em: EntityManager): Promise<PatientModel>;
   getByQuery(pageOptionsDto: GetGenericAllDto): Promise<PageDto<PatientModel>>;
-  getByIdForPanel(personId: number): Promise<PatientModel>;
-  getById(personId: number): Promise<PatientModel>;
-  getByIdOrFail(personId: number): Promise<PatientModel>;
+  getByIdForPanel(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+  ): Promise<PatientModel>;
+  getById(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+  ): Promise<PatientModel>;
+  getByIdOrFail(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+  ): Promise<PatientModel>;
 }

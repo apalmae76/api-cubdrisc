@@ -8,6 +8,7 @@ import { ApiRedisModule } from '../services/redis/redis.module';
 import { UsecasesProxyModule } from '../usecases-proxy/usecases-proxy.module';
 import { AdminConfigSystemController } from './admin/admin-config-system.controller';
 import { AdminUsersController } from './admin/adminUsers.controller';
+import { ManagePatientsController } from './admin/manage-patient.controller';
 import { AdminSurveysController } from './admin/manage-surveys.controller';
 import { AuthController } from './auth/auth.controller';
 import { NomenclaturesController } from './nomenclatures/nomenclatures.controller';
@@ -28,6 +29,7 @@ import { NomenclaturesController } from './nomenclatures/nomenclatures.controlle
     AdminConfigSystemController,
     AdminUsersController,
     AdminSurveysController,
+    ManagePatientsController,
   ],
 })
 export class AdminControllersModule { }

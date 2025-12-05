@@ -47,4 +47,7 @@ export enum EOperatorsActionsES {
   SURVEY_RISK_CALCULATION_UPDATE = 'Modificar regla de cálcuo de riesgo',
   SURVEY_RISK_CALCULATION_DELETE = 'Eliminar regla de cálcuo de riesgo',
   SURVEY_RISK_CALCULATION_MOVE = 'Mover regla de cálcuo de riesgo',
+
+  PATIENT_DIAGNOSE = 'Diagnosticar paciente',
+  PATIENT_DIAGNOSE_REMOVE = 'Eliminar diagnóstico de paciente',
 }

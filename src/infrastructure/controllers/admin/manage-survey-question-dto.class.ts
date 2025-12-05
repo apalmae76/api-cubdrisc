@@ -27,6 +27,24 @@ export class ValidQuestionIdDto {
   @Min(1, { message: i18nValidationMessage('validation.MIN') })
   readonly questionId: number;
 }
+export class ValidPersonIdDto {
+  @Transform(({ value }) =>
+    value && RE_INT_NUMBER.test(value) ? parseInt(value) : value,
+  )
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
+  @Min(1, { message: i18nValidationMessage('validation.MIN') })
+  readonly personId: number;
+}
+export class ValidPersonSurveyIdDto {
+  @Transform(({ value }) =>
+    value && RE_INT_NUMBER.test(value) ? parseInt(value) : value,
+  )
+  @IsNotEmpty({ message: i18nValidationMessage('validation.IS_REQUIRED') })
+  @IsInt({ message: i18nValidationMessage('validation.IS_POS_INT') })
+  @Min(1, { message: i18nValidationMessage('validation.MIN') })
+  readonly personSurveyId: number;
+}
 
 export class ValidReferenceIdDto {
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })

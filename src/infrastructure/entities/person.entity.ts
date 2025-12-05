@@ -65,9 +65,9 @@ export class Person {
   })
   updatedAt: Date;
 
-  @OneToOne(() => Patient, (personPatient) => personPatient.person)
-  personPatient: Patient;
-
   @OneToMany(() => PersonSurvey, (personSurvey) => personSurvey.person)
   personSurvey: PersonSurvey[];
+
+  @OneToOne(() => Patient, (patient) => patient.person)
+  patient: Patient;
 }

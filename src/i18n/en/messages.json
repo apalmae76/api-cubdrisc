@@ -79,6 +79,8 @@
   "person_survey": {
     "CREATED_SUCESSFULLY": "Test has started successfully",
     "UPDATED_SUCESSFULLY": "Test has has been updated successfully",
-    "CLOSED_SUCESSFULLY": "Test has been successfully completed"
+    "CLOSED_SUCESSFULLY": "Test has been successfully completed",
+    "DIAGNOSE_OK": "Patient successfully diagnosed",
+    "DIAGNOSE_REMOVED": "The diagnosis has been successfully removed"
   }
 }

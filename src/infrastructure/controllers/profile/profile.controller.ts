@@ -17,7 +17,9 @@ import { CurrentApp } from 'src/infrastructure/common/decorators/current-app.dec
 import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
 import { CorrelationId } from 'src/infrastructure/common/decorators/req-correlation-id';
 import { BaseResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
-import RoleGuard from 'src/infrastructure/common/guards/role.guard';
+import {
+  RolesGuard,
+} from 'src/infrastructure/common/guards/role.guard';
 import { EAppTypes } from 'src/infrastructure/common/utils/constants';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
@@ -30,6 +32,7 @@ import { GetUserPresenter, ProfileUserPresenter } from './profile.presenter';
 
 @ApiTags('Profile')
 @ApiBearerAuth('JWT')
+@UseGuards(RolesGuard([EAppRoles.ADMIN, EAppRoles.MEDIC]))
 @Controller('profile')
 @ApiBadRequestResponse({ description: 'Bad request' })
 @ApiUnauthorizedResponse({ description: 'No authorization token was found' })
@@ -48,7 +51,6 @@ export class ProfileController {
   ) { }
 
   @Get()
-  @UseGuards(RoleGuard(EAppRoles.MEDIC))
   @ApiOkResponse({ type: GetUserPresenter })
   @ApiOperation({
     description: '',
@@ -68,7 +70,6 @@ export class ProfileController {
   }
 
   @Patch('email')
-  @UseGuards(RoleGuard(EAppRoles.MEDIC))
   @ApiOkResponse({ type: BaseResponsePresenter<null> })
   @ApiBody({ type: UpdateEmailOTPDto })
   @ApiOperation({

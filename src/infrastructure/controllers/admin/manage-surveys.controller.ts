@@ -27,7 +27,7 @@ import { EnvironmentConfigService } from 'src/infrastructure/config/environment-
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
 import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
-import RoleGuard from 'src/infrastructure/common/guards/role.guard';
+import { RolesGuard } from 'src/infrastructure/common/guards/role.guard';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { ManageSurveyQuestionAnswerUseCases } from 'src/usecases/survey/manage-survey-question-answer.usecases';
 import { ManageSurveyQuestionUseCases } from 'src/usecases/survey/manage-survey-question.usecases';
@@ -68,7 +68,7 @@ import { GetSurveyPresenter } from './manage-survey.presenter';
 @ApiTags('Survey')
 @Controller('survey')
 @ApiBearerAuth('JWT')
-@UseGuards(RoleGuard(EAppRoles.ADMIN))
+@UseGuards(RolesGuard([EAppRoles.ADMIN, EAppRoles.MEDIC]))
 @ApiBadRequestResponse({ description: 'Bad request' })
 @ApiUnauthorizedResponse({ description: 'No authorization token was found' })
 @ApiNotFoundResponse({

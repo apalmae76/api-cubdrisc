@@ -1,20 +1,38 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   Index,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryColumn,
-  UpdateDateColumn,
 } from 'typeorm';
+import { MedicalSpecialty } from './medical-specialty.entity';
 import { Person } from './person.entity';
+import { PersonSurvey } from './personSurvey.entity';
+import { User } from './user.entity';
 
 @Entity('patient')
-@Index(['personId'], { where: 'deleted_at IS NULL' })
+@Index(['personId', 'surveyId', 'personSurveyId'], { unique: true })
 export class Patient {
-  @OneToOne(() => Person, (person) => person.personPatient, {
+  @OneToOne(
+    () => PersonSurvey,
+    (personSurvey) => personSurvey.personSurveyAnswers,
+    {
+      nullable: false,
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE',
+    },
+  )
+  @JoinColumn([
+    { name: 'person_id', referencedColumnName: 'personId' },
+    { name: 'survey_id', referencedColumnName: 'surveyId' },
+    { name: 'person_survey_id', referencedColumnName: 'id' },
+  ])
+  personSurvey: PersonSurvey;
+
+  @OneToOne(() => Person, (person) => person.patient, {
     nullable: false,
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE',
@@ -25,13 +43,31 @@ export class Patient {
   @PrimaryColumn({ type: 'bigint', name: 'person_id', comment: 'id column' })
   personId: number;
 
+  @Column({ type: 'bigint', name: 'survey_id', comment: 'id column' })
+  surveyId: number;
+
   @Column({
-    name: 'diagnosed',
-    type: 'date',
-    nullable: true,
-    default: null,
+    type: 'bigint',
+    name: 'person_survey_id',
+    comment: 'id column',
   })
-  diagnosed: Date;
+  personSurveyId: number;
+
+  @ManyToOne(() => User, (user) => user.id, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'medic_id' })
+  medicId: number;
+
+  @ManyToOne(() => MedicalSpecialty, (medSpecialty) => medSpecialty.id, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'medical_specialty_id' })
+  medicalSpecialtyId: number;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -39,20 +75,4 @@ export class Patient {
     comment: 'Entity create',
   })
   createdAt: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    name: 'updated_at',
-    comment: 'Entity update',
-  })
-  updatedAt: Date;
-
-  @DeleteDateColumn({
-    type: 'timestamp',
-    comment: 'Entity delete',
-    nullable: true,
-    default: null,
-    name: 'deleted_at',
-  })
-  deletedAt: Date;
 }

@@ -93,7 +93,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
 
     const { personId, surveyId, gender, personSurveyId } = personSurveyData;
     const [personSurvey, testQIds] = await Promise.all([
-      this.personSurveyRepo.getByIdOrFail(surveyId, personId, personSurveyId),
+      this.personSurveyRepo.getByIdOrFail(personId, surveyId, personSurveyId),
       this.surveyQuestionRepo.getIds(surveyId, gender),
     ]);
     // validate imc calulation

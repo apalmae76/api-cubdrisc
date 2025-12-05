@@ -235,7 +235,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     const { personId, surveyId, personSurveyId } = personSurveyData;
     const [person, personSurvey] = await Promise.all([
       this.personRepo.getByIdOrFail(personId),
-      this.personSurveyRepo.getByIdOrFail(surveyId, personId, personSurveyId),
+      this.personSurveyRepo.getByIdOrFail(personId, surveyId, personSurveyId),
       this.surveyRepo.getByIdOrFail(surveyId),
     ]);
 
@@ -378,7 +378,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
 
     const { personId, surveyId, personSurveyId } = personSurveyData;
     const [personSurvey] = await Promise.all([
-      this.personSurveyRepo.getByIdOrFail(surveyId, personId, personSurveyId),
+      this.personSurveyRepo.getByIdOrFail(personId, surveyId, personSurveyId),
       this.personRepo.getByIdOrFail(personId),
       this.surveyRepo.getByIdOrFail(surveyId),
     ]);

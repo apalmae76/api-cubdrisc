@@ -18,6 +18,7 @@ import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { KeyValueObjectList } from '../common/interfaces/common';
 import { extractErrorDetails } from '../common/utils/extract-error-details';
+import { Patient } from '../entities/patient.entity';
 import { Person } from '../entities/person.entity';
 import { PersonSurvey } from '../entities/personSurvey.entity';
 import { State } from '../entities/state.entity';
@@ -152,8 +153,8 @@ export class DatabasePersonSurveyRepository
   }
 
   async getByIdForPanel(
-    surveyId: number,
     personId: number,
+    surveyId: number,
     id: number,
   ): Promise<PersonSurveyModel> {
     const query = this.getBasicQuery();
@@ -182,9 +183,15 @@ export class DatabasePersonSurveyRepository
         'pe.date_of_birth as "dateOfBirth"',
         'pe.gender as "gender"',
         'st.name as "stateName"',
+        'pa.created_at as "diagnosedOn"',
       ])
       .withDeleted()
       .innerJoin(State, 'st', 'st.id = ps.state_id')
+      .leftJoin(
+        Patient,
+        'pa',
+        'pa.person_id = ps.person_id and pa.survey_id = ps.survey_id and pa.person_survey_id = ps.id',
+      )
       .where('ps.estimated_risk is not null')
       .orderBy('pe.full_name', 'ASC');
 
@@ -244,15 +251,15 @@ export class DatabasePersonSurveyRepository
   }
 
   async getByIdOrFail(
-    surveyId: number,
     personId: number,
+    surveyId: number,
     id: number,
   ): Promise<PersonSurveyModel> {
-    const survey = await this.getById(surveyId, personId, id);
+    const survey = await this.getById(personId, surveyId, id);
     if (!survey) {
       throw new NotFoundException({
         message: [
-          `validation.person_survey_answer.NOT_FOUND|{"personId":"${personId}","surveyId":"${id}","surveyId":"${id}"}`,
+          `validation.person_survey.NOT_FOUND|{"personId":"${personId}","surveyId":"${id}","surveyId":"${id}"}`,
         ],
       });
     }
@@ -260,8 +267,8 @@ export class DatabasePersonSurveyRepository
   }
 
   async getById(
-    surveyId: number,
     personId: number,
+    surveyId: number,
     id: number,
     useCache = true,
   ): Promise<PersonSurveyModel> {
@@ -361,6 +368,8 @@ export class DatabasePersonSurveyRepository
     model.estimatedRisk = entity.estimatedRisk ?? null;
     model.phone = entity.phone;
     model.email = entity.email;
+    model.diagnosedOn = entity['diagnosedOn'];
+    model.isDiagnosed = entity['diagnosedOn'] === null ? false : true;
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;

@@ -32,7 +32,7 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
     private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     private readonly appConfig: EnvironmentConfigService,
-    protected readonly dataSource: DataSource,
+    private readonly dataSource: DataSource,
     protected readonly logger: ApiLoggerService,
   ) {
     super(logger);

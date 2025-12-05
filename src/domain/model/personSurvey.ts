@@ -65,6 +65,8 @@ export class PersonSurveyAnalysisModel extends PersonSurveyModel {
   state: string;
   phone: string;
   email: string;
+  diagnosedOn: string | null;
+  isDiagnosed: boolean;
 
   percent: number;
 }

@@ -6,10 +6,12 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Patient } from './patient.entity';
 import { PersonSurveyAnswers } from './person-survey-answers.entity';
 import { Person } from './person.entity';
 import { State } from './state.entity';
@@ -145,4 +147,7 @@ export class PersonSurvey {
     (personSurveyAnswers) => personSurveyAnswers.personSurvey,
   )
   personSurveyAnswers: PersonSurveyAnswers[];
+
+  @OneToOne(() => Patient, (patient) => patient.personSurvey)
+  patient: Patient;
 }
