@@ -329,7 +329,7 @@ export class DatabaseSurveyQuestionsRepository
     if (!survQuestionQry) {
       return [];
     }
-    questionIds = survQuestionQry.map((question) => question.id);
+    questionIds = survQuestionQry.map((question) => Number(question.id));
     if (cacheKey) {
       await this.redisService.set<number[]>(
         cacheKey,
