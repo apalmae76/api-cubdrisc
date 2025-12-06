@@ -195,6 +195,23 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     }
   }
 
+  async deleteBySurveyId(
+    surveyId: number,
+    em: EntityManager = null,
+  ): Promise<boolean> {
+    const repo = em
+      ? em.getRepository(SurveyQuestionsPossibleAnswers)
+      : this.surveyQPAEntity;
+
+    const { affected } = await repo.delete({ surveyId });
+
+    if (affected > 0) {
+      await this.cleanCacheData(surveyId);
+      return true;
+    }
+    return false;
+  }
+
   private async isRowDeleted(
     surveyId: number,
     surveyQuestionId: number,
@@ -242,8 +259,13 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     return caracts;
   }
 
-  async cleanCacheData(surveyId: number, surveyQuestionId: number) {
-    const pattern = `${this.cacheKey}${surveyId}:${surveyQuestionId}*`;
+  async cleanCacheData(
+    surveyId: number,
+    surveyQuestionId: number | null = null,
+  ) {
+    const pattern = surveyQuestionId
+      ? `${this.cacheKey}${surveyId}:${surveyQuestionId}*`
+      : `${this.cacheKey}${surveyId}*`;
     await this.redisService.removeAllKeysWithPattern(pattern);
   }
 
@@ -452,6 +474,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
       ? em.getRepository(SurveyQuestionsPossibleAnswers)
       : this.surveyQPAEntity;
     await repo.update({ surveyId, surveyQuestionId, id }, { order });
+    await this.cleanCacheData(surveyId, surveyQuestionId);
   }
 
   private toModelPanel(

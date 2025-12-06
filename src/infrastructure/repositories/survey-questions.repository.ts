@@ -175,6 +175,23 @@ export class DatabaseSurveyQuestionsRepository
     }
   }
 
+  async deleteBySurveyId(
+    surveyId: number,
+    em: EntityManager = null,
+  ): Promise<boolean> {
+    const repo = em
+      ? em.getRepository(SurveyQuestions)
+      : this.surveyQuestionEntity;
+
+    const { affected } = await repo.delete({ surveyId });
+
+    if (affected > 0) {
+      await this.cleanCacheData(surveyId);
+      return true;
+    }
+    return false;
+  }
+
   private async isRowDeleted(surveyId: number, id: number): Promise<boolean> {
     const row = await this.surveyQuestionEntity
       .createQueryBuilder()
@@ -196,6 +213,8 @@ export class DatabaseSurveyQuestionsRepository
   }
 
   async cleanCacheData(surveyId: number) {
+    const cacheKey = `${this.cacheKey}${surveyId}`;
+    await this.redisService.del(cacheKey);
     const pattern = `${this.cacheKey}${surveyId}:*`;
     await this.redisService.removeAllKeysWithPattern(pattern);
   }
@@ -362,7 +381,7 @@ export class DatabaseSurveyQuestionsRepository
       .orderBy('sq.order', 'ASC')
       .getRawMany();
 
-    return questions.map((question) => this.toModel(question, true));
+    return questions.map((question) => this.toModel(question));
   }
 
   async setOrder(
@@ -375,6 +394,7 @@ export class DatabaseSurveyQuestionsRepository
       ? em.getRepository(SurveyQuestions)
       : this.surveyQuestionEntity;
     await repo.update({ surveyId, id }, { order });
+    await this.cleanCacheData(surveyId);
   }
 
   areSame(

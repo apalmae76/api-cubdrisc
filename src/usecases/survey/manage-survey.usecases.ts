@@ -307,9 +307,16 @@ export class ManageSurveyUseCases extends UseCaseBase {
     }
 
     const result = await this.dataSource.transaction(async (em) => {
-      const result = survey.draft
-        ? await this.surveyRepo.delete(surveyId, em)
-        : await this.surveyRepo.softDelete(surveyId, em);
+      let result = false;
+      if (survey.draft) {
+        await this.surveyQuestionPARepo.deleteBySurveyId(surveyId, em);
+        await this.surveyRCRulesRepo.deleteBySurveyId(surveyId, em);
+        await this.surveyQuestionRepo.deleteBySurveyId(surveyId, em);
+        result = await this.surveyRepo.delete(surveyId, em);
+      } else {
+        result = await this.surveyRepo.softDelete(surveyId, em);
+      }
+
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
         actionId: EOperatorsActions.SURVEY_DELETE,

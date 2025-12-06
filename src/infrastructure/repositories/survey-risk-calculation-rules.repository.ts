@@ -225,6 +225,23 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     }
   }
 
+  async deleteBySurveyId(
+    surveyId: number,
+    em: EntityManager = null,
+  ): Promise<boolean> {
+    const repo = em
+      ? em.getRepository(SurveyRiskCalculationRules)
+      : this.surveyRCRulesEntity;
+
+    const { affected } = await repo.delete({ surveyId });
+
+    if (affected > 0) {
+      await this.cleanCacheData(surveyId);
+      return true;
+    }
+    return false;
+  }
+
   async setOrder(
     surveyId: number,
     id: number,
@@ -235,6 +252,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       ? em.getRepository(SurveyRiskCalculationRules)
       : this.surveyRCRulesEntity;
     await repo.update({ surveyId, id }, { order });
+    await this.cleanCacheData(surveyId);
   }
 
   private async isRowDeleted(
@@ -319,7 +337,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       .orderBy('srcr."order"', 'ASC')
       .getRawMany();
 
-    return rules.map((rule) => this.toModel(rule, true));
+    return rules.map((rule) => this.toModel(rule));
   }
 
   async getByIdForPanel(

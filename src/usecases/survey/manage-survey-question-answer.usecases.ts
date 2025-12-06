@@ -139,12 +139,12 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
       dataDto.educationalTip !== undefined &&
       dataDto.educationalTip !== answer.educationalTip
     ) {
-      newData.educationalTip = dataDto.educationalTip;
+      newData.educationalTip = dataDto.educationalTip?.trim() ?? null;
     }
     if (dataDto.value !== undefined && dataDto.value !== answer.value) {
       newData.value = dataDto.value;
     }
-
+    console.log(newData);
     if (Object.keys(newData).length === 0) {
       return { newData: null, answer };
     }
