@@ -12,7 +12,7 @@ export interface ISurveyQuestionsPossibleAnswersRepository {
     surveyQuestion: SurveyQuestionPossibleAnswerCreateModel,
     em: EntityManager,
   ): Promise<SurveyQuestionPossibleAnswerModel>;
-  softDelete(
+  delete(
     surveyId: number,
     surveyQuestionId: number,
     id: number,

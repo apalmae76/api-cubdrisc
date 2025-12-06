@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
 import {
   SurveyQuestionPossibleAnswerCreateModel,
@@ -208,26 +207,9 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
       answerId,
     );
     const jsonIds = `{"surveyId":"${surveyId}","questionId":"${questionId}","answerId":"${answerId}"}`;
-    if (question.deletedAt) {
-      const response = new BooleanDataResponsePresenter(
-        `messages.survey_question_answer.DELETED|${jsonIds}`,
-        true,
-      );
-      const error = new BadRequestException({
-        message: [
-          `validation.survey_question_answer.ALREADY_DELETED|${jsonIds}`,
-        ],
-      });
-      return this.handleNoChangedValuesOnUpdate(
-        `${this.context}delete`,
-        response,
-        this.appConfig.isProductionEnv(),
-        error,
-      );
-    }
 
     const result = await this.dataSource.transaction(async (em) => {
-      const result = await this.surveyQAnsRepo.softDelete(
+      const result = await this.surveyQAnsRepo.delete(
         surveyId,
         questionId,
         answerId,
@@ -236,7 +218,7 @@ export class ManageSurveyQuestionAnswerUseCases extends UseCaseBase {
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
         actionId: EOperatorsActions.SURVEY_QUESTION_ANSWER_DELETE,
-        reason: `Deshabilitar respuesta de forma permanente: ${result}`,
+        reason: `Eliminar respuesta de forma permanente: ${result}`,
         details: question,
       };
       await this.operActionRepo.create(opPayload, em);

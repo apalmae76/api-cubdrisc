@@ -12,7 +12,7 @@ export interface ISurveyRiskCalculationRulesRepository {
     data: SurveyRiskCalculationRulesCreateModel,
     em: EntityManager,
   ): Promise<SurveyRiskCalculationRulesModel>;
-  softDelete(
+  delete(
     surveyId: number,
     id: number,
     em?: EntityManager,

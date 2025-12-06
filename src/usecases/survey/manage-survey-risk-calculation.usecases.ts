@@ -244,34 +244,13 @@ export class ManageSurveyRiskCalculationUseCases extends UseCaseBase {
   ): Promise<BooleanDataResponsePresenter> {
     const rcRule = await this.surveyRiscCRepo.canUpdate(surveyId, ruleId);
     const jsonIds = `{"surveyId":"${surveyId}","ruleId":"${ruleId}"}`;
-    if (rcRule.deletedAt) {
-      const response = new BooleanDataResponsePresenter(
-        `messages.survey_risk_calculation.DELETED|${jsonIds}`,
-        true,
-      );
-      const error = new BadRequestException({
-        message: [
-          `validation.survey_risk_calculation.ALREADY_DELETED|${jsonIds}`,
-        ],
-      });
-      return this.handleNoChangedValuesOnUpdate(
-        `${this.context}delete`,
-        response,
-        this.appConfig.isProductionEnv(),
-        error,
-      );
-    }
 
     const result = await this.dataSource.transaction(async (em) => {
-      const result = await this.surveyRiscCRepo.softDelete(
-        surveyId,
-        ruleId,
-        em,
-      );
+      const result = await this.surveyRiscCRepo.delete(surveyId, ruleId, em);
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
         actionId: EOperatorsActions.SURVEY_RISK_CALCULATION_DELETE,
-        reason: `Deshabilitar regla de forma permanente: ${result}`,
+        reason: `Eliminar regla de forma permanente: ${result}`,
         details: rcRule,
       };
       await this.operActionRepo.create(opPayload, em);

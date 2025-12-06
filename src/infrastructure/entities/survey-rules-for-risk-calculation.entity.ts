@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -13,9 +12,7 @@ import {
 import { Survey } from './survey.entity';
 
 @Entity('survey_risk_calculation_rules')
-@Index(['order'], { where: 'deleted_at IS NULL' })
-@Index(['surveyId', 'label'], { unique: true })
-@Index(['surveyId', 'description'], { unique: true })
+@Index(['surveyId', 'order'])
 export class SurveyRiskCalculationRules {
   @ManyToOne(() => Survey, (survey) => survey.id, {
     nullable: false,
@@ -69,13 +66,4 @@ export class SurveyRiskCalculationRules {
     comment: 'Entity update',
   })
   updatedAt: Date;
-
-  @DeleteDateColumn({
-    type: 'timestamp',
-    comment: 'Entity delete',
-    nullable: true,
-    default: null,
-    name: 'deleted_at',
-  })
-  deletedAt: Date;
 }

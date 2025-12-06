@@ -41,10 +41,6 @@ export class SurveyQuestionAnswerPresenter {
   @IsDate()
   updatedAt: Date;
 
-  @ApiProperty()
-  @IsDate()
-  deletedAt: Date;
-
   constructor(answer: SurveyQuestionPossibleAnswerModel) {
     this.id = answer.id;
     this.answer = answer.answer;
@@ -54,7 +50,6 @@ export class SurveyQuestionAnswerPresenter {
 
     this.createdAt = answer.createdAt;
     this.updatedAt = answer.updatedAt;
-    this.deletedAt = answer.deletedAt;
   }
 }
 

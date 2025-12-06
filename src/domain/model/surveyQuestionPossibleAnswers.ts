@@ -20,7 +20,6 @@ export class SurveyQuestionPossibleAnswerModel extends SurveyQuestionPossibleAns
   order: number;
   createdAt?: Date;
   updatedAt?: Date;
-  deletedAt?: Date;
 }
 
 export class SurveyQuestionPossibleAnswerStatusModel {

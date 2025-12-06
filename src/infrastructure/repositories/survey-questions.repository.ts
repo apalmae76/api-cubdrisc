@@ -138,7 +138,7 @@ export class DatabaseSurveyQuestionsRepository
     }
   }
 
-  async softDelete(
+  async delete(
     surveyId: number,
     id: number,
     em: EntityManager = null,
@@ -147,32 +147,12 @@ export class DatabaseSurveyQuestionsRepository
       ? em.getRepository(SurveyQuestions)
       : this.surveyQuestionEntity;
 
-    const { affected } = await repo
-      .createQueryBuilder()
-      .update(SurveyQuestions)
-      .set({ deletedAt: new Date() })
-      .where('survey_id = :surveyId and id = :id and deleted_at is null', {
-        surveyId,
-        id,
-      })
-      .execute();
+    const { affected } = await repo.delete({ surveyId, id });
     if (affected > 0) {
       await this.cleanCacheData(surveyId);
       return true;
-    } else {
-      const rowIsDeleted = await this.isRowDeleted(surveyId, id);
-      if (rowIsDeleted === null) {
-        this.logger.warn(
-          `Survey questions repository, soft delete: Sended id does not exist `,
-          {
-            affected,
-            rowIsDeleted: rowIsDeleted ? rowIsDeleted : 'NULL',
-            context: `${DatabaseSurveyQuestionsRepository.name}.softDelete`,
-          },
-        );
-      }
-      return false;
     }
+    return false;
   }
 
   async deleteBySurveyId(
@@ -190,19 +170,6 @@ export class DatabaseSurveyQuestionsRepository
       return true;
     }
     return false;
-  }
-
-  private async isRowDeleted(surveyId: number, id: number): Promise<boolean> {
-    const row = await this.surveyQuestionEntity
-      .createQueryBuilder()
-      .select(['deleted_at as "deletedAt"'])
-      .withDeleted()
-      .where('survey_id = :surveyId and id = :id', { surveyId, id })
-      .getRawOne();
-    if (row) {
-      return row.deletedAt !== null;
-    }
-    return null;
   }
 
   async getCount(surveyId: number): Promise<number> {
@@ -231,7 +198,6 @@ export class DatabaseSurveyQuestionsRepository
         'sq.gender as "gender"',
         'sq.created_at as "createdAt"',
         'sq.updated_at as "updatedAt"',
-        'sq.deleted_at as "deletedAt"',
       ])
       .withDeleted();
   }
@@ -339,10 +305,10 @@ export class DatabaseSurveyQuestionsRepository
     }
     const query = this.getBasicQuery();
     const survQuestionQry = await query
-      .where(
-        `sq.survey_id = :surveyId and sq.gender in (:gender, 'Ambos') and sq.deleted_at is null`,
-        { surveyId, gender },
-      )
+      .where(`sq.survey_id = :surveyId and sq.gender in (:gender, 'Ambos')`, {
+        surveyId,
+        gender,
+      })
       .orderBy('sq.order', 'ASC')
       .getRawMany();
     if (!survQuestionQry) {
@@ -432,7 +398,6 @@ export class DatabaseSurveyQuestionsRepository
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
-    model.deletedAt = entity.deletedAt;
 
     return model;
   }
@@ -456,7 +421,6 @@ export class DatabaseSurveyQuestionsRepository
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
-    model.deletedAt = entity.deletedAt;
 
     return model;
   }

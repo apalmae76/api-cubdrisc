@@ -19,7 +19,7 @@ export class ValidAge implements ValidatorConstraintInterface {
       return false;
     }
 
-    return age < 96;
+    return age < 101;
   }
 
   defaultMessage(args: ValidationArguments) {

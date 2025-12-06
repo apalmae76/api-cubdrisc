@@ -18,7 +18,6 @@ export class SurveyQuestionModel extends SurveyQuestionCreateModel {
   order: number;
   createdAt?: Date;
   updatedAt?: Date;
-  deletedAt?: Date;
 }
 
 export class ListToUpdOrderModel {

@@ -19,5 +19,4 @@ export class SurveyRiskCalculationRulesModel extends SurveyRiskCalculationRulesC
   order: number;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt: Date;
 }

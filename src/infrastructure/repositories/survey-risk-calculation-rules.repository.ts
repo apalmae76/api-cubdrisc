@@ -64,20 +64,20 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     const { message } = extractErrorDetails(er);
 
     if (message) {
-      if (message.includes('IDX_c892da8bf20579372c66af8d74')) {
+      if (message.includes('IDX_UNIQUE_SURVEY_RC_RULE_DESCRIPTION')) {
         const addInfo = {
           technicalError: `Rule description must be unique (${newData.description}), check`,
-          description: newData.description,
+          value: newData.description,
         };
         throw new BadRequestException({
           message: [
             `validation.survey_risk_calculation.DESCRIPTION_IS_UNIQUE|${JSON.stringify(addInfo)}`,
           ],
         });
-      } else if (message.includes('IDX_74b959f9bf4fa4f86d9820fde7')) {
+      } else if (message.includes('IDX_UNIQUE_SURVEY_RC_RULE_LABEL')) {
         const addInfo = {
           technicalError: `Rule label must be unique (${newData.label}), check`,
-          label: newData.label,
+          value: newData.label,
         };
         throw new BadRequestException({
           message: [
@@ -188,7 +188,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     }
   }
 
-  async softDelete(
+  async delete(
     surveyId: number,
     id: number,
     em: EntityManager = null,
@@ -197,32 +197,12 @@ export class DatabaseSurveyRiskCalculationRulesRepository
       ? em.getRepository(SurveyRiskCalculationRules)
       : this.surveyRCRulesEntity;
 
-    const { affected } = await repo
-      .createQueryBuilder()
-      .update(SurveyRiskCalculationRules)
-      .set({ deletedAt: new Date() })
-      .where('survey_id = :surveyId and id = :id and deleted_at is null', {
-        surveyId,
-        id,
-      })
-      .execute();
+    const { affected } = await repo.delete({ surveyId, id });
     if (affected > 0) {
       await this.cleanCacheData(surveyId);
       return true;
-    } else {
-      const rowIsDeleted = await this.isRowDeleted(surveyId, id, em);
-      if (rowIsDeleted === null) {
-        this.logger.warn(
-          `Survey risk calculation range repository, soft delete: Sended id does not exist `,
-          {
-            affected,
-            rowIsDeleted: rowIsDeleted ? rowIsDeleted : 'NULL',
-            context: `${DatabaseSurveyRiskCalculationRulesRepository.name}.softDelete`,
-          },
-        );
-      }
-      return false;
     }
+    return false;
   }
 
   async deleteBySurveyId(
@@ -255,27 +235,6 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     await this.cleanCacheData(surveyId);
   }
 
-  private async isRowDeleted(
-    surveyId: number,
-    id: number,
-    em: EntityManager = null,
-  ): Promise<boolean> {
-    const repo = em
-      ? em.getRepository(SurveyRiskCalculationRules)
-      : this.surveyRCRulesEntity;
-
-    const row = await repo
-      .createQueryBuilder()
-      .select(['deleted_at as "deletedAt"'])
-      .withDeleted()
-      .where('survey_id = :surveyId and id = :id', { surveyId, id })
-      .getRawOne();
-    if (row) {
-      return row.deletedAt !== null;
-    }
-    return null;
-  }
-
   async getCount(surveyId: number): Promise<number> {
     return await this.surveyRCRulesEntity
       .createQueryBuilder()
@@ -304,7 +263,6 @@ export class DatabaseSurveyRiskCalculationRulesRepository
         'srcr.order as "order"',
         'srcr.created_at as "createdAt"',
         'srcr.updated_at as "updatedAt"',
-        'srcr.deleted_at as "deletedAt"',
       ])
       .withDeleted();
   }
@@ -496,7 +454,6 @@ export class DatabaseSurveyRiskCalculationRulesRepository
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
-    model.deletedAt = entity.deletedAt;
 
     return model;
   }
@@ -521,7 +478,6 @@ export class DatabaseSurveyRiskCalculationRulesRepository
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
-    model.deletedAt = entity.deletedAt;
 
     return model;
   }

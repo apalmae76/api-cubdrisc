@@ -17,7 +17,7 @@ export interface ISurveyQuestionsRepository {
     patient: SurveyQuestionUpdateModel,
     em: EntityManager,
   ): Promise<boolean>;
-  softDelete(
+  delete(
     surveyId: number,
     id: number,
     em?: EntityManager,

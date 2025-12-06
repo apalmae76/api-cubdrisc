@@ -45,10 +45,6 @@ export class SurveyRiskCalculationPresenter {
   @IsDate()
   updatedAt: Date;
 
-  @ApiProperty()
-  @IsDate()
-  deletedAt: Date;
-
   constructor(rule: SurveyRiskCalculationRulesModel) {
     this.surveyId = rule.surveyId;
     this.id = rule.id;
@@ -61,7 +57,6 @@ export class SurveyRiskCalculationPresenter {
 
     this.createdAt = rule.createdAt;
     this.updatedAt = rule.updatedAt;
-    this.deletedAt = rule.deletedAt;
   }
 }
 

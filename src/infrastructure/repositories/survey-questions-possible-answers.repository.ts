@@ -153,7 +153,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     }
   }
 
-  async softDelete(
+  async delete(
     surveyId: number,
     surveyQuestionId: number,
     id: number,
@@ -163,35 +163,10 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
       ? em.getRepository(SurveyQuestionsPossibleAnswers)
       : this.surveyQPAEntity;
 
-    const { affected } = await repo
-      .createQueryBuilder()
-      .update(SurveyQuestionsPossibleAnswers)
-      .set({ deletedAt: new Date() })
-      .where(
-        'survey_id = :surveyId and survey_question_id = :surveyQuestionId and id = :id and deleted_at is null',
-        { surveyId, surveyQuestionId, id },
-      )
-      .execute();
+    const { affected } = await repo.delete({ surveyId, surveyQuestionId, id });
     if (affected > 0) {
       await this.cleanCacheData(surveyId, surveyQuestionId);
       return true;
-    } else {
-      const rowIsDeleted = await this.isRowDeleted(
-        surveyId,
-        surveyQuestionId,
-        id,
-      );
-      if (rowIsDeleted === null) {
-        this.logger.warn(
-          `Survey answer repository, soft delete: Sended id does not exist `,
-          {
-            affected,
-            rowIsDeleted: rowIsDeleted ? rowIsDeleted : 'NULL',
-            context: `${DatabaseSurveyQuestionsPossibleAnswersRepository.name}.softDelete`,
-          },
-        );
-      }
-      return false;
     }
   }
 
@@ -210,26 +185,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
       return true;
     }
     return false;
-  }
-
-  private async isRowDeleted(
-    surveyId: number,
-    surveyQuestionId: number,
-    id: number,
-  ): Promise<boolean> {
-    const row = await this.surveyQPAEntity
-      .createQueryBuilder()
-      .select(['deleted_at as "deletedAt"'])
-      .withDeleted()
-      .where(
-        'survey_id = :surveyId and survey_question_id = :surveyQuestionId and id = :id',
-        { surveyId, surveyQuestionId, id },
-      )
-      .getRawOne();
-    if (row) {
-      return row.deletedAt !== null;
-    }
-    return null;
   }
 
   async getCount(
@@ -282,7 +237,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
         'sqa.order as "order"',
         'sqa.created_at as "createdAt"',
         'sqa.updated_at as "updatedAt"',
-        'sqa.deleted_at as "deletedAt"',
       ])
       .withDeleted();
   }
@@ -371,7 +325,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     const query = this.getBasicQuery();
     const survQPAQry = await query
       .where(
-        'sqa.survey_id = :surveyId and sqa.survey_question_id = :surveyQuestionId and sqa.deleted_at is null',
+        'sqa.survey_id = :surveyId and sqa.survey_question_id = :surveyQuestionId',
         { surveyId, surveyQuestionId },
       )
       .orderBy('sqa.order', 'ASC')
@@ -496,7 +450,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
-    model.deletedAt = entity.deletedAt;
 
     return model;
   }
@@ -520,7 +473,6 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
 
     model.createdAt = entity.createdAt;
     model.updatedAt = entity.updatedAt;
-    model.deletedAt = entity.deletedAt;
 
     return model;
   }

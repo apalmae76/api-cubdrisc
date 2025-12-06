@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
 import {
   SurveyQuestionCreateModel,
@@ -196,24 +195,8 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
       questionId,
     );
     const jsonIds = `{"surveyId":"${surveyId}","questionId":"${questionId}"}`;
-    if (question.deletedAt) {
-      const response = new BooleanDataResponsePresenter(
-        `messages.survey_question.DELETED|${jsonIds}`,
-        true,
-      );
-      const error = new BadRequestException({
-        message: [`validation.survey_question.ALREADY_DELETED|${jsonIds}`],
-      });
-      return this.handleNoChangedValuesOnUpdate(
-        `${this.context}delete`,
-        response,
-        this.appConfig.isProductionEnv(),
-        error,
-      );
-    }
-
     const result = await this.dataSource.transaction(async (em) => {
-      const result = await this.surveyQuestionRepo.softDelete(
+      const result = await this.surveyQuestionRepo.delete(
         surveyId,
         questionId,
         em,
@@ -221,7 +204,7 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
       const opPayload: OperatorsActionCreateModel = {
         operatorId,
         actionId: EOperatorsActions.SURVEY_QUESTION_DELETE,
-        reason: `Deshabilitar pregunta de forma permanente: ${result}`,
+        reason: `Eliminar pregunta de forma permanente: ${result}`,
         details: question,
       };
       await this.operActionRepo.create(opPayload, em);

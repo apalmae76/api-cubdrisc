@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -15,7 +14,7 @@ import { PersonSurveyAnswers } from './person-survey-answers.entity';
 import { SurveyQuestions } from './survey-questions.entity';
 
 @Entity('survey_questions_possible_answers')
-@Index(['order'], { where: 'deleted_at IS NULL' })
+@Index(['surveyId', 'surveyQuestionId', 'order'])
 export class SurveyQuestionsPossibleAnswers {
   @ManyToOne(() => SurveyQuestions, (question) => question.possibleAnswers, {
     nullable: false,
@@ -73,15 +72,6 @@ export class SurveyQuestionsPossibleAnswers {
     comment: 'Entity update',
   })
   updatedAt: Date;
-
-  @DeleteDateColumn({
-    type: 'timestamp',
-    comment: 'Entity delete',
-    nullable: true,
-    default: null,
-    name: 'deleted_at',
-  })
-  deletedAt: Date;
 
   @ManyToMany(
     () => PersonSurveyAnswers,
