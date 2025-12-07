@@ -19,7 +19,7 @@ export interface IPersonSurveyRepository {
   getByQuery(
     pageOptionsDto: GetGenericAllDto,
   ): Promise<PageDto<PersonSurveyModel>>;
-  getByIdForPanel(
+  getByIdFullModel(
     personId: number,
     surveyId: number,
     id: number,

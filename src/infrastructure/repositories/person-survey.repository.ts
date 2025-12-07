@@ -152,25 +152,33 @@ export class DatabasePersonSurveyRepository
       .withDeleted();
   }
 
-  async getByIdForPanel(
+  async getByIdFullModel(
     personId: number,
     surveyId: number,
     id: number,
-  ): Promise<PersonSurveyModel> {
-    const query = this.getBasicQuery();
-    query.where(
-      `person_id = :personId and survey_id = :surveyId and id = :id`,
-      {
-        personId,
-        surveyId,
-        id,
-      },
-    );
-    const survey = await query.getRawOne();
-    if (!survey) {
+  ): Promise<PersonSurveyFullModel> {
+    const surveyPerson = await this.getBasicQuery()
+      .addSelect([
+        'pe.ci as ci',
+        'pe.full_name as "fullName"',
+        'pe.date_of_birth as "dateOfBirth"',
+        'pe.gender as "gender"',
+      ])
+      .innerJoin('person', 'pe', 'pe.id = ps.person_id')
+      .where(
+        `ps.person_id = :personId and ps.survey_id = :surveyId and ps.id = :id`,
+        {
+          personId,
+          surveyId,
+          id,
+        },
+      )
+      .getRawOne();
+    if (!surveyPerson) {
       return null;
     }
-    return this.toModelPanel(survey);
+    const response = this.toModelPanel(surveyPerson);
+    return response;
   }
 
   async getByQuery(
@@ -326,9 +334,10 @@ export class DatabasePersonSurveyRepository
     model.surveyId = Number(entity.surveyId);
     model.id = Number(entity.id);
     model.stateId = Number(entity.stateId);
-    model.ci = entity.person.ci;
-    model.fullName = entity.person.fullName;
-    model.dateOfBirth = entity.person.dateOfBirth;
+    model.ci = entity['ci'];
+    model.fullName = entity['fullName'];
+    model.dateOfBirth = entity['dateOfBirth'];
+    model.gender = entity['gender'];
     model.age = Number(entity.age);
     model.totalScore = entity.totalScore ? Number(entity.totalScore) : null;
     model.weight = entity.weight ? Number(entity.weight) : null;

@@ -407,6 +407,71 @@ export class DatabasePersonSurveyAnswersRepository
     return response;
   }
 
+  async getQuestionsAndAnswers(
+    personId: number,
+    surveyId: number,
+    personSurveyId: number,
+    gender: string,
+    useCache = true,
+  ): Promise<AnswerModel[]> {
+    let cacheKey = null;
+    if (useCache) {
+      cacheKey = `${this.cacheKey}${personId}:${surveyId}:${personSurveyId}`;
+      const answers = await this.redisService.get<AnswerModel[]>(cacheKey);
+      if (answers) {
+        return answers;
+      }
+    }
+    const questionsAnswers = await this.getBasicQuery()
+      .addSelect([
+        'sq.question as "question"',
+        'spa.answer as "answer"',
+        'spa.educational_tip as "educationalTip"',
+        'spa.value as "value"',
+      ])
+      .innerJoin(
+        SurveyQuestions,
+        'sq',
+        `sq.survey_id = psa.survey_id and sq.id = psa.survey_question_id and sq.gender in (:gender, 'Ambos')`,
+        { gender },
+      )
+      .innerJoin(
+        SurveyQuestionsPossibleAnswers,
+        'spa',
+        `spa.survey_id = psa.survey_id and spa.survey_question_id = psa.survey_question_id and
+          spa.id = psa.survey_question_answer_id`,
+      )
+      .where(
+        `psa.person_id = :personId and psa.survey_id = :surveyId and psa.person_survey_id = :personSurveyId`,
+        {
+          personId,
+          surveyId,
+          personSurveyId,
+        },
+      )
+      .orderBy('sq.order', 'ASC')
+      .getRawMany();
+    if (questionsAnswers.length > 0) {
+      const response = questionsAnswers.map((questionAnswer) => {
+        const answer: AnswerModel = {
+          question: questionAnswer.question,
+          answerId: Number(questionAnswer.surveyQuestionAnswerId),
+          answer: questionAnswer.answer,
+          educationalTip: questionAnswer.educationalTip,
+          value: Number(questionAnswer.value),
+        };
+        return answer;
+      });
+      await this.redisService.set<AnswerModel[]>(
+        cacheKey,
+        response,
+        this.cacheTime,
+      );
+      return response;
+    }
+    return [];
+  }
+
   async isAnswer(
     personId: number,
     surveyId: number,

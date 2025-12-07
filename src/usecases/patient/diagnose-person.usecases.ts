@@ -1,4 +1,9 @@
-import { BadRequestException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  StreamableFile,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { JobOptions, Queue } from 'bull';
 import { EmailJobData } from 'src/domain/adapters/email-job-data';
 import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
@@ -10,14 +15,17 @@ import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-err
 import { DiagnosePersonDto } from 'src/infrastructure/controllers/admin/manage-patient-dto.class';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
 import { DatabasePatientRepository } from 'src/infrastructure/repositories/patient.repository';
+import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/repositories/person-survey-answers.repository';
 import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/person-survey.repository';
 import { DatabasePersonRepository } from 'src/infrastructure/repositories/person.repository';
+import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/survey-risk-calculation-rules.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import ContextStorageService, {
   ContextStorageServiceKey,
 } from 'src/infrastructure/services/context/context.interface';
 import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { PdfGeneratorService } from 'src/infrastructure/services/pdf-generator/pdf-generator.service';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
 import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
@@ -47,10 +55,13 @@ export class DiagnosePersonUseCases extends UseCaseBase {
   constructor(
     private readonly personRepo: DatabasePersonRepository,
     private readonly personSurveyRepo: DatabasePersonSurveyRepository,
+    private readonly surveyRCRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
+    private readonly personSurveyAnswerRepo: DatabasePersonSurveyAnswersRepository,
     private readonly userRepo: DatabaseUserRepository,
     private readonly surveyRepo: DatabaseSurveyRepository,
     private readonly patientRepo: DatabasePatientRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
+    private readonly pdfGenerator: PdfGeneratorService,
     private readonly redisService: ApiRedisService,
     @InjectWithToken(ContextStorageServiceKey)
     private readonly contextStorageService: ContextStorageService,
@@ -284,5 +295,62 @@ export class DiagnosePersonUseCases extends UseCaseBase {
         message: extractErrorDetails(er).message ?? 'None',
       });
     }
+  }
+
+  @UseCaseLogger()
+  async downloadPdfResults(
+    personId,
+    surveyId,
+    personSurveyId,
+  ): Promise<StreamableFile> {
+    const personSurvey = await this.personSurveyRepo.getByIdFullModel(
+      personId,
+      surveyId,
+      personSurveyId,
+    );
+    if (!personSurvey) {
+      throw new NotFoundException({
+        message: [
+          `validation.person_survey.NOT_FOUND|{"personId":"${personId}","surveyId":"${surveyId}","surveyId":"${personSurveyId}"}`,
+        ],
+      });
+    }
+    const answeredQuestions =
+      await this.personSurveyAnswerRepo.getQuestionsAndAnswers(
+        personId,
+        surveyId,
+        personSurveyId,
+        personSurvey.gender,
+      );
+
+    const [survey, estimatedRiskRule] = await Promise.all([
+      this.surveyRepo.getByIdOrFail(surveyId),
+      this.surveyRCRulesRepo.getEstimatedRiskRule(
+        surveyId,
+        personSurvey.totalScore,
+      ),
+    ]);
+
+    personSurvey.surveyName = survey.name;
+    personSurvey.surveyDescription = survey.description;
+    personSurvey.estimatedRiskDescription = estimatedRiskRule.description;
+    personSurvey.estimatedRiskPercent = estimatedRiskRule.percent;
+
+    const data = await this.pdfGenerator.generarPdfTestMedico(
+      personSurvey,
+      answeredQuestions,
+    );
+    if (!data) {
+      throw new UnprocessableEntityException({
+        message: [`messages.common.SOMETHING_WRONG_RETRY`],
+      });
+    }
+
+    const buffer = Buffer.from(data);
+    //TODO: ver xq esta loggeando la respuesta en la consola, aqui no debe logear la respuesta ya q es un pdf
+    return new StreamableFile(buffer, {
+      type: 'application/pdf',
+      disposition: `attachment; filename="resultado-test-${personSurvey.ci}.pdf"`,
+    });
   }
 }

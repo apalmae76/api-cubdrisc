@@ -1,6 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
 import { JobOptions, Queue } from 'bull';
-import { addYears } from 'date-fns';
 import { EmailJobData } from 'src/domain/adapters/email-job-data';
 import {
   PersonSurveyFullModel,
@@ -256,7 +255,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
       answeredQuestions,
     });
     try {
-      const pdfBuffer = await this.generarPdfTestMedico(
+      const pdfBuffer = await this.pdfGenerator.generarPdfTestMedico(
         personSurvey,
         answeredQuestions,
       );
@@ -311,38 +310,5 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
         message: extractErrorDetails(er).message ?? 'None',
       });
     }
-  }
-
-  private async generarPdfTestMedico(
-    personSurvey: PersonSurveyFullModel,
-    answeredQuestions: AnswerModel[],
-  ): Promise<string> {
-    const pdfData = {
-      test: {
-        nombre: personSurvey.surveyName,
-        description: personSurvey.surveyDescription,
-      },
-      personSurvey,
-      answeredQuestions,
-      completionDate: new Date(personSurvey.updatedAt).toLocaleDateString(
-        'es-ES',
-      ),
-      generationDate: new Date().toLocaleDateString('es-ES'),
-      canRepeatDate: new Date(
-        addYears(personSurvey.updatedAt, 1),
-      ).toLocaleDateString('es-ES'),
-    };
-
-    // Generar PDF
-    const pdfBuffer = await this.pdfGenerator.generatePdf(
-      'test-medico',
-      pdfData,
-      {
-        format: 'A4',
-        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' },
-      },
-    );
-
-    return pdfBuffer.toString('base64');
   }
 }

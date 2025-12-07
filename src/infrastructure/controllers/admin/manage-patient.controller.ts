@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  StreamableFile,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -8,6 +16,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -92,5 +101,52 @@ export class ManagePatientsController {
       dataDto,
       emailSyncQueue: this.emailSyncQueue,
     });
+  }
+
+  @Get('/:personId/survey/:surveyId/:personSurveyId/results-pdf')
+  @ApiResponse({
+    status: 200,
+    description: 'Person survey response PDF file',
+    content: {
+      'application/pdf': {
+        schema: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiBody({ type: DiagnosePersonDto })
+  @ApiOperation({
+    description: '',
+    summary: 'Allows medics to get person survey response in pdf format',
+    operationId: 'getPersonSurveyPdf',
+  })
+  @ApiParam({
+    name: 'personSurveyId',
+    type: 'number',
+    example: 345,
+    description: 'Person-Survey reference id',
+  })
+  @ApiParam({
+    name: 'surveyId',
+    type: 'number',
+    example: 34,
+    description: 'Survey ID that will be affected',
+  })
+  @ApiParam({
+    name: 'personId',
+    type: 'number',
+    example: 34,
+    description: 'Person ID that will be affected',
+  })
+  async getPersonSurveyPdf(
+    @Param() { personSurveyId }: ValidPersonSurveyIdDto,
+    @Param() { surveyId }: ValidSurveyIdDto,
+    @Param() { personId }: ValidPersonIdDto,
+  ): Promise<StreamableFile> {
+    return await this.diagnosePersonProxyUC
+      .getInstance()
+      .downloadPdfResults(personId, surveyId, personSurveyId);
   }
 }
