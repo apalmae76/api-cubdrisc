@@ -5,6 +5,7 @@ import * as fs from 'fs'; // Importación síncrona/general de 'fs'
 import * as handlebars from 'handlebars';
 import * as path from 'path';
 import * as puppeteer from 'puppeteer';
+import { PatientPanelModel } from 'src/domain/model/patient';
 import { PersonSurveyFullModel } from 'src/domain/model/personSurvey';
 import { AnswerModel } from 'src/domain/model/personSurveyAnswers';
 import { ApiLoggerService } from '../logger/logger.service';
@@ -122,6 +123,8 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
       const compiledTemplate = handlebars.compile(templateContent);
       const html = compiledTemplate(data);
 
+      console.log(html);
+
       page = await this.browser.newPage();
 
       await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -162,6 +165,7 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
   async generarPdfTestMedico(
     personSurvey: PersonSurveyFullModel,
     answeredQuestions: AnswerModel[],
+    patient: PatientPanelModel | null = null,
   ): Promise<string> {
     const pdfData = {
       test: {
@@ -170,6 +174,10 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
       },
       personSurvey,
       answeredQuestions,
+      medic: {
+        fullName: patient?.medicFullName ?? '____________',
+        medicalSpecialty: patient?.medicalSpecialtyName ?? '_______________',
+      },
       completionDate: new Date(personSurvey.updatedAt).toLocaleDateString(
         'es-ES',
       ),
@@ -178,6 +186,8 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
         addYears(personSurvey.updatedAt, 1),
       ).toLocaleDateString('es-ES'),
     };
+
+    console.log(pdfData);
 
     // Generar PDF
     const pdfBuffer = await this.generatePdf('test-medico', pdfData, {

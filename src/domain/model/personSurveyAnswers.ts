@@ -12,6 +12,7 @@ export class PersonSurveyAnswersModel extends PersonSurveyAnswersCreateModel {
 
 export class AnswerModel {
   question: string;
+  questionOrder: number;
   answerId: number;
   answer: string;
   educationalTip: string;

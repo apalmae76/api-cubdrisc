@@ -2,116 +2,151 @@
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <title>Test Médico - {{paciente.nombre}}</title>
+    <title>Test Médico - {{personSurvey.fullName}}</title>
     <style>
-      body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333;
-      margin: 0; padding: 20px; } .header { text-align: center; border-bottom:
-      2px solid #2c5aa0; padding-bottom: 20px; margin-bottom: 30px; } .header h1
-      { color: #2c5aa0; margin: 0; } .paciente-info { background: #f8f9fa;
-      padding: 15px; border-radius: 5px; margin-bottom: 25px; } .paciente-info
-      h3 { margin-top: 0; color: #2c5aa0; } .info-grid { display: grid;
-      grid-template-columns: 1fr 1fr; gap: 10px; } .info-item { margin-bottom:
-      8px; } .info-label { font-weight: bold; color: #555; } .seccion {
-      margin-bottom: 30px; page-break-inside: avoid; } .seccion-titulo {
-      background: #2c5aa0; color: white; padding: 10px 15px; border-radius: 5px;
-      margin-bottom: 15px; } .pregunta { margin-bottom: 20px; padding: 15px;
-      border: 1px solid #ddd; border-radius: 5px; page-break-inside: avoid; }
-      .pregunta-texto { font-weight: bold; margin-bottom: 10px; color: #2c5aa0;
-      } .respuesta { background: #e8f4fd; padding: 10px; border-radius: 3px;
-      border-left: 4px solid #2c5aa0; } .observaciones { margin-top: 10px;
-      font-style: italic; color: #666; } .footer { margin-top: 40px; text-align:
-      center; font-size: 12px; color: #666; border-top: 1px solid #ddd;
-      padding-top: 20px; } .firma { margin-top: 50px; text-align: center; }
-      .linea-firma { width: 300px; border-top: 1px solid #333; margin: 0 auto
-      10px; padding-top: 40px; } @media print { body { padding: 0; } .pregunta {
-      page-break-inside: avoid; } }
+      :root { --color-primary: #013264; --color-secondary: #007bff;
+      --color-light-bg: #f0f7ff; --color-text: #333; --color-gray-border: #ddd;
+      --color-light-gray: #f8f8f8; } body { font-family: 'Arial', sans-serif;
+      line-height: 1.5; color: var(--color-text); margin: 0; padding: 0;
+      font-size: 11pt; } .page-container { padding: 30px; } .strong {
+      font-weight: bold; } .page-break { page-break-before: always; }
+      .header-logo { display: flex; align-items: center; margin-bottom: 20px; }
+      .header-title { border-bottom: 3px solid var(--color-primary);
+      padding-bottom: 10px; flex-grow: 1; } .header-title h1 { color:
+      var(--color-primary); margin: 0; font-size: 18pt; } .header-title h2 {
+      color: #555; margin: 5px 0 0; font-size: 10pt; font-weight: normal; }
+      .paciente-info { background-color: var(--color-light-bg); border: 1px
+      solid #cce5ff; padding: 15px 20px; border-radius: 4px; margin-bottom:
+      30px; } .paciente-info h3 { color: var(--color-primary); margin: 0 0 15px
+      0; font-size: 14pt; padding-bottom: 5px; border-bottom: 1px dashed
+      #cce5ff; } .info-grid { display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px 30px; font-size: 10pt; } .info-label { font-weight: bold; color:
+      #444; width: 150px; display: inline-block; } .pregunta-item {
+      margin-bottom: 15px; page-break-inside: avoid; border: 1px solid
+      var(--color-gray-border); border-radius: 4px; box-shadow: 0 1px 3px
+      rgba(0,0,0,0.05); } .pregunta-header { background: var(--color-primary);
+      color: white; padding: 8px 15px; font-size: 11pt; display: flex;
+      align-items: center; border-radius: 3px 3px 0 0; } .pregunta-number {
+      background: white; color: var(--color-primary); font-weight: bold;
+      padding: 2px 7px; border-radius: 50%; margin-right: 10px; font-size: 9pt;
+      } .pregunta-body { background: white; padding: 15px; } .pregunta-texto {
+      font-weight: 500; color: var(--color-primary); margin-bottom: 5px; }
+      .respuesta { color: var(--color-text); font-weight: normal; margin-top:
+      5px; padding: 5px 10px; background-color: #e8f4fd; border-left: 4px solid
+      var(--color-secondary); border-radius: 3px; font-size: 10pt; }
+      .observaciones { margin-top: 15px; padding: 10px; background-color:
+      #fff8e1; border-left: 4px solid #ffc107; font-size: 10pt; color: #666;
+      font-style: italic; } .resumen-riesgo { margin-top: 40px; text-align:
+      center; background-color: var(--color-primary); color: white; padding:
+      25px 30px; border-radius: 8px; page-break-before: auto; } .resumen-riesgo
+      h3 { font-size: 16pt; margin: 0 0 15px 0; text-transform: uppercase; }
+      .resumen-puntaje { font-size: 48pt; font-weight: bold; line-height: 1;
+      margin: 10px 0 20px 0; color: #ffc107; /* Destacar puntaje */ }
+      .resumen-estimacion { font-size: 24pt; font-weight: bold; margin: 0 0 10px
+      0; text-transform: uppercase; padding-top: 10px; border-top: 1px solid
+      rgba(255, 255, 255, 0.3); } .resumen-descripcion { font-size: 11pt;
+      line-height: 1.4; margin-top: 10px; } .firma { margin-top: 60px;
+      text-align: center; } .linea-firma { width: 300px; border-top: 1px solid
+      var(--color-primary); margin: 0 auto 10px; padding-top: 40px; } .firma p {
+      margin: 2px 0; font-size: 10pt; } .footer { margin-top: 40px; text-align:
+      center; font-size: 9pt; color: #666; padding-top: 10px; border-top: 1px
+      solid var(--color-gray-border); }
     </style>
   </head>
   <body>
-    <div class='header'>
-      <h1>TEST MÉDICO - {{test.nombre}}</h1>
-      <p>Fecha de realización: {{fechaRealizacion}}</p>
-    </div>
-
-    <div class='paciente-info'>
-      <h3>Información del Paciente</h3>
-      <div class='info-grid'>
-        <div class='info-item'>
-          <span class='info-label'>Nombre:</span>
-          {{paciente.nombre}}
-          {{paciente.apellido}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Edad:</span>
-          {{paciente.edad}}
-          años
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Documento:</span>
-          {{paciente.documento}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Fecha de Nacimiento:</span>
-          {{paciente.fechaNacimiento}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Médico:</span>
-          {{medico.nombre}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Especialidad:</span>
-          {{medico.especialidad}}
+    <div class='page-container'>
+      <div class='header-logo'>
+        <div class='header-title'>
+          <h1>RESULTADO TEST DE RIESGO DE DIABETES - {{test.nombre}}</h1>
+          <h2>{{test.description}}</h2>
+          <p style='font-size: 10pt; color: #666; margin-top: 5px;'>Fecha de
+            realización:
+            {{completionDate}}</p>
         </div>
       </div>
-    </div>
 
-    {{#each secciones as |seccion|}}
-      <div class='seccion'>
-        <div class='seccion-titulo'>
-          <h2>{{seccion.titulo}}</h2>
+      <div class='paciente-info'>
+        <h3>Datos del Paciente</h3>
+        <div class='info-grid'>
+          <div class='info-item'>
+            <span class='info-label'>Nombre:</span>
+            {{personSurvey.fullName}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Identificación:</span>
+            {{personSurvey.ci}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Edad:</span>
+            {{personSurvey.age}}
+            años
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Fecha de Nacimiento:</span>
+            {{personSurvey.dateOfBirth}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Médico:</span>
+            {{medic.fullName}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Especialidad:</span>
+            {{medic.medicalSpecialty}}
+          </div>
         </div>
+      </div>
 
-        {{#each seccion.preguntas as |pregunta|}}
-          <div class='pregunta'>
-            <div class='pregunta-texto'>
-              {{@index1}}.
-              {{pregunta.texto}}
+      <div class='seccion-preguntas'>
+        {{#each answeredQuestions as |answeredQuestion|}}
+          <div class='pregunta-item'>
+            <div class='pregunta-header'>
+              <span
+                class='pregunta-number'
+              >{{answeredQuestion.questionOrder}}</span>
+              {{answeredQuestion.question}}
             </div>
-            <div class='respuesta'>
-              <strong>Respuesta:</strong>
-              {{pregunta.respuesta}}
-            </div>
-            {{#if pregunta.observaciones}}
-              <div class='observaciones'>
-                <strong>Observaciones:</strong>
-                {{pregunta.observaciones}}
+            <div class='pregunta-body'>
+              <div class='pregunta-texto'>
+                Respuesta:
               </div>
-            {{/if}}
+              <div class='respuesta'>
+                {{answeredQuestion.answer}}
+              </div>
+              {{#if answeredQuestion.educationalTip}}
+                <div class='observaciones'>
+                  <span class='strong'>Consejo Educacional:</span>
+                  {{answeredQuestion.educationalTip}}
+                </div>
+              {{/if}}
+            </div>
           </div>
         {{/each}}
       </div>
-    {{/each}}
 
-    {{#if observacionesGenerales}}
-      <div class='seccion'>
-        <div class='seccion-titulo'>
-          <h2>Observaciones Generales</h2>
+      <div class='resumen-riesgo'>
+        <h3>PUNTAJE TOTAL OBTENIDO:</h3>
+        <div class='resumen-puntaje'>
+          {{personSurvey.totalScore}}
         </div>
-        <div class='respuesta'>
-          {{observacionesGenerales}}
+        <div class='resumen-estimacion'>
+          {{personSurvey.estimatedRisk}}
+        </div>
+        <div class='resumen-descripcion'>
+          Riesgo de desarrollar diabetes:
+          <span class='strong'>{{personSurvey.estimatedRiskPercent}}%</span>.
+          {{personSurvey.estimatedRiskDescription}}
         </div>
       </div>
-    {{/if}}
 
-    <div class='firma'>
-      <div class='linea-firma'></div>
-      <p>Dr. {{medico.nombre}}</p>
-      <p>{{medico.especialidad}}</p>
-      <p>Lic. {{medico.licencia}}</p>
-    </div>
+      <div class='firma'>
+        <div class='linea-firma'></div>
+        <p><span class='strong'>Dr.</span> {{medic.fullName}}</p>
+        <p>{{medic.medicalSpecialty}}</p>
+      </div>
 
-    <div class='footer'>
-      <p>Documento generado el {{fechaGeneracion}} - Confidencial</p>
+      <div class='footer'>
+        <p>Documento generado el {{generationDate}} - Confidencial</p>
+      </div>
     </div>
   </body>
 </html>

@@ -393,6 +393,7 @@ export class DatabasePersonSurveyAnswersRepository
     if (cacheKey && survQPAQry) {
       response = {
         question: survQPAQry.question,
+        questionOrder: survQPAQry.questionOrder,
         answerId: Number(survQPAQry.surveyQuestionAnswerId),
         answer: survQPAQry.answer,
         educationalTip: survQPAQry.educationalTip,
@@ -425,6 +426,7 @@ export class DatabasePersonSurveyAnswersRepository
     const questionsAnswers = await this.getBasicQuery()
       .addSelect([
         'sq.question as "question"',
+        'sq.order as "questionOrder"',
         'spa.answer as "answer"',
         'spa.educational_tip as "educationalTip"',
         'spa.value as "value"',
@@ -451,10 +453,12 @@ export class DatabasePersonSurveyAnswersRepository
       )
       .orderBy('sq.order', 'ASC')
       .getRawMany();
+    console.log(questionsAnswers);
     if (questionsAnswers.length > 0) {
       const response = questionsAnswers.map((questionAnswer) => {
         const answer: AnswerModel = {
           question: questionAnswer.question,
+          questionOrder: Number(questionAnswer.questionOrder),
           answerId: Number(questionAnswer.surveyQuestionAnswerId),
           answer: questionAnswer.answer,
           educationalTip: questionAnswer.educationalTip,

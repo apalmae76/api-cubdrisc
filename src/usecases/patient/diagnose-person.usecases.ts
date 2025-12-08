@@ -323,12 +323,13 @@ export class DiagnosePersonUseCases extends UseCaseBase {
         personSurvey.gender,
       );
 
-    const [survey, estimatedRiskRule] = await Promise.all([
+    const [survey, estimatedRiskRule, patient] = await Promise.all([
       this.surveyRepo.getByIdOrFail(surveyId),
       this.surveyRCRulesRepo.getEstimatedRiskRule(
         surveyId,
         personSurvey.totalScore,
       ),
+      this.patientRepo.getByIdForPanel(personId, surveyId, personSurveyId),
     ]);
 
     personSurvey.surveyName = survey.name;
@@ -339,6 +340,7 @@ export class DiagnosePersonUseCases extends UseCaseBase {
     const data = await this.pdfGenerator.generarPdfTestMedico(
       personSurvey,
       answeredQuestions,
+      patient,
     );
     if (!data) {
       throw new UnprocessableEntityException({
@@ -347,10 +349,9 @@ export class DiagnosePersonUseCases extends UseCaseBase {
     }
 
     const buffer = Buffer.from(data);
-    //TODO: ver xq esta loggeando la respuesta en la consola, aqui no debe logear la respuesta ya q es un pdf
     return new StreamableFile(buffer, {
       type: 'application/pdf',
-      disposition: `attachment; filename="resultado-test-${personSurvey.ci}.pdf"`,
+      disposition: `inline; filename="resultado-test-${personSurvey.ci}.pdf"`,
     });
   }
 }
