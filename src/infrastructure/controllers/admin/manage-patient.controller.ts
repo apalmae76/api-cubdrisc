@@ -4,7 +4,7 @@ import {
   Get,
   Param,
   Put,
-  StreamableFile,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -26,6 +26,7 @@ import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { Response } from 'express';
 import { EmailJobData } from 'src/domain/adapters/email-job-data';
 import { CurrentUser } from 'src/infrastructure/common/decorators/current-user.decorator';
 import { BooleanDataResponsePresenter } from 'src/infrastructure/common/dtos/baseResponse.dto';
@@ -144,9 +145,21 @@ export class ManagePatientsController {
     @Param() { personSurveyId }: ValidPersonSurveyIdDto,
     @Param() { surveyId }: ValidSurveyIdDto,
     @Param() { personId }: ValidPersonIdDto,
-  ): Promise<StreamableFile> {
-    return await this.diagnosePersonProxyUC
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.diagnosePersonProxyUC
       .getInstance()
       .downloadPdfResults(personId, surveyId, personSurveyId);
+
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Disposition', `inline; filename="${result.fileName}"`);
+    res.set('Content-Length', result.fileSize.toString());
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.set('X-Frame-Options', 'DENY');
+
+    return result.streamableFile;
   }
 }

@@ -10,12 +10,12 @@
         "outDir": "dist/src"
       },
       {
-        "include": "infrastructure/services/mail/templates/*.hbs",
+        "include": "infrastructure/services/mail/templates/**/*.{hbs,html}",
         "watchAssets": true,
         "outDir": "dist/src"
       },
       {
-        "include": "infrastructure/services/pdf-generator/templates/*.hbs",
+        "include": "infrastructure/services/pdf-generator/templates/**/*.{hbs,html}",
         "watchAssets": true,
         "outDir": "dist/src"
       }

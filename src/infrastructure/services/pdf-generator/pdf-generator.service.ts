@@ -1,200 +1,365 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { addYears } from 'date-fns';
-import * as fs from 'fs'; // Importación síncrona/general de 'fs'
+import { existsSync, readFileSync } from 'fs';
 import * as handlebars from 'handlebars';
-import * as path from 'path';
-import * as puppeteer from 'puppeteer';
+import * as pdf from 'html-pdf';
+import path, { join } from 'path';
 import { PatientPanelModel } from 'src/domain/model/patient';
 import { PersonSurveyFullModel } from 'src/domain/model/personSurvey';
 import { AnswerModel } from 'src/domain/model/personSurveyAnswers';
 import { ApiLoggerService } from '../logger/logger.service';
 
-// Usa fs.promises para operaciones asíncronas
-const fsPromises = fs.promises;
-
-// Interface for dynamic data payload
-export interface PdfData {
-  [key: string]: any;
-}
-
-// Interface for optional PDF settings
 export interface PdfOptions {
-  format?: 'A4' | 'A3' | 'Letter' | 'Legal';
-  landscape?: boolean;
-  margin?: {
+  format?: 'A4' | 'Letter' | 'Legal';
+  orientation?: 'portrait' | 'landscape';
+  border?: {
     top?: string;
     right?: string;
     bottom?: string;
     left?: string;
   };
+  header?: {
+    height?: string;
+    contents?: string;
+  };
+  footer?: {
+    height?: string;
+    contents?: {
+      default?: string;
+      first?: string;
+      [page: number]: string;
+    };
+  };
+  timeout?: number;
+  renderDelay?: number;
 }
 
 @Injectable()
-export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
+export class PdfGeneratorService {
   private context = `${PdfGeneratorService.name}.`;
-  private browser: puppeteer.Browser;
-  private readonly templatesDir: string;
+  private readonly TEMPLATES_DIR: string;
+  private compiledTemplates: Map<string, HandlebarsTemplateDelegate> =
+    new Map();
 
   constructor(private readonly logger: ApiLoggerService) {
     // Usamos path.resolve para asegurar que la ruta es absoluta
-    this.templatesDir = path.resolve(__dirname, 'templates');
-    this.logger.debug(`Templates directory resolved to: ${this.templatesDir}`, {
-      context: `${this.context}constructor`,
-    });
+    this.TEMPLATES_DIR = path.resolve(__dirname, 'templates');
+    // this.TEMPLATES_DIR = join(process.cwd(), 'templates');
+    this.logger.debug(
+      `Templates directory resolved to: ${this.TEMPLATES_DIR}`,
+      {
+        context: `${this.context}constructor`,
+      },
+    );
   }
 
   /**
-   * Initializes the Puppeteer browser instance
+   * Carga y compila un template desde archivo
    */
-  async onModuleInit() {
-    const context = `${this.context}onModuleInit`;
+  private loadTemplate(templateName: string): HandlebarsTemplateDelegate {
+    const context = `${this.context}loadTemplate`;
+    // Verificar si ya está compilado en caché
+    if (this.compiledTemplates.has(templateName)) {
+      return this.compiledTemplates.get(templateName)!;
+    }
+
+    const templatePath = join(this.TEMPLATES_DIR, `${templateName}.html`);
+
+    if (!existsSync(templatePath)) {
+      throw new Error(`Template not found: ${templatePath}; check`);
+    }
+
     try {
-      this.browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      // Leer template del archivo
+      const templateContent = readFileSync(templatePath, 'utf8');
+
+      // Compilar con Handlebars
+      const template = handlebars.compile(templateContent, {
+        noEscape: true, // Para mantener HTML
+        strict: true,
       });
-      this.logger.debug('Puppeteer browser launched successfully', { context });
+
+      // Guardar en caché
+      this.compiledTemplates.set(templateName, template);
+
+      this.logger.debug(`Template "${templateName}" successfully loaded`, {
+        context,
+      });
+      return template;
     } catch (error) {
-      this.logger.error('Failed to launch Puppeteer browser.', {
+      this.logger.error(`Error loading template ${templateName}:`, {
         context,
-        error: error.stack,
+        error,
       });
-      throw new Error('PDF Generation Service initialization failed');
+      throw new Error(`Cant load template: ${templateName}`);
     }
   }
 
   /**
-   * Closes the browser instance when the module is destroyed
+   * Genera HTML a partir de template y datos
    */
-  async onModuleDestroy() {
-    if (this.browser) {
-      await this.browser.close();
-      this.logger.debug('Puppeteer browser closed', {
-        context: `${this.context}onModuleDestroy`,
-      });
-    }
-  }
-
-  /**
-   * Generates a PDF buffer from an HTML template and dynamic data
-   * @param templateName The name of the Handlebars template file (e.g., 'report')
-   * @param data Dynamic data to compile the template
-   * @param options PDF configuration options
-   * @returns A Promise that resolves to the PDF file Buffer
-   */
-  async generatePdf(
-    templateName: string,
-    data: PdfData,
-    options: PdfOptions = {},
-  ): Promise<Buffer> {
-    const context = `${PdfGeneratorService.name}.generatePdf`;
-    let page: puppeteer.Page | null = null;
-
-    if (!this.browser) {
-      this.logger.error(
-        'Browser instance is not available. onModuleInit might have failed.',
-        {
-          context,
-        },
-      );
-      throw new Error('PDF generation service is not ready.');
-    }
-
+  private renderTemplate(templateName: string, data: any): string {
+    const context = `${this.context}renderTemplate`;
     try {
-      const templatePath = path.join(this.templatesDir, `${templateName}.hbs`);
-
-      this.logger.debug(`Attempting to read template from: ${templatePath}`, {
+      const template = this.loadTemplate(templateName);
+      return template(data);
+    } catch (error) {
+      this.logger.error(`Error renderizando template ${templateName}:`, {
         context,
+        error,
       });
+      throw error;
+    }
+  }
 
-      if (!fs.existsSync(templatePath)) {
-        const errorMsg = `FATAL ERROR: Template file NOT FOUND at: ${templatePath}.`;
-        this.logger.error(errorMsg, {
-          context,
-        });
-        return null;
-      }
-      // **********************************************
+  /**
+   * Genera PDF a partir de template HTML
+   */
+  async generatePdfFromTemplate(
+    templateName: string,
+    data: any,
+    options?: PdfOptions,
+  ): Promise<Buffer> {
+    const context = `${this.context}generatePdfFromTemplate`;
+    try {
+      // Renderizar HTML
+      const html = this.renderTemplate(templateName, data);
 
-      // Usamos el import basado en promesas para la lectura
-      const templateContent = await fsPromises.readFile(templatePath, 'utf-8');
-
-      const compiledTemplate = handlebars.compile(templateContent);
-      const html = compiledTemplate(data);
-
-      //* console.log(html);
-
-      page = await this.browser.newPage();
-
-      await page.setContent(html, { waitUntil: 'networkidle0' });
-
-      const pdfOptions: puppeteer.PDFOptions = {
-        format: options.format || 'A4',
-        landscape: options.landscape || false,
-        margin: options.margin || {
+      // Configuración por defecto para PDF
+      const defaultOptions: pdf.CreateOptions = {
+        format: 'A4',
+        orientation: 'portrait',
+        border: {
           top: '20mm',
           right: '15mm',
           bottom: '20mm',
           left: '15mm',
         },
-        printBackground: true,
+        type: 'pdf',
+        quality: '100',
+        renderDelay: 3000, // Más tiempo para CSS complejo
+        timeout: 30000,
+        phantomArgs: [
+          '--ignore-ssl-errors=yes',
+          '--web-security=no',
+          '--load-images=yes',
+          '--local-to-remote-url-access=yes',
+        ],
       };
 
-      const pdfBuffer = (await page.pdf(pdfOptions)) as Buffer;
+      // Fusionar opciones personalizadas
+      const border =
+        typeof defaultOptions.border === 'object'
+          ? { ...defaultOptions.border, ...options?.border }
+          : { ...options?.border };
+      const pdfOptions: pdf.CreateOptions = {
+        ...defaultOptions,
+        ...options,
+        border,
+      };
 
-      return pdfBuffer;
+      // Generar PDF
+      return new Promise((resolve, reject) => {
+        pdf.create(html, pdfOptions).toBuffer((error, buffer) => {
+          if (error) {
+            this.logger.error(`Error generando PDF: ${error.message}`, {
+              context,
+            });
+            reject(error);
+          } else {
+            this.logger.debug(
+              `PDF generado exitosamente (${buffer.length} bytes)`,
+              { context },
+            );
+            resolve(buffer);
+          }
+        });
+      });
     } catch (error) {
-      this.logger.error(
-        `Error during PDF generation for template ${templateName}:`,
-        {
-          context,
-          error: error.stack,
-        },
-      );
-      throw new Error(
-        `Error generating PDF: ${error.message}. Check logs for details.`,
-      );
-    } finally {
-      if (page) {
-        await page.close();
-      }
+      this.logger.error(`Error en generatePdfFromTemplate: ${error.message}`, {
+        context,
+        error: error.stack,
+      });
+      throw error;
     }
   }
 
+  /**
+   * Genera PDF del test médico
+   */
   async generarPdfTestMedico(
     personSurvey: PersonSurveyFullModel,
     answeredQuestions: AnswerModel[],
     patient: PatientPanelModel | null = null,
   ): Promise<string> {
-    const pdfData = {
-      test: {
-        name: personSurvey.surveyName,
-        description: personSurvey.surveyDescription,
-      },
-      personSurvey,
-      answeredQuestions,
-      medic: {
-        fullName: patient?.medicFullName ?? '____________',
-        medicalSpecialty: patient?.medicalSpecialtyName ?? '_______________',
-      },
-      completionDate: new Date(personSurvey.updatedAt).toLocaleDateString(
-        'es-ES',
-      ),
-      generationDate: new Date().toLocaleDateString('es-ES'),
-      canRepeatDate: new Date(
-        addYears(personSurvey.updatedAt, 1),
-      ).toLocaleDateString('es-ES'),
+    const context = `${this.context}generarPdfTestMedico`;
+    try {
+      // Preparar datos para el template
+      const pdfData = {
+        test: {
+          name: personSurvey.surveyName,
+          description: personSurvey.surveyDescription,
+        },
+        personSurvey: this.formatPersonSurveyData(personSurvey),
+        answeredQuestions: this.formatAnsweredQuestions(answeredQuestions),
+        medic: this.formatMedicData(patient),
+        dates: this.formatDates(personSurvey),
+      };
+
+      this.logger.debug(`Generando PDF para test: ${personSurvey.surveyName}`, {
+        context,
+      });
+
+      // Generar PDF usando el template "test-medico"
+      const pdfBuffer = await this.generatePdfFromTemplate(
+        'test-medico1',
+        pdfData,
+        {
+          format: 'A4',
+          border: {
+            top: '20mm',
+            right: '15mm',
+            bottom: '20mm',
+            left: '15mm',
+          },
+          footer: {
+            height: '15mm',
+            contents: {
+              default: `
+              <div style="
+                text-align: center; 
+                font-size: 8pt; 
+                color: #666;
+                padding-top: 10px;
+                border-top: 1px solid #ddd;
+              ">
+                Página {{page}} de {{pages}} | Documento confidencial
+              </div>
+            `,
+            },
+          },
+        },
+      );
+
+      // Convertir a base64
+      return pdfBuffer.toString('base64');
+    } catch (error) {
+      this.logger.error(`Error generando PDF médico: ${error.message}`, {
+        context,
+        error: error.stack,
+      });
+      throw new Error(`No se pudo generar el PDF: ${error.message}`);
+    }
+  }
+
+  /**
+   * Métodos auxiliares para formatear datos
+   */
+  private formatPersonSurveyData(personSurvey: PersonSurveyFullModel): any {
+    return {
+      ...personSurvey,
+      fullName: personSurvey.fullName || 'No especificado',
+      ci: personSurvey.ci || 'No especificado',
+      age: personSurvey.age || 'No especificado',
+      dateOfBirth: personSurvey.dateOfBirth
+        ? new Date(personSurvey.dateOfBirth).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+        : 'No especificado',
+      totalScore: personSurvey.totalScore || 0,
+      estimatedRisk: personSurvey.estimatedRisk || 'No determinado',
+      estimatedRiskPercent: personSurvey.estimatedRiskPercent || 0,
+      estimatedRiskDescription: personSurvey.estimatedRiskDescription || '',
     };
+  }
 
-    //* console.log(pdfData);
+  private formatAnsweredQuestions(answeredQuestions: AnswerModel[]): any[] {
+    return answeredQuestions.map((aq, index) => ({
+      ...aq,
+      questionOrder: index + 1,
+      answer: aq.answer || 'Sin respuesta',
+      educationalTip: aq.educationalTip || '',
+    }));
+  }
 
-    // Generar PDF
-    const pdfBuffer = await this.generatePdf('test-medico', pdfData, {
-      format: 'A4',
-      margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' },
-    });
+  private formatMedicData(patient: PatientPanelModel | null): any {
+    return {
+      fullName: patient?.medicFullName || '____________',
+      medicalSpecialty: patient?.medicalSpecialtyName || '_______________',
+    };
+  }
 
-    return pdfBuffer.toString('base64');
+  private formatDates(personSurvey: PersonSurveyFullModel): any {
+    const completionDate = personSurvey.updatedAt
+      ? new Date(personSurvey.updatedAt)
+      : new Date();
+
+    return {
+      completionDate: completionDate.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+      generationDate: new Date().toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      canRepeatDate: personSurvey.updatedAt
+        ? new Date(addYears(personSurvey.updatedAt, 1)).toLocaleDateString(
+          'es-ES',
+          {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          },
+        )
+        : '',
+    };
+  }
+
+  /**
+   * Método para generar y guardar PDF en disco
+   */
+  async generateAndSavePdf(
+    templateName: string,
+    data: any,
+    outputPath: string,
+    options?: PdfOptions,
+  ): Promise<string> {
+    const context = `${this.context}generateAndSavePdf`;
+    const pdfBuffer = await this.generatePdfFromTemplate(
+      templateName,
+      data,
+      options,
+    );
+
+    // Usar import dinámico para fs/promises
+    const fs = await import('fs/promises');
+    await fs.writeFile(outputPath, pdfBuffer);
+
+    this.logger.debug(`PDF saved in: ${outputPath}`, { context });
+    return outputPath;
+  }
+
+  /**
+   * Método para limpiar caché de templates (útil en desarrollo)
+   */
+  clearTemplateCache(templateName?: string): void {
+    const context = `${this.context}generateAndSavePdf`;
+    if (templateName) {
+      this.compiledTemplates.delete(templateName);
+      this.logger.debug(`Template "${templateName}" removed from cache`, {
+        context,
+      });
+    } else {
+      this.compiledTemplates.clear();
+      this.logger.debug('All templates removed from cache', { context });
+    }
   }
 }

@@ -1,0 +1,106 @@
+<html lang='es'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Test médico - {{test.name}}</title>
+    <style>
+      /* Tu CSS completo aquí */
+    </style>
+  </head>
+  <body>
+    <div class='page-container'>
+      <div class='header-logo'>
+        <div class='header-title'>
+          <h1>RESULTADO TEST DE RIESGO DE DIABETES - {{test.name}}</h1>
+          <h2>{{test.description}}</h2>
+          <p style='font-size: 10pt; color: #666; margin-top: 5px;'>
+            Fecha de realización: {{dates.completionDate}}
+          </p>
+        </div>
+      </div>
+
+      <div class='paciente-info'>
+        <h3>Datos del paciente</h3>
+        <div class='info-grid'>
+          <div class='info-item'>
+            <span class='info-label'>Nombre:</span>
+            {{personSurvey.fullName}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Número de identidad:</span>
+            {{personSurvey.ci}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Edad:</span>
+            {{personSurvey.age}} años
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Fecha de nacimiento:</span>
+            {{personSurvey.dateOfBirth}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Médico:</span>
+            {{medic.fullName}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Especialidad:</span>
+            {{medic.medicalSpecialty}}
+          </div>
+        </div>
+      </div>
+
+      <div class='seccion-preguntas'>
+        {{#each answeredQuestions}}
+          <div class='pregunta-item'>
+            <div class='pregunta-header'>
+              <span class='pregunta-number'>{{this.questionOrder}}</span>
+              {{this.question}}
+            </div>
+            <div class='pregunta-body'>
+              <div class='pregunta-texto'>
+                Respuesta:
+              </div>
+              <div class='respuesta'>
+                {{this.answer}}
+              </div>
+              {{#if this.educationalTip}}
+                <div class='observaciones'>
+                  <span class='strong'>Consejo educacional:</span>
+                  {{this.educationalTip}}
+                </div>
+              {{/if}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+
+      <div class='resumen-riesgo'>
+        <h3>PUNTAJE TOTAL OBTENIDO:</h3>
+        <div class='resumen-puntaje'>
+          {{personSurvey.totalScore}}
+        </div>
+        <div class='resumen-estimacion'>
+          {{personSurvey.estimatedRisk}}
+        </div>
+        <div class='resumen-descripcion'>
+          Riesgo de desarrollar diabetes: 
+          <span class='strong'>{{personSurvey.estimatedRiskPercent}}%</span>.
+          {{personSurvey.estimatedRiskDescription}}
+        </div>
+      </div>
+
+      <div class='firma'>
+        <div class='linea-firma'></div>
+        <p><span class='strong'>Dr.</span> {{medic.fullName}}</p>
+        <p>{{medic.medicalSpecialty}}</p>
+      </div>
+
+      <div class='footer'>
+        <p>Documento generado el {{dates.generationDate}} - Confidencial</p>
+        {{#if dates.canRepeatDate}}
+          <p>Próximo test recomendado: {{dates.canRepeatDate}}</p>
+        {{/if}}
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,412 @@
+<html lang='es'>
+<head>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <title>Test médico - {{test.name}}</title>
+  <style>
+    /* ===== VARIABLES ===== */
+    :root { 
+      --color-primary: #013264; 
+      --color-secondary: #007bff;
+      --color-light-bg: #f0f7ff; 
+      --color-text: #333; 
+      --color-gray-border: #ddd;
+      --color-light-gray: #f8f8f8; 
+      --color-warning: #ffc107;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+    } 
+    
+    /* ===== RESET Y BASE ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body { 
+      font-family: 'Arial', sans-serif;
+      line-height: 1.4; /* Reducido de 1.5 */
+      color: var(--color-text); 
+      margin: 0; 
+      padding: 0;
+      font-size: 10pt; /* Reducido de 11pt */
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    } 
+    
+    .page-container { 
+      padding: 20px 25px; /* Reducido de 30px */
+      max-width: 100%;
+      overflow: hidden;
+    } 
+    
+    .strong { font-weight: bold; } 
+    
+    .page-break { 
+      page-break-before: always; 
+      page-break-inside: avoid;
+    }
+    
+    /* ===== HEADER ===== */
+    .header-logo { 
+      margin-bottom: var(--spacing-md); /* Reducido de 20px */
+    } 
+    
+    .header-title { 
+      border-bottom: 2px solid var(--color-primary); /* Reducido de 3px */
+      padding-bottom: var(--spacing-sm); /* Reducido de 10px */
+    } 
+    
+    .header-title h1 { 
+      color: var(--color-primary); 
+      margin: 0; 
+      font-size: 16pt; /* Reducido de 18pt */
+      line-height: 1.2;
+      margin-bottom: 2px;
+    } 
+    
+    .header-title h2 { 
+      color: #555; 
+      margin: 0; 
+      font-size: 9pt; /* Reducido de 10pt */
+      font-weight: normal;
+      margin-bottom: var(--spacing-xs);
+    } 
+    
+    /* ===== INFO PACIENTE ===== */
+    .paciente-info { 
+      background-color: var(--color-light-bg); 
+      border: 1px solid #cce5ff; 
+      padding: var(--spacing-md); /* Reducido de 15px 20px */
+      border-radius: 3px; 
+      margin-bottom: var(--spacing-lg); /* Reducido de 30px */
+      page-break-inside: avoid;
+    } 
+    
+    .paciente-info h3 { 
+      color: var(--color-primary); 
+      margin: 0 0 var(--spacing-sm) 0; /* Reducido de 15px */
+      font-size: 12pt; /* Reducido de 14pt */
+      padding-bottom: var(--spacing-xs);
+      border-bottom: 1px dashed #cce5ff; 
+    } 
+    
+    .info-grid { 
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 6px 20px; /* Reducido de 8px 30px */
+      font-size: 9pt; /* Reducido de 10pt */
+    } 
+    
+    .info-label { 
+      font-weight: bold; 
+      color: #444; 
+      display: inline-block;
+      min-width: 120px; /* Reducido de 150px */
+    } 
+    
+    /* ===== PREGUNTAS Y RESPUESTAS ===== */
+    .seccion-preguntas {
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .pregunta-item {
+      margin-bottom: var(--spacing-sm); /* Reducido de 15px */
+      border: 1px solid var(--color-gray-border); 
+      border-radius: 3px;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+    
+    .pregunta-header { 
+      background: var(--color-primary); 
+      color: white; 
+      padding: 6px 12px; /* Reducido de 8px 15px */
+      font-size: 10pt; /* Reducido de 11pt */
+      display: flex;
+      align-items: center;
+    } 
+    
+    .pregunta-number { 
+      background: white; 
+      color: var(--color-primary); 
+      font-weight: bold;
+      padding: 1px 5px; /* Reducido de 2px 7px */
+      border-radius: 50%; 
+      margin-right: 8px; /* Reducido de 10px */
+      font-size: 8pt; /* Reducido de 9pt */
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    } 
+    
+    .pregunta-body { 
+      background: white; 
+      padding: var(--spacing-md); /* Reducido de 15px */
+    } 
+    
+    .pregunta-texto {
+      font-weight: 500; 
+      color: var(--color-primary); 
+      margin-bottom: 4px; /* Reducido de 5px */
+      font-size: 9.5pt;
+    }
+    
+    .respuesta { 
+      color: var(--color-text); 
+      font-weight: normal; 
+      padding: 6px 10px; /* Reducido de 5px 10px */
+      background-color: #e8f4fd; 
+      border-left: 3px solid var(--color-secondary); /* Reducido de 4px */
+      border-radius: 2px; 
+      font-size: 9pt; /* Reducido de 10pt */
+      margin-top: 2px;
+    }
+    
+    .observaciones { 
+      margin-top: var(--spacing-sm); /* Reducido de 15px */
+      padding: 8px; /* Reducido de 10px */
+      background-color: #fff8e1; 
+      border-left: 3px solid var(--color-warning); /* Reducido de 4px */
+      font-size: 8.5pt; /* Reducido de 10pt */
+      color: #666; 
+      font-style: italic;
+      border-radius: 2px;
+    } 
+    
+    /* ===== RESUMEN DE RIESGO ===== */
+    .resumen-riesgo { 
+      margin-top: var(--spacing-xl); /* Reducido de 40px */
+      text-align: center; 
+      background-color: var(--color-primary); 
+      color: white; 
+      padding: var(--spacing-lg); /* Reducido de 25px 30px */
+      border-radius: 6px; 
+      page-break-inside: avoid;
+    } 
+    
+    .resumen-riesgo h3 { 
+      font-size: 14pt; /* Reducido de 16pt */
+      margin: 0 0 var(--spacing-sm) 0; /* Reducido de 15px */
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    } 
+    
+    .resumen-puntaje { 
+      font-size: 36pt; /* Reducido de 48pt */
+      font-weight: bold; 
+      line-height: 1;
+      margin: var(--spacing-xs) 0 var(--spacing-md) 0; /* Ajustado */
+      color: var(--color-warning);
+    } 
+    
+    .resumen-estimacion { 
+      font-size: 18pt; /* Reducido de 24pt */
+      font-weight: bold; 
+      margin: 0 0 var(--spacing-xs) 0;
+      text-transform: uppercase; 
+      padding-top: var(--spacing-sm);
+      border-top: 1px solid rgba(255, 255, 255, 0.3); 
+    } 
+    
+    .resumen-descripcion { 
+      font-size: 9.5pt; /* Ajustado */
+      line-height: 1.3; /* Reducido de 1.4 */
+      margin-top: var(--spacing-xs);
+      padding: 0 var(--spacing-sm);
+    } 
+    
+    /* ===== FIRMA ===== */
+    .firma { 
+      margin-top: var(--spacing-xl); /* Reducido de 60px */
+      text-align: center; 
+      page-break-inside: avoid;
+    } 
+    
+    .linea-firma { 
+      width: 250px; /* Reducido de 300px */
+      border-top: 1px solid var(--color-primary); 
+      margin: 0 auto var(--spacing-xs);
+      padding-top: 30px; /* Reducido de 40px */
+    } 
+    
+    .firma p { 
+      margin: 1px 0; /* Reducido de 2px 0 */
+      font-size: 9pt; /* Reducido de 10pt */
+      line-height: 1.2;
+    } 
+    
+    /* ===== FOOTER ===== */
+    .footer { 
+      margin-top: var(--spacing-lg); /* Reducido de 40px */
+      text-align: center; 
+      font-size: 8pt; /* Reducido de 9pt */
+      color: #666; 
+      padding-top: var(--spacing-sm); /* Reducido de 10px */
+      border-top: 1px solid var(--color-gray-border);
+      page-break-inside: avoid;
+    }
+    
+    .footer p {
+      margin: 2px 0;
+    }
+    
+    /* ===== MEDIA QUERIES PARA IMPRESIÓN ===== */
+    @media print {
+      body {
+        font-size: 9pt;
+        line-height: 1.3;
+      }
+      
+      .page-container {
+        padding: 15px 20px;
+      }
+      
+      .paciente-info,
+      .pregunta-item,
+      .resumen-riesgo {
+        break-inside: avoid;
+      }
+      
+      .pregunta-item {
+        margin-bottom: 8px;
+      }
+      
+      /* Evitar que las preguntas se dividan entre páginas */
+      .pregunta-header,
+      .pregunta-body {
+        break-inside: avoid;
+      }
+      
+      /* Asegurar que los colores se impriman */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+    
+    /* ===== UTILIDADES ===== */
+    .mb-sm { margin-bottom: var(--spacing-sm) !important; }
+    .mb-md { margin-bottom: var(--spacing-md) !important; }
+    .mb-lg { margin-bottom: var(--spacing-lg) !important; }
+    .mt-sm { margin-top: var(--spacing-sm) !important; }
+    .mt-md { margin-top: var(--spacing-md) !important; }
+    .mt-lg { margin-top: var(--spacing-lg) !important; }
+    .text-center { text-align: center !important; }
+    .text-right { text-align: right !important; }
+    .text-left { text-align: left !important; }
+  </style>
+</head>
+<body>
+  <div class='page-container'>
+    <!-- Inicio del bloque del encabezado/Header -->
+    <div class='header-logo'>
+      <div class='header-title'>
+        <h1>RESULTADO TEST DE RIESGO DE DIABETES - {{test.name}}</h1>
+        <h2>{{test.description}}</h2>
+        <p style='font-size: 9pt; color: #666; margin-top: 3px;'>
+          Fecha de realización: {{dates.completionDate}}
+        </p>
+      </div>
+    </div>
+    <!-- Fin del bloque del encabezado/Header -->
+
+    <!-- Inicio del bloque de información del paciente -->
+    <div class='paciente-info'>
+      <h3>Datos del paciente</h3>
+      <div class='info-grid'>
+        <div class='info-item'>
+          <span class='info-label'>Nombre:</span>
+          {{personSurvey.fullName}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Número de identidad:</span>
+          {{personSurvey.ci}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Edad:</span>
+          {{personSurvey.age}} años
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Fecha de nacimiento:</span>
+          {{personSurvey.dateOfBirth}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Médico:</span>
+          {{medic.fullName}}
+        </div>
+        <div class='info-item'>
+          <span class='info-label'>Especialidad:</span>
+          {{medic.medicalSpecialty}}
+        </div>
+      </div>
+    </div>
+    <!-- Fin del bloque de información del paciente -->
+
+    <!-- Inicio del bloque de preguntas y respuestas -->
+    <div class='seccion-preguntas'>
+      {{#each answeredQuestions}}
+        <div class='pregunta-item'>
+          <div class='pregunta-header'>
+            <span class='pregunta-number'>{{this.questionOrder}}</span>
+            <span class='pregunta-texto-header'>{{this.question}}</span>
+          </div>
+          <div class='pregunta-body'>
+            <div class='respuesta'>
+              <strong>Respuesta:</strong> {{this.answer}}
+            </div>
+            {{#if this.educationalTip}}
+              <div class='observaciones'>
+                <span class='strong'>Consejo educacional:</span>
+                {{this.educationalTip}}
+              </div>
+            {{/if}}
+          </div>
+        </div>
+      {{/each}}
+    </div>
+    <!-- Fin del bloque de preguntas y respuestas -->
+
+    <!-- Inicio del bloque de resumen de riesgo -->
+    <div class='resumen-riesgo'>
+      <h3>PUNTAJE TOTAL OBTENIDO:</h3>
+      <div class='resumen-puntaje'>
+        {{personSurvey.totalScore}}
+      </div>
+      <div class='resumen-estimacion'>
+        {{personSurvey.estimatedRisk}}
+      </div>
+      <div class='resumen-descripcion'>
+        Riesgo de desarrollar diabetes: 
+        <span class='strong'>{{personSurvey.estimatedRiskPercent}}%</span>.
+        {{personSurvey.estimatedRiskDescription}}
+      </div>
+    </div>
+    <!-- Fin del bloque de resumen de riesgo -->
+
+    <!-- Inicio del bloque de firma -->
+    <div class='firma'>
+      <div class='linea-firma'></div>
+      <p><span class='strong'>Dr.</span> {{medic.fullName}}</p>
+      <p>{{medic.medicalSpecialty}}</p>
+    </div>
+    <!-- Fin del bloque de firma -->
+
+    <!-- Inicio del bloque de pie de página/Footer -->
+    <div class='footer'>
+      <p>Documento generado el {{dates.generationDate}} - Confidencial</p>
+      {{#if dates.canRepeatDate}}
+        <p>Próximo test recomendado: {{dates.canRepeatDate}}</p>
+      {{/if}}
+    </div>
+    <!-- Fin del bloque de pie de página/Footer -->
+  </div>
+</body>
+</html>

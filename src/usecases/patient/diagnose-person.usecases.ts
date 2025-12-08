@@ -302,7 +302,11 @@ export class DiagnosePersonUseCases extends UseCaseBase {
     personId,
     surveyId,
     personSurveyId,
-  ): Promise<StreamableFile> {
+  ): Promise<{
+    streamableFile: StreamableFile;
+    fileName: string;
+    fileSize: number;
+  }> {
     const personSurvey = await this.personSurveyRepo.getByIdFullModel(
       personId,
       surveyId,
@@ -337,21 +341,32 @@ export class DiagnosePersonUseCases extends UseCaseBase {
     personSurvey.estimatedRiskDescription = estimatedRiskRule.description;
     personSurvey.estimatedRiskPercent = estimatedRiskRule.percent;
 
-    const data = await this.pdfGenerator.generarPdfTestMedico(
+    const base64Pdf = await this.pdfGenerator.generarPdfTestMedico(
       personSurvey,
       answeredQuestions,
       patient,
     );
-    if (!data) {
+
+    if (!base64Pdf) {
       throw new UnprocessableEntityException({
         message: [`messages.common.SOMETHING_WRONG_RETRY`],
       });
     }
 
-    const buffer = Buffer.from(data);
-    return new StreamableFile(buffer, {
+    // 6. Convertir a Buffer y crear StreamableFile
+    const buffer = Buffer.from(base64Pdf, 'base64');
+    const fileName = `resultado-test-${personSurvey.ci || personSurveyId}.pdf`;
+
+    const streamableFile = new StreamableFile(buffer, {
       type: 'application/pdf',
-      disposition: `inline; filename="resultado-test-${personSurvey.ci}.pdf"`,
+      disposition: `inline; filename="${fileName}"`,
     });
+
+    // 7. Devolver objeto con metadatos para que el controlador configure headers
+    return {
+      streamableFile,
+      fileName,
+      fileSize: buffer.length,
+    };
   }
 }
