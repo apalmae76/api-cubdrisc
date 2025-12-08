@@ -10,6 +10,7 @@ import {
   Max,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import {
@@ -41,8 +42,12 @@ export class CreateSurveyQuestionAnswerDto {
   @ApiProperty({
     example: '',
     required: false,
+    nullable: true,
   })
-  @Transform(({ value }) => (value ? (value?.trim() ?? '') : value))
+  @Transform(({ value }) => {
+    return !!value && typeof value === 'string' ? value.trim() : value;
+  })
+  @ValidateIf((o: CreateSurveyQuestionAnswerDto) => !!o.educationalTip)
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
@@ -76,8 +81,12 @@ export class UpdateSurveyQuestionAnswerDto {
   @ApiProperty({
     example: '',
     required: false,
+    nullable: true,
   })
-  @Transform(({ value }) => (value ? (value?.trim() ?? '') : value))
+  @Transform(({ value }) => {
+    return !!value && typeof value === 'string' ? value.trim() : value;
+  })
+  @ValidateIf((o: CreateSurveyQuestionAnswerDto) => !!o.educationalTip)
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
