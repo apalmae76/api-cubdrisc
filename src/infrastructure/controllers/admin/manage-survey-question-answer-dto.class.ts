@@ -42,13 +42,11 @@ export class CreateSurveyQuestionAnswerDto {
     example: '',
     required: false,
   })
-  @Transform(({ value }) =>
-    value !== undefined ? (value?.trim() ?? '') : value,
-  )
+  @Transform(({ value }) => (value ? (value?.trim() ?? '') : value))
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @Length(1, 200, { message: i18nValidationMessage('validation.LENGTH') })
+  @Length(0, 200, { message: i18nValidationMessage('validation.LENGTH') })
   educationalTip?: string | null;
 
   @Transform(({ value }) =>
