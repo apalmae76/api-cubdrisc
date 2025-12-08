@@ -123,7 +123,7 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
       const compiledTemplate = handlebars.compile(templateContent);
       const html = compiledTemplate(data);
 
-      console.log(html);
+      //* console.log(html);
 
       page = await this.browser.newPage();
 
@@ -169,7 +169,7 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
   ): Promise<string> {
     const pdfData = {
       test: {
-        nombre: personSurvey.surveyName,
+        name: personSurvey.surveyName,
         description: personSurvey.surveyDescription,
       },
       personSurvey,
@@ -187,7 +187,7 @@ export class PdfGeneratorService implements OnModuleInit, OnModuleDestroy {
       ).toLocaleDateString('es-ES'),
     };
 
-    console.log(pdfData);
+    //* console.log(pdfData);
 
     // Generar PDF
     const pdfBuffer = await this.generatePdf('test-medico', pdfData, {

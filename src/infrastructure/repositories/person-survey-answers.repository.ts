@@ -453,7 +453,7 @@ export class DatabasePersonSurveyAnswersRepository
       )
       .orderBy('sq.order', 'ASC')
       .getRawMany();
-    console.log(questionsAnswers);
+
     if (questionsAnswers.length > 0) {
       const response = questionsAnswers.map((questionAnswer) => {
         const answer: AnswerModel = {

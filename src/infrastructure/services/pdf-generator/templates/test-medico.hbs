@@ -2,7 +2,7 @@
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <title>Test Médico - {{personSurvey.fullName}}</title>
+    <title>Test médico - {{test.name}}</title>
     <style>
       :root { --color-primary: #013264; --color-secondary: #007bff;
       --color-light-bg: #f0f7ff; --color-text: #333; --color-gray-border: #ddd;
@@ -57,7 +57,7 @@
     <div class='page-container'>
       <div class='header-logo'>
         <div class='header-title'>
-          <h1>RESULTADO TEST DE RIESGO DE DIABETES - {{test.nombre}}</h1>
+          <h1>RESULTADO TEST DE RIESGO DE DIABETES - {{test.name}}</h1>
           <h2>{{test.description}}</h2>
           <p style='font-size: 10pt; color: #666; margin-top: 5px;'>Fecha de
             realización:
@@ -66,14 +66,14 @@
       </div>
 
       <div class='paciente-info'>
-        <h3>Datos del Paciente</h3>
+        <h3>Datos del paciente</h3>
         <div class='info-grid'>
           <div class='info-item'>
             <span class='info-label'>Nombre:</span>
             {{personSurvey.fullName}}
           </div>
           <div class='info-item'>
-            <span class='info-label'>Identificación:</span>
+            <span class='info-label'>Número de identidad:</span>
             {{personSurvey.ci}}
           </div>
           <div class='info-item'>
@@ -82,7 +82,7 @@
             años
           </div>
           <div class='info-item'>
-            <span class='info-label'>Fecha de Nacimiento:</span>
+            <span class='info-label'>Fecha de nacimiento:</span>
             {{personSurvey.dateOfBirth}}
           </div>
           <div class='info-item'>
@@ -114,7 +114,7 @@
               </div>
               {{#if answeredQuestion.educationalTip}}
                 <div class='observaciones'>
-                  <span class='strong'>Consejo Educacional:</span>
+                  <span class='strong'>Consejo educacional:</span>
                   {{answeredQuestion.educationalTip}}
                 </div>
               {{/if}}
