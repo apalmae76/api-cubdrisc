@@ -227,13 +227,7 @@ export class PdfGeneratorService {
             height: '15mm',
             contents: {
               default: `
-              <div style="
-                text-align: center; 
-                font-size: 8pt; 
-                color: #666;
-                padding-top: 10px;
-                border-top: 1px solid #ddd;
-              ">
+              <div style="text-align: center; font-size: 8pt; color: #666; padding-top: 10px; border-top: 1px solid #ddd;">
                 Página {{page}} de {{pages}} | Documento confidencial
               </div>
             `,
