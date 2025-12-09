@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StateModel } from 'src/domain/model/state';
 import { IStateRepository } from 'src/domain/repositories/stateRepository.interface';
 import { Repository } from 'typeorm';
 import { State } from '../entities/state.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 
 @Injectable()
@@ -15,7 +16,7 @@ export class DatabaseStateRepository implements IStateRepository {
     @InjectRepository(State)
     private readonly stateEntity: Repository<State>,
     private readonly redisService: ApiRedisService,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
   ) { }
 
   async get(id: number, failIfNotExist = false): Promise<StateModel> {

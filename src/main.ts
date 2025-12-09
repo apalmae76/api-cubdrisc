@@ -18,7 +18,8 @@ import { EnvironmentConfigService } from './infrastructure/config/environment-co
 import { AdminControllersModule } from './infrastructure/controllers/admin.controllers.module';
 import { ControllersModule } from './infrastructure/controllers/controllers.module';
 import { ContextStorageServiceKey } from './infrastructure/services/context/context.interface';
-import { ApiLoggerService } from './infrastructure/services/logger/logger.service';
+import { IApiLogger } from './infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from './infrastructure/services/logger/logger.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -45,7 +46,7 @@ async function bootstrap() {
   app.enableCors(corsOptions);
 
   app.use(I18nMiddleware);
-  const logger = app.get(ApiLoggerService);
+  const logger = app.get<IApiLogger>(API_LOGGER_KEY);
   app.useGlobalFilters(new CustomI18nValidationExceptionFilter(logger));
 
   const cls = app.get(ContextStorageServiceKey);
@@ -169,14 +170,16 @@ async function bootstrap() {
   }
 
   const port = envCfgServ.getPort();
-  logger.info(
-    '[APP-START] {appName} started in "{nodeEnv}" env, on port "{port}", version {appVersion}',
-    {
-      nodeEnv,
-      port,
-      appVersion,
-    },
-  );
+  if (envCfgServ.getSeqServerUrl() !== 'NONE') {
+    logger.info(
+      `[APP-START] {appName} started in "${nodeEnv}" env, on port "${port}", version ${appVersion}`,
+      {
+        nodeEnv,
+        port,
+        appVersion,
+      },
+    );
+  }
   console.log(
     `[APP-START] ${appName} started in "${nodeEnv}" env, on port "${port}", version ${appVersion}`,
   );

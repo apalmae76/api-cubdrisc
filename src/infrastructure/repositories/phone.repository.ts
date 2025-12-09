@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   UserPhonesCreateModel,
@@ -11,7 +11,8 @@ import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { UserPhones } from '../entities/phone.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 
@@ -24,7 +25,7 @@ export class DatabasePhoneRepository
   constructor(
     @InjectRepository(UserPhones)
     private readonly userPhonesEntity: Repository<UserPhones>,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
     private readonly redisService: ApiRedisService,
   ) {
     super(userPhonesEntity, logger);

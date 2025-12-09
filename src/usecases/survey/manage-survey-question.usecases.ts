@@ -19,7 +19,9 @@ import { SurveyQuestionPresenter } from 'src/infrastructure/controllers/admin/ma
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
 import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/survey-questions.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
@@ -32,7 +34,7 @@ export class ManageSurveyQuestionUseCases extends UseCaseBase {
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     private readonly appConfig: EnvironmentConfigService,
     private readonly dataSource: DataSource,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.context = `${ManageSurveyQuestionUseCases.name}.`;

@@ -10,8 +10,10 @@ import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.rep
 import { BcryptService } from 'src/infrastructure/services/bcrypt/bcrypt.service';
 
 import { JwtTokenService } from 'src/infrastructure/services/jwt/jwt.service';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { UseCaseBase } from 'src/usecases/usecases.base';
 import { EAppTypes, RE_PHONE, TESTING_USER_EMAIL } from './constants';
 
@@ -33,7 +35,7 @@ export class JwtGetToken extends UseCaseBase {
     protected readonly userRepo: DatabaseUserRepository,
     protected readonly bcryptService: BcryptService,
     protected readonly redisService: ApiRedisService,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.contextTitle = 'Get token (base): ';

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -16,7 +17,8 @@ import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { Survey } from '../entities/survey.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 
@@ -30,7 +32,7 @@ export class DatabaseSurveyRepository
     @InjectRepository(Survey)
     private readonly surveyEntity: Repository<Survey>,
     private readonly redisService: ApiRedisService,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(surveyEntity, logger);
   }

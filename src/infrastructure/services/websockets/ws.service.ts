@@ -20,7 +20,8 @@ import { EAppTypes } from 'src/infrastructure/common/utils/constants';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
 import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import { JwtTokenService } from '../jwt/jwt.service';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 import { ApiRedisService } from '../redis/redis.service';
 import { RedisAdapter } from './redis-io.adapter';
 
@@ -107,7 +108,7 @@ export class WSService
   private readonly incListeners = 5;
   private subscribedToInternalChanel = false;
   constructor(
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
     private readonly redisClient: ApiRedisService,
     @Inject('REDIS_ADAPTER') private redisAdapter: RedisAdapter,
   ) { }

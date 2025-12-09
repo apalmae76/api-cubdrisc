@@ -18,7 +18,6 @@ import { EnvironmentConfigModule } from '../config/environment-config/environmen
 import { CronTasksModule } from '../services/cronjobs/cron-tasks.module';
 import { ApiLoggerModule } from '../services/logger/logger.module';
 import { PdfGeneratorModule } from '../services/pdf-generator/pdf-generator.module';
-import { WSModule } from '../services/websockets/ws.module';
 import { IUseCaseProviderData } from './plugin/interface/use-case-provider.interface';
 import { loadProxyModuleMeta } from './plugin/use-case.utils';
 
@@ -26,7 +25,6 @@ import { loadProxyModuleMeta } from './plugin/use-case.utils';
   imports: [
     JwtModule,
     BcryptModule,
-    WSModule,
     ApiLoggerModule,
     ApiRedisModule,
     MailModule,

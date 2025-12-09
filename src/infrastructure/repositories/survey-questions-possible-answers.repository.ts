@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,7 +19,8 @@ import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { SurveyQuestionsPossibleAnswers } from '../entities/survey-questions-possible-answers.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 import { DatabaseSurveyQuestionsRepository } from './survey-questions.repository';
@@ -33,7 +35,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     private readonly surveyQPAEntity: Repository<SurveyQuestionsPossibleAnswers>,
     private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     private readonly redisService: ApiRedisService,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(surveyQPAEntity, logger);
   }

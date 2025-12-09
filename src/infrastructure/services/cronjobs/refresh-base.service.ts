@@ -3,8 +3,10 @@ import { I18nService } from 'nestjs-i18n';
 import { OperatorsActionCreateModel } from 'src/domain/model/operatorsActions';
 import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { v4 as uuidv4 } from 'uuid';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 import { ApiRedisService } from '../redis/redis.service';
 
 @Injectable()
@@ -18,7 +20,7 @@ export class RefreshBaseService {
     protected readonly operActionRepo: DatabaseOperatorsActionsRepository,
     protected readonly i18nService: I18nService,
     protected readonly redisService: ApiRedisService,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
     contextTitle: string,
     context: string,
     isRunningMsg: string,

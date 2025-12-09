@@ -5,7 +5,8 @@ import { IRedisService } from 'src/domain/adapters/redis.interface';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
 import { generateIntegerRandom } from 'src/infrastructure/common/utils/random';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 import { RedisAdapter } from '../websockets/redis-io.adapter';
 import { getRedisConfForIoAdapter } from './redis.config';
 
@@ -17,7 +18,7 @@ export class ApiRedisService implements IRedisService {
 
   constructor(
     private readonly appConfig: EnvironmentConfigService,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
     @Inject('REDIS_ADAPTER') private redisAdapter: RedisAdapter,
   ) {
     this.redisService = this.redisAdapter.getRedisClient();

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MedicalSpecialtyModel } from 'src/domain/model/medicalSpecialty';
 import {
@@ -7,7 +7,8 @@ import {
 } from 'src/domain/repositories/medicalSpecialtyRepository.interface';
 import { Repository } from 'typeorm';
 import { MedicalSpecialty } from '../entities/medical-specialty.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class DatabaseMedicalSpecialtyRepository
     @InjectRepository(MedicalSpecialty)
     private readonly medicalSpecialtyEntity: Repository<MedicalSpecialty>,
     private readonly redisService: ApiRedisService,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
   ) { }
 
   async ensureExistOrFail(id: number) {

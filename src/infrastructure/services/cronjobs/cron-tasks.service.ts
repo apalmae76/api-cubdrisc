@@ -3,13 +3,14 @@ import { CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { UseCls } from 'nestjs-cls';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { ApiLoggerService } from '../logger/logger.service';
 import { ApiRedisService } from '../redis/redis.service';
 
 import * as os from 'os';
 import ContextStorageService, {
   ContextStorageServiceKey,
 } from '../context/context.interface';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 
 @Injectable()
 export class CronTasksService {
@@ -20,10 +21,10 @@ export class CronTasksService {
     private readonly redisService: ApiRedisService,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly appConfigServ: EnvironmentConfigService,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
     @Inject(ContextStorageServiceKey)
     protected contextStorageService: ContextStorageService,
-  ) {}
+  ) { }
 
   @UseCls({
     setup: (cls) => {
@@ -39,7 +40,7 @@ export class CronTasksService {
       });
     } else {
       this.logger.verbose(
-        `${this.contextTitle}: POD {hostname}, not configured to run scheduled tasks`,
+        `${this.contextTitle}: POD ${this.hostname}, not configured to run scheduled tasks`,
         {
           hostname: this.hostname,
           context: `${this.context}onModuleInit`,

@@ -1,5 +1,6 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ApiLoggerService } from '../logger/logger.service';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 import { ApiRedisService } from '../redis/redis.service';
 import { KEYS_TO_DELETE_ON_UPDATE } from './constants';
 
@@ -10,8 +11,8 @@ export class SystemService implements OnModuleInit {
 
   constructor(
     private readonly redisService: ApiRedisService,
-    private readonly loggerService: ApiLoggerService,
-  ) {}
+    @Inject(API_LOGGER_KEY) private readonly loggerService: IApiLogger,
+  ) { }
 
   async onModuleInit() {
     await this.cleanCacheForSystemKeys();

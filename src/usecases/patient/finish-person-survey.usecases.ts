@@ -24,7 +24,8 @@ import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey
 import ContextStorageService, {
   ContextStorageServiceKey,
 } from 'src/infrastructure/services/context/context.interface';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { PdfGeneratorService } from 'src/infrastructure/services/pdf-generator/pdf-generator.service';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
 import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
@@ -46,7 +47,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
     private readonly appConfig: EnvironmentConfigService,
     @InjectWithToken(ContextStorageServiceKey)
     private readonly contextStorageService: ContextStorageService,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.context = `${FinishPersonSurveyUseCases.name}.`;

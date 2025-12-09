@@ -6,7 +6,9 @@ import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { MoveRowDto } from 'src/infrastructure/controllers/admin/manage-survey-question-dto.class';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
 import { DatabaseSurveyQuestionsPossibleAnswersRepository } from 'src/infrastructure/repositories/survey-questions-possible-answers.repository';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
@@ -17,7 +19,7 @@ export class MoveSurveyQuestionAnswerUseCases extends UseCaseBase {
     private readonly surveyQAnsRepo: DatabaseSurveyQuestionsPossibleAnswersRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     protected readonly dataSource: DataSource,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.context = `${MoveSurveyQuestionAnswerUseCases.name}.`;

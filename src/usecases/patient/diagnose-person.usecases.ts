@@ -24,7 +24,8 @@ import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.rep
 import ContextStorageService, {
   ContextStorageServiceKey,
 } from 'src/infrastructure/services/context/context.interface';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { PdfGeneratorService } from 'src/infrastructure/services/pdf-generator/pdf-generator.service';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
 import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
@@ -66,7 +67,7 @@ export class DiagnosePersonUseCases extends UseCaseBase {
     @InjectWithToken(ContextStorageServiceKey)
     private readonly contextStorageService: ContextStorageService,
     private readonly dataSource: DataSource,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.context = `${DiagnosePersonUseCases.name}.`;

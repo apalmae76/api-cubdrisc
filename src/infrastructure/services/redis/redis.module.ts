@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { EnvironmentConfigModule } from 'src/infrastructure/config/environment-config/environment-config.module';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { ApiLoggerModule } from '../logger/logger.module';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 import { RedisAdapter } from '../websockets/redis-io.adapter';
 import { ApiRedisService } from './redis.service';
 
@@ -13,14 +13,14 @@ import { ApiRedisService } from './redis.service';
       provide: 'REDIS_ADAPTER',
       useFactory: (
         envCfgServ: EnvironmentConfigService,
-        logger: ApiLoggerService,
+        logger: IApiLogger,
       ) => {
         return new RedisAdapter(envCfgServ, logger);
       },
-      inject: [EnvironmentConfigService, ApiLoggerService],
+      inject: [EnvironmentConfigService, API_LOGGER_KEY],
     },
   ],
-  imports: [EnvironmentConfigModule, ApiLoggerModule],
+  imports: [EnvironmentConfigModule],
   exports: [ApiRedisService],
 })
-export class ApiRedisModule {}
+export class ApiRedisModule { }

@@ -4,6 +4,7 @@ import {
   CallHandler,
   ExecutionContext,
   ForbiddenException,
+  Inject,
   Injectable,
   NestInterceptor,
   UnprocessableEntityException,
@@ -11,7 +12,8 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import ContextStorageService from 'src/infrastructure/services/context/context.interface';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { v4 as uuidv4 } from 'uuid';
 import { extractCurrentUserFromRequestWithAccessToken } from '../decorators/current-user.decorator';
 import { EAppTypes } from '../utils/constants';
@@ -20,7 +22,7 @@ import { getIP } from '../utils/get-ip';
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
   constructor(
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
     private contextStorageService: ContextStorageService,
   ) { }
 

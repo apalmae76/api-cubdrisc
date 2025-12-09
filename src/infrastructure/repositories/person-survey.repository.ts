@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,7 +23,8 @@ import { Patient } from '../entities/patient.entity';
 import { Person } from '../entities/person.entity';
 import { PersonSurvey } from '../entities/personSurvey.entity';
 import { State } from '../entities/state.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 @Injectable()
@@ -35,7 +37,7 @@ export class DatabasePersonSurveyRepository
     @InjectRepository(PersonSurvey)
     private readonly personSurveyEntity: Repository<PersonSurvey>,
     private readonly redisService: ApiRedisService,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(personSurveyEntity, logger);
   }

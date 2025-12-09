@@ -5,15 +5,16 @@ import { CLS_ID, UseCls } from 'nestjs-cls';
 import { EmailJobData } from 'src/domain/adapters/email-job-data';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
 import { v4 as uuidv4 } from 'uuid';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 import { EmailService } from '../mail/mail.service';
 
 @Processor('email')
 export class EmailConsumer {
   constructor(
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
     @Inject(EmailService) private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   @Process()
   @UseCls({

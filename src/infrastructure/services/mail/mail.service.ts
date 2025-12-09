@@ -1,9 +1,10 @@
 import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 import { IMailService } from 'src/domain/adapters/mail.interface';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 // TODO include with templates later
 // import formatDate from '../../common/utils/formatDate';
 // import imgToBase64 from '../../common/utils/img-to-base-64';
@@ -18,7 +19,7 @@ export class EmailService implements IMailService {
   ] as const;
   constructor(
     private readonly mailerService: MailerService,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
   ) { }
 
   async sendMail(sendMailOptions: ISendMailOptions): Promise<string> {

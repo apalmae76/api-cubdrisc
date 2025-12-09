@@ -67,19 +67,6 @@ export class EnvironmentConfigService
     return this.configService.get<string>('BASE_URL_WEB');
   }
 
-  getBaseUrlPanel(): string {
-    return this.configService.get<string>('BASE_URL_PANEL');
-  }
-
-  getBasePanelFullByEnvUrl(): string {
-    const baseDomain: string = this.getBaseUrlPanel();
-    return this.isProductionEnv()
-      ? `https://${baseDomain}`
-      : this.isStagingEnv()
-        ? `https://stg${baseDomain}`
-        : `https://dev${baseDomain}`;
-  }
-
   getBaseWebFullByEnvUrl(): string {
     const baseDomain: string = this.getBaseUrlWeb();
     return this.isProductionEnv()

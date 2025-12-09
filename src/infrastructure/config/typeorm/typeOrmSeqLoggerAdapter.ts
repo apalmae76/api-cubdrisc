@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { Inject } from '@nestjs/common';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { Logger } from 'typeorm';
 
 export class TypeOrmSeqLoggerAdapter implements Logger {
-  constructor(private readonly logger: ApiLoggerService) {}
+  constructor(@Inject(API_LOGGER_KEY) private readonly logger: IApiLogger) { }
 
   logQuery(query: string, parameters?: any[]) {
     let queryType = query.slice(0, 6);

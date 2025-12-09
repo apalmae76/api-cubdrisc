@@ -309,8 +309,8 @@
     <!-- Inicio del bloque del encabezado/Header -->
     <div class='header-logo'>
       <div class='header-title'>
-        <h1>RESULTADO TEST DE RIESGO DE DIABETES - {{test.name}}</h1>
-        <h2>{{test.description}}</h2>
+        <h1>RESULTADO TEST DE RIESGO DE DIABETES</h1>
+        <h2>{{test.name}} - {{test.description}}</h2>
         <p style='font-size: 9pt; color: #666; margin-top: 3px;'>
           Fecha de realización: {{dates.completionDate}}
         </p>
@@ -338,14 +338,16 @@
           <span class='info-label'>Fecha de nacimiento:</span>
           {{personSurvey.dateOfBirth}}
         </div>
-        <div class='info-item'>
-          <span class='info-label'>Médico:</span>
-          {{medic.fullName}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Especialidad:</span>
-          {{medic.medicalSpecialty}}
-        </div>
+        {{#if medic.fullName}}
+          <div class='info-item'>
+            <span class='info-label'>Médico:</span>
+            {{medic.fullName}}
+          </div>
+          <div class='info-item'>
+            <span class='info-label'>Especialidad:</span>
+            {{medic.medicalSpecialty}}
+          </div>
+          {{/if}}
       </div>
     </div>
     <!-- Fin del bloque de información del paciente -->
@@ -355,8 +357,8 @@
       {{#each answeredQuestions}}
         <div class='pregunta-item'>
           <div class='pregunta-header'>
-            <span class='pregunta-number'>{{this.questionOrder}}</span>
-            <span class='pregunta-texto-header'>{{this.question}}</span>
+            <span class='pregunta-number'>..{{this.questionOrder}}</span>
+            <span class='pregunta-texto-header'>..{{this.question}}</span>
           </div>
           <div class='pregunta-body'>
             <div class='respuesta'>
@@ -392,11 +394,13 @@
     <!-- Fin del bloque de resumen de riesgo -->
 
     <!-- Inicio del bloque de firma -->
-    <div class='firma'>
-      <div class='linea-firma'></div>
-      <p><span class='strong'>Dr.</span> {{medic.fullName}}</p>
-      <p>{{medic.medicalSpecialty}}</p>
-    </div>
+     {{#if medic.fullName}}
+      <div class='firma'>
+        <div class='linea-firma'></div>
+        <p><span class='strong'>Dr.</span> {{medic.fullName}}</p>
+        <p>{{medic.medicalSpecialty}}</p>
+      </div>
+    {{/if}}
     <!-- Fin del bloque de firma -->
 
     <!-- Inicio del bloque de pie de página/Footer -->

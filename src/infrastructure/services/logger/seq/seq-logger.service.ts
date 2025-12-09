@@ -2,16 +2,17 @@
 import { SeqLogger } from '@jasonsoft/nestjs-seq';
 import { Inject, Injectable } from '@nestjs/common';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
+import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { v4 as uuidv4 } from 'uuid';
-import { EnvironmentConfigService } from '../../config/environment-config/environment-config.service';
 import ContextStorageService, {
   ContextStorageServiceKey,
-} from '../context/context.interface';
+} from '../../context/context.interface';
+import { IApiLogger } from '../logger.interface';
 
 @Injectable()
-export class ApiLoggerService {
+export class MySeqLoggerService implements IApiLogger {
   private contextTitle = '';
-  private context = 'ApiLoggerService.';
+  private context = `${MySeqLoggerService.name}.`;
   private logLevel = '';
   constructor(
     private readonly appConfig: EnvironmentConfigService,
@@ -27,7 +28,7 @@ export class ApiLoggerService {
     try {
       this.logger.error(message, newData);
     } catch (er) {
-      this.logToConsole('ERROR log', message, newData, er.message);
+      this.logErrorToConsole('ERROR log', message, newData, er.message);
     }
   }
 
@@ -36,7 +37,7 @@ export class ApiLoggerService {
     try {
       this.logger.warn(message, newData);
     } catch (er) {
-      this.logToConsole('WARN log', message, newData, er.message);
+      this.logErrorToConsole('WARN log', message, newData, er.message);
     }
   }
 
@@ -45,7 +46,7 @@ export class ApiLoggerService {
     try {
       this.logger.info(message, newData);
     } catch (er) {
-      this.logToConsole('INFO log', message, newData, er.message);
+      this.logErrorToConsole('INFO log', message, newData, er.message);
     }
   }
 
@@ -55,7 +56,7 @@ export class ApiLoggerService {
       try {
         this.logger.debug(message, newData);
       } catch (er) {
-        this.logToConsole('DEBUG log', message, newData, er.message);
+        this.logErrorToConsole('DEBUG log', message, newData, er.message);
       }
     }
   }
@@ -65,7 +66,7 @@ export class ApiLoggerService {
     try {
       this.logger.verbose(message, newData);
     } catch (er) {
-      this.logToConsole('VERBOSE log', message, newData, er.message);
+      this.logErrorToConsole('VERBOSE log', message, newData, er.message);
     }
   }
 
@@ -211,7 +212,7 @@ export class ApiLoggerService {
           marker: 'SEQ-LOGGER-ERROR',
         },
       );
-      this.logToConsole('Clean protected data', null, data, message);
+      this.logErrorToConsole('Clean protected data', null, data, message);
       if (retry) {
         return null;
       } else {
@@ -220,7 +221,7 @@ export class ApiLoggerService {
     }
   }
 
-  private logToConsole(
+  private logErrorToConsole(
     logType: string,
     message: string,
     data: object,

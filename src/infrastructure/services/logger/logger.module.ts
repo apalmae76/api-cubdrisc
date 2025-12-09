@@ -1,25 +1,36 @@
-import { SeqLoggerModule } from '@jasonsoft/nestjs-seq';
-import { Module } from '@nestjs/common';
-import { EnvironmentConfigModule } from 'src/infrastructure/config/environment-config/environment-config.module';
-import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { ContextModule } from '../context/context.module';
-import { ApiLoggerService } from './logger.service';
+import { DynamicModule, Global, Module } from '@nestjs/common';
+import { ConsoleLoggerModule } from './console/console-logger.module';
+import { ConsoleLoggerService } from './console/console-logger.service';
+import { MySeqLoggerModule } from './seq/seq-logger.module';
+import { MySeqLoggerService } from './seq/seq-logger.service';
+import { LoggerTypes } from './types';
 
-@Module({
-  providers: [ApiLoggerService],
-  imports: [
-    SeqLoggerModule.forRootAsync({
-      imports: [EnvironmentConfigModule, ContextModule],
-      useFactory: async (appConfig: EnvironmentConfigService) => ({
-        level: appConfig.getLogLevel(),
-        serviceName: null,
-        serverUrl: appConfig.getSeqServerUrl(),
-        apiKey: appConfig.getSeqApiKey(),
-      }),
-      inject: [EnvironmentConfigService],
-    }),
-    EnvironmentConfigModule,
-  ],
-  exports: [ApiLoggerService],
-})
-export class ApiLoggerModule {}
+export const API_LOGGER_KEY = Symbol('API_LOGGER_KEY');
+
+@Global()
+@Module({})
+export class ApiLoggerModule {
+  static register(): DynamicModule {
+    const loggerType = process.env.LOGGER_TYPE as LoggerTypes;
+    if (!loggerType) {
+      throw new Error(
+        `Invalid logger type register on ApiLoggerModule: '${process.env.LOGGER_TYPE}'`,
+      );
+    }
+    return {
+      module: ApiLoggerModule,
+      imports:
+        loggerType === 'CONSOLE' ? [ConsoleLoggerModule] : [MySeqLoggerModule],
+      providers: [
+        {
+          provide: API_LOGGER_KEY,
+          useExisting:
+            loggerType === 'CONSOLE'
+              ? ConsoleLoggerService
+              : MySeqLoggerService,
+        },
+      ],
+      exports: [API_LOGGER_KEY],
+    };
+  }
+}

@@ -1,11 +1,11 @@
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as path from 'path';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
 import { MailSeqLoggerAdapter } from './mail-seq-logger-adapter';
 export const getMailModuleOptions = (
   envCfgServ: EnvironmentConfigService,
-  myLogger: ApiLoggerService,
+  myLogger: IApiLogger,
 ) => {
   const options = {
     transport: {

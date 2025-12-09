@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   PatientCreateModel,
@@ -14,7 +14,8 @@ import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { MedicalSpecialty } from '../entities/medical-specialty.entity';
 import { Patient } from '../entities/patient.entity';
 import { Person } from '../entities/person.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 
@@ -28,7 +29,7 @@ export class DatabasePatientRepository
     @InjectRepository(Patient)
     private readonly patientEntity: Repository<Patient>,
     private readonly redisService: ApiRedisService,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(patientEntity, logger);
   }

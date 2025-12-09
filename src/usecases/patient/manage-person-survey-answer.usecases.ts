@@ -20,8 +20,10 @@ import { DatabasePersonSurveyAnswersRepository } from 'src/infrastructure/reposi
 import { DatabaseSurveyQuestionsPossibleAnswersRepository } from 'src/infrastructure/repositories/survey-questions-possible-answers.repository';
 import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositories/survey-questions.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
@@ -35,7 +37,7 @@ export class ManagePersonSurveyAnswerUseCases extends UseCaseBase {
     private readonly personSurveyAnswerRepo: DatabasePersonSurveyAnswersRepository,
     private readonly redisService: ApiRedisService,
     private readonly dataSource: DataSource,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.context = `${ManagePersonSurveyAnswerUseCases.name}.`;

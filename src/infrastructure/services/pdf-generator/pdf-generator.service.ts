@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { addYears } from 'date-fns';
 import { existsSync, readFileSync } from 'fs';
 import * as handlebars from 'handlebars';
@@ -8,7 +8,8 @@ import path, { join } from 'path';
 import { PatientPanelModel } from 'src/domain/model/patient';
 import { PersonSurveyFullModel } from 'src/domain/model/personSurvey';
 import { AnswerModel } from 'src/domain/model/personSurveyAnswers';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 
 export interface PdfOptions {
   format?: 'A4' | 'Letter' | 'Legal';
@@ -42,7 +43,7 @@ export class PdfGeneratorService {
   private compiledTemplates: Map<string, HandlebarsTemplateDelegate> =
     new Map();
 
-  constructor(private readonly logger: ApiLoggerService) {
+  constructor(@Inject(API_LOGGER_KEY) private readonly logger: IApiLogger) {
     // Usamos path.resolve para asegurar que la ruta es absoluta
     this.TEMPLATES_DIR = path.resolve(__dirname, 'templates');
     // this.TEMPLATES_DIR = join(process.cwd(), 'templates');
@@ -281,8 +282,8 @@ export class PdfGeneratorService {
 
   private formatMedicData(patient: PatientPanelModel | null): any {
     return {
-      fullName: patient?.medicFullName || '____________',
-      medicalSpecialty: patient?.medicalSpecialtyName || '_______________',
+      fullName: patient?.medicFullName || null,
+      medicalSpecialty: patient?.medicalSpecialtyName || null,
     };
   }
 

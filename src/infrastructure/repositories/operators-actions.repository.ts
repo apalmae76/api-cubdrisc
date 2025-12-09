@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
@@ -16,7 +16,8 @@ import { KeyValueObjectList } from '../common/interfaces/common';
 import { EOperatorsActions } from '../common/utils/constants';
 import { OperatorsActions } from '../entities/operators-actions.entity';
 import { Person } from '../entities/person.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { BaseRepository } from './base.repository';
 
 @Injectable()
@@ -26,7 +27,7 @@ export class DatabaseOperatorsActionsRepository
   constructor(
     @InjectRepository(OperatorsActions)
     private readonly operActionsEntity: Repository<OperatorsActions>,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(operActionsEntity, logger);
   }

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -11,13 +12,14 @@ import { SYSTEM_USER_ID } from 'src/infrastructure/common/utils/constants';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
 import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import { EAppRoles } from 'src/infrastructure/controllers/auth/role.enum';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 
 @Injectable()
 export class UseCaseBase {
   protected contextTitle;
   protected context;
-  constructor(protected readonly logger: ApiLoggerService) { }
+  constructor(@Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger) { }
 
   /**
    * Abstraction of error handling and throwing of appropriate exceptions

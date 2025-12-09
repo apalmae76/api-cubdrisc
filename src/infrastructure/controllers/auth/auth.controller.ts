@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Inject,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -39,7 +46,8 @@ import { EAppTypes } from 'src/infrastructure/common/utils/constants';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 
 import { EmailJobData } from 'src/domain/adapters/email-job-data';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { LoginUseCases } from '../../../usecases/auth/login.usecases';
 import { LogoutUseCases } from '../../../usecases/auth/logout.usecases';
@@ -64,7 +72,7 @@ export class AuthController {
     @InjectUseCase(LogoutUseCases)
     private readonly logoutUC: UseCaseProxy<LogoutUseCases>,
     @InjectQueue('email') private readonly emailSyncQueue: Queue<EmailJobData>,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
   ) { }
 
   @Post('mail-login/otp')

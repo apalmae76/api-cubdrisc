@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Inject } from '@nestjs/common';
 import { isValid, parseISO } from 'date-fns';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import {
@@ -20,7 +20,8 @@ import {
 import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { EAppRoles } from '../controllers/auth/role.enum';
 import { User } from '../entities/user.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 
 export type UserData = { user: { name: string } };
 export type UserCountryData = {
@@ -62,7 +63,7 @@ interface IGetUserNameQuery {
 export class BaseRepository {
   constructor(
     protected repo: Repository<any>,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) { }
 
   protected atrIsIncludedAndGetValOp(

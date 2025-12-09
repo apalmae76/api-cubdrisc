@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { RefreshTokenPayload } from 'src/domain/model/auth';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { InjectUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-use-case.decorator';
 import { LoginUseCases } from '../../../usecases/auth/login.usecases';
 import { EnvironmentConfigService } from '../../config/environment-config/environment-config.service';
@@ -17,7 +18,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
   constructor(
     @InjectUseCase(LoginUseCases)
     private readonly loginUsecaseProxy: UseCaseProxy<LoginUseCases>,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
     protected readonly envCfgServ: EnvironmentConfigService,
   ) {
     super({

@@ -1,5 +1,6 @@
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -8,15 +9,16 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { TokenPayload } from 'src/domain/model/auth';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { RE_INT_NUMBER } from '../utils/constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly usersRepo: DatabaseUserRepository,
-    private readonly logger: ApiLoggerService,
     protected readonly appConfig: EnvironmentConfigService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

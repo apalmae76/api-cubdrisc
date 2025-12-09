@@ -5,7 +5,9 @@ import { EOperatorsActions } from 'src/infrastructure/common/utils/constants';
 import { AuthUser } from 'src/infrastructure/controllers/auth/auth-user.interface';
 import { DatabaseOperatorsActionsRepository } from 'src/infrastructure/repositories/operators-actions.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { UseCaseBase } from '../usecases.base';
@@ -16,7 +18,7 @@ export class ManageUsersRole extends UseCaseBase {
     private readonly userRepo: DatabaseUserRepository,
     private readonly operActionRepo: DatabaseOperatorsActionsRepository,
     protected readonly dataSource: DataSource,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.contextTitle = '[USE CASE] Manage users role ';

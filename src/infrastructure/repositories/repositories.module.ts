@@ -16,9 +16,7 @@ import { SurveyQuestions } from '../entities/survey-questions.entity';
 import { SurveyRiskCalculationRules } from '../entities/survey-rules-for-risk-calculation.entity';
 import { Survey } from '../entities/survey.entity';
 import { User } from '../entities/user.entity';
-import { ApiLoggerModule } from '../services/logger/logger.module';
 import { ApiRedisModule } from '../services/redis/redis.module';
-import { WSModule } from '../services/websockets/ws.module';
 import { DatabaseEmailRepository } from './email.repository';
 import { DatabaseMedicalSpecialtyRepository } from './medical-specialty.repository';
 import { DatabaseOperatorsActionsRepository } from './operators-actions.repository';
@@ -38,9 +36,7 @@ import { DatabaseUserRepository } from './user.repository';
   imports: [
     EnvironmentConfigModule,
     TypeOrmConfigModule,
-    ApiLoggerModule,
     ApiRedisModule,
-    WSModule,
     TypeOrmModule.forFeature([
       Person,
       User,

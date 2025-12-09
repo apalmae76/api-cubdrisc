@@ -23,8 +23,10 @@ import { DatabasePersonSurveyRepository } from 'src/infrastructure/repositories/
 import { DatabasePersonRepository } from 'src/infrastructure/repositories/person.repository';
 import { DatabaseStateRepository } from 'src/infrastructure/repositories/state.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
@@ -48,7 +50,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     private readonly redisService: ApiRedisService,
     private readonly appConfig: EnvironmentConfigService,
     private readonly dataSource: DataSource,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.context = `${ManagePersonSurveyUseCases.name}.`;

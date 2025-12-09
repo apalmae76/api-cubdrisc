@@ -1,16 +1,17 @@
-import { ArgumentsHost, Catch, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, Catch, HttpStatus, Inject } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import {
   I18nContext,
   I18nValidationException,
   I18nValidationExceptionFilter,
 } from 'nestjs-i18n';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { getIP } from '../utils/get-ip';
 
 @Catch(I18nValidationException)
 export class CustomI18nValidationExceptionFilter extends I18nValidationExceptionFilter {
-  constructor(private readonly logger: ApiLoggerService) {
+  constructor(@Inject(API_LOGGER_KEY) private readonly logger: IApiLogger) {
     super({
       errorFormatter: (errors: ValidationError[]) => {
         const errorMessages = this.getErrorMessages(

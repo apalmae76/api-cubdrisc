@@ -1,13 +1,11 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { ApiLoggerModule } from '../logger/logger.module';
 import { EmailService } from '../mail/mail.service';
 import { EmailConsumer } from './email.consumer';
 
 @Module({
   providers: [EmailConsumer, EmailService],
   imports: [
-    ApiLoggerModule,
     BullModule.registerQueue({
       name: 'email',
       defaultJobOptions: {
@@ -20,4 +18,4 @@ import { EmailConsumer } from './email.consumer';
   ],
   exports: [EmailConsumer, BullModule],
 })
-export class EmailConsumerModule {}
+export class EmailConsumerModule { }

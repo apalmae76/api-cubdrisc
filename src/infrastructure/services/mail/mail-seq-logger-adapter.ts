@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ApiLoggerService } from '../logger/logger.service';
+import { Inject } from '@nestjs/common';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 
 interface LogData {
   msg: string;
   meta: any;
 }
 export class MailSeqLoggerAdapter {
-  constructor(private readonly logger: ApiLoggerService) {}
+  constructor(@Inject(API_LOGGER_KEY) private readonly logger: IApiLogger) { }
 
   log(meta: any) {
     const logData = this.getMessage(meta);
@@ -34,15 +36,15 @@ export class MailSeqLoggerAdapter {
   }
 
   private getMessage(meta: any): LogData {
-    let msg = 'Mailier component: {component}, tnx: {tnx}';
+    let msg = `Mailier component: ${meta.component}, tnx: ${meta.tnx}`;
     if (meta.username) {
-      msg += `, username: {username}`;
+      msg += `, username: ${meta.username}`;
     }
     if (meta.action) {
-      msg += `, action: {action}`;
+      msg += `, action: ${meta.action}`;
     }
     if (meta.version) {
-      msg += `, version: {version}`;
+      msg += `, version: ${meta.version}`;
     }
     const message = meta?.err?.response ?? null;
     if (message) {

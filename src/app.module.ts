@@ -25,10 +25,12 @@ import { ExceptionsModule } from './infrastructure/exceptions/exceptions.module'
 import { RepositoriesModule } from './infrastructure/repositories/repositories.module';
 import { BcryptModule } from './infrastructure/services/bcrypt/bcrypt.module';
 import { JwtModule as JwtServiceModule } from './infrastructure/services/jwt/jwt.module';
-import { ApiLoggerModule } from './infrastructure/services/logger/logger.module';
-import { ApiLoggerService } from './infrastructure/services/logger/logger.service';
+import { IApiLogger } from './infrastructure/services/logger/logger.interface';
+import {
+  API_LOGGER_KEY,
+  ApiLoggerModule,
+} from './infrastructure/services/logger/logger.module';
 import { MailModule } from './infrastructure/services/mail/mail.module';
-import { PdfGeneratorModule } from './infrastructure/services/pdf-generator/pdf-generator.module';
 import { getRedisConfForBull } from './infrastructure/services/redis/redis.config';
 import { ApiRedisModule } from './infrastructure/services/redis/redis.module';
 import { SystemModule } from './infrastructure/services/system/system.module';
@@ -37,6 +39,7 @@ import { UsecasesProxyModule } from './infrastructure/usecases-proxy/usecases-pr
 
 @Module({
   imports: [
+    ApiLoggerModule.register(),
     I18nModule.forRootAsync({
       useFactory: (appConfig: EnvironmentConfigService) => ({
         fallbackLanguage: 'en',
@@ -50,7 +53,6 @@ import { UsecasesProxyModule } from './infrastructure/usecases-proxy/usecases-pr
       resolvers: [AcceptLanguageResolver],
     }),
     SystemModule,
-    ApiLoggerModule,
     ScheduleModule.forRoot(),
     PassportModule,
     JwtModule.register({
@@ -80,7 +82,6 @@ import { UsecasesProxyModule } from './infrastructure/usecases-proxy/usecases-pr
     ControllersModule,
     AdminControllersModule,
     RepositoriesModule,
-    PdfGeneratorModule,
   ],
   providers: [
     JwtStrategy,
@@ -89,14 +90,14 @@ import { UsecasesProxyModule } from './infrastructure/usecases-proxy/usecases-pr
     {
       provide: APP_FILTER,
       useFactory: (
-        logger: ApiLoggerService,
+        logger: IApiLogger,
         i18nService: I18nService,
         appConfig: EnvironmentConfigService,
       ) => {
         const isNotProductionEnv = appConfig.isNotProductionEnv();
         return new MyExceptionFilter(logger, isNotProductionEnv, i18nService);
       },
-      inject: [ApiLoggerService, I18nService, EnvironmentConfigService],
+      inject: [API_LOGGER_KEY, I18nService, EnvironmentConfigService],
     },
     {
       provide: APP_PIPE,

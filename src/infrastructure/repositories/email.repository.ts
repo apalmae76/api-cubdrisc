@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEmailModel, UserEmailPanelModel } from 'src/domain/model/email';
 import { IUserEmailRepository } from 'src/domain/repositories/emailRepository.interface';
@@ -7,7 +7,8 @@ import { GetGenericAllDto } from '../common/dtos/genericRepo-dto.class';
 import { PageDto } from '../common/dtos/page.dto';
 import { PageMetaDto } from '../common/dtos/pageMeta.dto';
 import { UserEmails } from '../entities/emails.entity';
-import { ApiLoggerService } from '../services/logger/logger.service';
+import { IApiLogger } from '../services/logger/logger.interface';
+import { API_LOGGER_KEY } from '../services/logger/logger.module';
 import { BaseRepository } from './base.repository';
 
 @Injectable()
@@ -17,7 +18,7 @@ export class DatabaseEmailRepository
   constructor(
     @InjectRepository(UserEmails)
     private readonly userEmailEntity: Repository<UserEmails>,
-    protected readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(userEmailEntity, logger);
   }

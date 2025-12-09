@@ -19,7 +19,8 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { I18nContext, I18nService, Path, TranslateOptions } from 'nestjs-i18n';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { extractCurrentUserFromRequestWithAccessToken } from '../decorators/current-user.decorator';
 import { ResponseFormat } from '../interceptors/response.interceptor';
 import { extractErrorDetails } from '../utils/extract-error-details';
@@ -45,7 +46,7 @@ export class MyExceptionFilter implements ExceptionFilter {
   private technicalError: string | null = null;
   private isNotProductionEnv: boolean;
   constructor(
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
     isNotProductionEnv: boolean,
     @Inject(I18nService) private readonly i18nService: I18nService,
   ) {

@@ -17,8 +17,10 @@ import { DatabaseEmailRepository } from 'src/infrastructure/repositories/email.r
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
 import { BcryptService } from 'src/infrastructure/services/bcrypt/bcrypt.service';
 import { JwtTokenService } from 'src/infrastructure/services/jwt/jwt.service';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { DataSource } from 'typeorm';
 
@@ -32,7 +34,7 @@ export class UpdUserEmailWithOtpUseCases extends JwtGetToken {
     protected readonly bcryptService: BcryptService,
     protected readonly jwtTokenService: JwtTokenService,
     protected readonly redisService: ApiRedisService,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(
       jwtTokenService,

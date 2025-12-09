@@ -1,12 +1,12 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ENTITIES } from 'src/infrastructure/entities/entities';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
 import { EnvironmentConfigService } from '../environment-config/environment-config.service';
 import { TypeOrmSeqLoggerAdapter } from './typeOrmSeqLoggerAdapter';
 
 export const getTypeOrmModuleOptions = (
   envCfgServ: EnvironmentConfigService,
-  myLogger: ApiLoggerService,
+  myLogger: IApiLogger,
 ): TypeOrmModuleOptions => {
   const sslCert = envCfgServ.getDatabaseSslCert();
   if (sslCert === 'none') {

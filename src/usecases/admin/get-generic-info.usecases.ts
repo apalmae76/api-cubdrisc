@@ -26,7 +26,9 @@ import { DatabaseSurveyQuestionsRepository } from 'src/infrastructure/repositori
 import { DatabaseSurveyRiskCalculationRulesRepository } from 'src/infrastructure/repositories/survey-risk-calculation-rules.repository';
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
 import { DatabaseUserRepository } from 'src/infrastructure/repositories/user.repository';
-import { ApiLoggerService } from 'src/infrastructure/services/logger/logger.service';
+import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
+import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
+import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
 import { UseCaseBase } from '../usecases.base';
 
@@ -45,7 +47,7 @@ export class GetGenericInfoUseCases extends UseCaseBase {
     private readonly personSurveyRepo: DatabasePersonSurveyRepository,
     private readonly patientSARepo: DatabasePersonSurveyAnswersRepository,
     private readonly opActionsRepo: DatabaseOperatorsActionsRepository,
-    protected readonly logger: ApiLoggerService,
+    @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);
     this.context = `${GetGenericInfoUseCases.name}.`;

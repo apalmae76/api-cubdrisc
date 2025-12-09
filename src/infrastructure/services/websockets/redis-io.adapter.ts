@@ -1,8 +1,10 @@
+import { Inject } from '@nestjs/common';
 import * as IORedis from 'ioredis';
 import * as os from 'os';
 import { extractErrorDetails } from 'src/infrastructure/common/utils/extract-error-details';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
-import { ApiLoggerService } from '../logger/logger.service';
+import { IApiLogger } from '../logger/logger.interface';
+import { API_LOGGER_KEY } from '../logger/logger.module';
 import { getRedisConfForIoAdapter } from '../redis/redis.config';
 
 export class RedisAdapter {
@@ -12,7 +14,7 @@ export class RedisAdapter {
 
   constructor(
     private readonly configService: EnvironmentConfigService,
-    private readonly logger: ApiLoggerService,
+    @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
   ) {
     const options = getRedisConfForIoAdapter(this.configService);
     this.redisIOClient = new IORedis.Redis(options);
