@@ -7,7 +7,6 @@ import { generateIntegerRandom } from 'src/infrastructure/common/utils/random';
 import { EnvironmentConfigService } from 'src/infrastructure/config/environment-config/environment-config.service';
 import { IApiLogger } from '../logger/logger.interface';
 import { API_LOGGER_KEY } from '../logger/logger.module';
-import { RedisAdapter } from '../websockets/redis-io.adapter';
 import { getRedisConfForIoAdapter } from './redis.config';
 
 @Injectable()
@@ -18,10 +17,27 @@ export class ApiRedisService implements IRedisService {
 
   constructor(
     private readonly appConfig: EnvironmentConfigService,
+    @Inject('REDIS_CLIENT') redisClient: IORedis.Redis,
     @Inject(API_LOGGER_KEY) private readonly logger: IApiLogger,
-    @Inject('REDIS_ADAPTER') private redisAdapter: RedisAdapter,
   ) {
-    this.redisService = this.redisAdapter.getRedisClient();
+    this.redisService = redisClient;
+    this.setupEventListeners();
+  }
+
+  private setupEventListeners() {
+    this.redisService.on('error', (er: unknown) => {
+      const { message } = extractErrorDetails(er);
+      this.logger.error(`${this.contextTitle}connection error: {message}`, {
+        context: `${this.context}onError`,
+        message,
+      });
+    });
+
+    this.redisService.on('connect', () => {
+      this.logger.debug(`${this.contextTitle}connected to Redis successfully`, {
+        context: `${this.context}onConnect`,
+      });
+    });
   }
 
   /**

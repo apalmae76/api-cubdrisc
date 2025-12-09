@@ -40,9 +40,9 @@ export class CustomI18nValidationExceptionFilter extends I18nValidationException
       exception.errors,
       I18nContext.current(),
     );
-
+    const duration = Date.now() - now;
     this.logger.info(
-      'End request, failed for {path}, status {status}, duration={duration}ms ============',
+      `End request, failed for ${path}, status ${status}, duration=${duration}ms ============`,
       {
         path,
         method,
@@ -55,7 +55,7 @@ export class CustomI18nValidationExceptionFilter extends I18nValidationException
         correlationId: request.headers['correlation-id'],
         error: errorMessages,
         status,
-        duration: Date.now() - now,
+        duration,
         context: `${method}`,
       },
     );

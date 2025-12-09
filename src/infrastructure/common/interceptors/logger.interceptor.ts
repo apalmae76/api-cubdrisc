@@ -114,19 +114,23 @@ export class LoggerInterceptor implements NestInterceptor {
       });
     }
 
-    this.logger.info('Incoming request on {path} ===============', logData);
+    this.logger.info(
+      `Incoming request on ${logData.path} ===============`,
+      logData,
+    );
 
     return next.handle().pipe(
       tap({
         next: (response) => {
           const status = response?.statusCode ?? 'OK';
+          const duration = Date.now() - now;
           this.logger.info(
-            'End request for {path}, status {status}, duration={duration}ms ============',
+            `End request for ${logData.path}, status ${status}, duration=${duration}ms ============`,
             {
               ...logData,
               response,
               status,
-              duration: Date.now() - now,
+              duration,
             },
           );
         },

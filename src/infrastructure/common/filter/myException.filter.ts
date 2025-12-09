@@ -179,8 +179,8 @@ export class MyExceptionFilter implements ExceptionFilter {
       shortMsg = small;
     }
     const ip = getIP(request.headers, request.connection.remoteAddress);
-    const outputMsg = `End request for {path}, status={status} message={message} ==========`;
     const { path, baseUrl, method, body, query, params } = request;
+    const outputMsg = `End request for ${path}, status=${status} message=${message} ==========`;
     const technicalError = response?.technicalError ?? undefined;
     if (this.isNotProductionEnv === false) {
       delete response.technicalError;

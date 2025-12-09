@@ -34,7 +34,6 @@ import { MailModule } from './infrastructure/services/mail/mail.module';
 import { getRedisConfForBull } from './infrastructure/services/redis/redis.config';
 import { ApiRedisModule } from './infrastructure/services/redis/redis.module';
 import { SystemModule } from './infrastructure/services/system/system.module';
-import { WSModule } from './infrastructure/services/websockets/ws.module';
 import { UsecasesProxyModule } from './infrastructure/usecases-proxy/usecases-proxy.module';
 
 @Module({
@@ -67,7 +66,6 @@ import { UsecasesProxyModule } from './infrastructure/usecases-proxy/usecases-pr
       },
     }),
     EnvironmentConfigModule,
-    WSModule,
     ApiRedisModule,
     MailModule,
     BcryptModule,

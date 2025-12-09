@@ -25,6 +25,7 @@ import { DatabaseStateRepository } from 'src/infrastructure/repositories/state.r
 import { DatabaseSurveyRepository } from 'src/infrastructure/repositories/survey.repository';
 import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
 import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
+import { REDIS_SERVICE_KEY } from 'src/infrastructure/services/redis/redis.module';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
 import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
@@ -47,9 +48,10 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     private readonly personRepo: DatabasePersonRepository,
     private readonly personSurveyRepo: DatabasePersonSurveyRepository,
     private readonly stateRepo: DatabaseStateRepository,
-    private readonly redisService: ApiRedisService,
     private readonly appConfig: EnvironmentConfigService,
     private readonly dataSource: DataSource,
+    @InjectWithToken(REDIS_SERVICE_KEY)
+    private readonly redisService: ApiRedisService,
     @InjectWithToken(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(logger);

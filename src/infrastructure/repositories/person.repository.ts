@@ -17,6 +17,7 @@ import { SYSTEM_USER_ID } from '../common/utils/constants';
 import { Person } from '../entities/person.entity';
 import { IApiLogger } from '../services/logger/logger.interface';
 import { API_LOGGER_KEY } from '../services/logger/logger.module';
+import { REDIS_SERVICE_KEY } from '../services/redis/redis.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 
@@ -29,7 +30,7 @@ export class DatabasePersonRepository
   constructor(
     @InjectRepository(Person)
     private readonly personEntity: Repository<Person>,
-    private readonly redisService: ApiRedisService,
+    @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(personEntity, logger);

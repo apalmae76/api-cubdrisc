@@ -40,6 +40,7 @@ import { Person } from '../entities/person.entity';
 import { User } from '../entities/user.entity';
 import { IApiLogger } from '../services/logger/logger.interface';
 import { API_LOGGER_KEY } from '../services/logger/logger.module';
+import { REDIS_SERVICE_KEY } from '../services/redis/redis.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 import { DatabaseMedicalSpecialtyRepository } from './medical-specialty.repository';
@@ -60,7 +61,7 @@ export class DatabaseUserRepository
     private readonly userEntity: Repository<User>,
     private readonly personRepo: DatabasePersonRepository,
     private readonly medSpecRepo: DatabaseMedicalSpecialtyRepository,
-    private readonly redisService: ApiRedisService,
+    @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(userEntity, logger);

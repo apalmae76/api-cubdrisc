@@ -20,6 +20,7 @@ import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { SurveyRiskCalculationRules } from '../entities/survey-rules-for-risk-calculation.entity';
 import { IApiLogger } from '../services/logger/logger.interface';
 import { API_LOGGER_KEY } from '../services/logger/logger.module';
+import { REDIS_SERVICE_KEY } from '../services/redis/redis.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 import { DatabaseSurveyRepository } from './survey.repository';
@@ -34,7 +35,7 @@ export class DatabaseSurveyRiskCalculationRulesRepository
     @InjectRepository(SurveyRiskCalculationRules)
     private readonly surveyRCRulesEntity: Repository<SurveyRiskCalculationRules>,
     private readonly surveyRepo: DatabaseSurveyRepository,
-    private readonly redisService: ApiRedisService,
+    @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(surveyRCRulesEntity, logger);

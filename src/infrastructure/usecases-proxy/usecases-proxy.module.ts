@@ -16,7 +16,6 @@ import { ApiRedisModule } from '../services/redis/redis.module';
 import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
 
 import { CronTasksModule } from '../services/cronjobs/cron-tasks.module';
-import { ApiLoggerModule } from '../services/logger/logger.module';
 import { PdfGeneratorModule } from '../services/pdf-generator/pdf-generator.module';
 import { IUseCaseProviderData } from './plugin/interface/use-case-provider.interface';
 import { loadProxyModuleMeta } from './plugin/use-case.utils';
@@ -25,7 +24,6 @@ import { loadProxyModuleMeta } from './plugin/use-case.utils';
   imports: [
     JwtModule,
     BcryptModule,
-    ApiLoggerModule,
     ApiRedisModule,
     MailModule,
     EnvironmentConfigModule,

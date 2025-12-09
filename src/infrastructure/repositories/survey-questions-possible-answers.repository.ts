@@ -21,6 +21,7 @@ import { extractErrorDetails } from '../common/utils/extract-error-details';
 import { SurveyQuestionsPossibleAnswers } from '../entities/survey-questions-possible-answers.entity';
 import { IApiLogger } from '../services/logger/logger.interface';
 import { API_LOGGER_KEY } from '../services/logger/logger.module';
+import { REDIS_SERVICE_KEY } from '../services/redis/redis.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 import { DatabaseSurveyQuestionsRepository } from './survey-questions.repository';
@@ -34,7 +35,7 @@ export class DatabaseSurveyQuestionsPossibleAnswersRepository
     @InjectRepository(SurveyQuestionsPossibleAnswers)
     private readonly surveyQPAEntity: Repository<SurveyQuestionsPossibleAnswers>,
     private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
-    private readonly redisService: ApiRedisService,
+    @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
   ) {
     super(surveyQPAEntity, logger);

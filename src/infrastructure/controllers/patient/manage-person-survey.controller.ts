@@ -138,6 +138,7 @@ export class ManagePersonSurveyController {
     @Param() { surveyId }: ValidSurveyIdDto,
     @Param() { gender }: ValidGenderDto,
   ): Promise<GetPublicSurveyQuestionsPresenter> {
+    console.log('Aqui ----------------------------->>>>>>>>>>>>>>>>>>>>');
     return await this.managePSAnswerProxyUC
       .getInstance()
       .getSurveyQuestions(surveyId, gender);

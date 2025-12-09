@@ -27,6 +27,7 @@ import ContextStorageService, {
 import { IApiLogger } from 'src/infrastructure/services/logger/logger.interface';
 import { API_LOGGER_KEY } from 'src/infrastructure/services/logger/logger.module';
 import { PdfGeneratorService } from 'src/infrastructure/services/pdf-generator/pdf-generator.service';
+import { REDIS_SERVICE_KEY } from 'src/infrastructure/services/redis/redis.module';
 import { ApiRedisService } from 'src/infrastructure/services/redis/redis.service';
 import { InjectWithToken } from 'src/infrastructure/usecases-proxy/plugin/decorators/inject-with-token.decorator';
 import { InjectableUseCase } from 'src/infrastructure/usecases-proxy/plugin/decorators/injectable-use-case.decorator';
@@ -43,6 +44,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
     private readonly personSurveyAnswerRepo: DatabasePersonSurveyAnswersRepository,
     private readonly surveyRCRulesRepo: DatabaseSurveyRiskCalculationRulesRepository,
     private readonly pdfGenerator: PdfGeneratorService,
+    @InjectWithToken(REDIS_SERVICE_KEY)
     private readonly redisService: ApiRedisService,
     private readonly appConfig: EnvironmentConfigService,
     @InjectWithToken(ContextStorageServiceKey)
