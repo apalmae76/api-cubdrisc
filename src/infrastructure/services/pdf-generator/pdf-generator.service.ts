@@ -208,13 +208,13 @@ export class PdfGeneratorService {
         dates: this.formatDates(personSurvey),
       };
 
-      this.logger.debug(`Generando PDF para test: ${personSurvey.surveyName}`, {
+      this.logger.debug(`Generating PDF for test: ${personSurvey.surveyName}`, {
         context,
       });
 
       // Generar PDF usando el template "test-medico"
       const pdfBuffer = await this.generatePdfFromTemplate(
-        'test-medico1',
+        'test-medico',
         pdfData,
         {
           format: 'A4',

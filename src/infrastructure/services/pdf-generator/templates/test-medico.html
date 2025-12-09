@@ -4,26 +4,52 @@
   <meta name='viewport' content='width=device-width, initial-scale=1.0' />
   <title>Test médico - {{test.name}}</title>
   <style>
-    /* ===== RESET ===== */
+    /* 
+    ESTILOS MEJORADOS PARA CONTROL DE PAGINADO
+    */
+    
+    /* ===== RESET Y CONFIGURACIÓN BÁSICA ===== */
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
     
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Arial', Helvetica, sans-serif;
       line-height: 1.4;
-      color: #333;
+      color: #333333;
       margin: 0;
       padding: 20px 25px;
       font-size: 11pt;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
     }
     
-    .strong { 
-      font-weight: bold; 
+    .bold { 
+      font-weight: bold !important; 
+    }
+    
+    .text-center { 
+      text-align: center !important; 
+    }
+    
+    /* ===== CONTROL DE PAGINADO ===== */
+    .page-container {
+      max-width: 100%;
+      position: relative;
+    }
+    
+    /* Evitar que se dividan estos elementos entre páginas */
+    .no-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    
+    .page-break-before {
+      page-break-before: always;
+      break-before: page;
+    }
+    
+    .page-break-after {
+      page-break-after: always;
+      break-after: page;
     }
     
     /* ===== HEADER ===== */
@@ -42,14 +68,14 @@
     }
     
     .header-title h2 {
-      color: #555;
+      color: #555555;
       margin: 0 0 8px 0;
       font-size: 11pt;
       font-weight: normal;
     }
     
     .header-date {
-      color: #666;
+      color: #666666;
       font-size: 10pt;
       margin-top: 5px;
     }
@@ -61,7 +87,6 @@
       padding: 15px;
       border-radius: 4px;
       margin-bottom: 25px;
-      page-break-inside: avoid;
     }
     
     .paciente-info h3 {
@@ -72,32 +97,46 @@
       border-bottom: 1px dashed #cce5ff;
     }
     
-    .info-grid {
+    .info-table {
       width: 100%;
-    }
-    
-    .info-item {
-      margin-bottom: 6px;
+      border-collapse: collapse;
     }
     
     .info-label {
       font-weight: bold;
-      color: #444;
-      display: inline-block;
-      width: 160px;
+      color: #444444;
+      white-space: nowrap;
+      padding: 4px 0;
+      vertical-align: top;
     }
     
-    /* ===== PREGUNTAS Y RESPUESTAS ===== */
+    .info-value {
+      padding: 4px 0;
+      vertical-align: top;
+    }
+    
+    /* ===== PREGUNTAS Y RESPUESTAS - MEJORADO ===== */
     .seccion-preguntas {
       margin-bottom: 25px;
     }
     
+    /* Contenedor para grupos de preguntas que deben permanecer juntas */
+    .preguntas-grupo {
+      margin-bottom: 15px;
+    }
+    
     .pregunta-item {
       margin-bottom: 12px;
-      border: 1px solid #ddd;
+      border: 1px solid #dddddd;
       border-radius: 4px;
       overflow: hidden;
+    }
+    
+    /* Asegurar que cada pregunta completa quede en una página */
+    .pregunta-completa {
       page-break-inside: avoid;
+      break-inside: avoid;
+      margin-bottom: 15px;
     }
     
     .pregunta-header {
@@ -116,53 +155,51 @@
       margin-right: 8px;
       font-size: 9pt;
       display: inline-block;
-      min-width: 22px;
+      width: 22px;
+      height: 22px;
       text-align: center;
+      line-height: 18px;
     }
     
     .pregunta-body {
       background: white;
-      padding: 15px;
+      padding: 10px;
     }
     
     .pregunta-texto {
       font-weight: 500;
       color: #013264;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-size: 10.5pt;
-      padding-bottom: 5px;
+      padding-bottom: 8px;
       border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .respuesta-container {
-      margin-top: 10px;
     }
     
     .respuesta-label {
       font-weight: bold;
-      color: #333;
-      margin-bottom: 4px;
+      color: #333333;
+      margin-bottom: 2px;
       display: block;
     }
     
     .respuesta {
-      color: #333;
-      padding: 8px 10px;
+      color: #333333;
+      padding: 5px 10px;
       background-color: #e8f4fd;
       border-left: 3px solid #007bff;
-      border-radius: 3px;
       font-size: 10pt;
+      margin-bottom: 2px;
+      margin-top: 2px;
     }
     
     .observaciones {
-      margin-top: 12px;
-      padding: 10px;
+      margin-top: 2px;
+      padding: 5px 10px;
       background-color: #fff8e1;
       border-left: 3px solid #ffc107;
       font-size: 9.5pt;
-      color: #666;
+      color: #666666;
       font-style: italic;
-      border-radius: 3px;
     }
     
     /* ===== RESUMEN DE RIESGO ===== */
@@ -174,6 +211,7 @@
       padding: 25px;
       border-radius: 8px;
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     
     .resumen-riesgo h3 {
@@ -189,7 +227,6 @@
       line-height: 1;
       margin: 10px 0 15px 0;
       color: #ffc107;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
     
     .resumen-estimacion {
@@ -205,9 +242,6 @@
       font-size: 10.5pt;
       line-height: 1.4;
       margin-top: 8px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
     }
     
     /* ===== FIRMA ===== */
@@ -215,10 +249,12 @@
       margin-top: 50px;
       text-align: center;
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     
     .linea-firma {
       width: 300px;
+      height: 0;
       border-top: 1px solid #013264;
       margin: 0 auto 5px;
       padding-top: 40px;
@@ -236,74 +272,52 @@
       margin-top: 5px;
     }
     
-    /* ===== FOOTER ===== */
-    .footer {
+    /* ===== FOOTER PERSONALIZADO ===== */
+    .custom-footer {
       margin-top: 35px;
       text-align: center;
       font-size: 9pt;
-      color: #666;
+      color: #666666;
       padding-top: 15px;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid #dddddd;
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     
-    .footer p {
+    .custom-footer p {
       margin: 4px 0;
     }
     
-    /* ===== MEDIA PRINT ===== */
-    @media print {
-      body {
-        padding: 15px 20px;
-      }
-      
-      .pregunta-item,
-      .resumen-riesgo,
-      .firma {
-        break-inside: avoid;
-      }
-      
-      /* Forzar colores en impresión */
-      .pregunta-header {
-        background: #013264 !important;
-        -webkit-print-color-adjust: exact !important;
-      }
-      
-      .paciente-info {
-        background: #f0f7ff !important;
-        -webkit-print-color-adjust: exact !important;
-      }
-      
-      .respuesta {
-        background: #e8f4fd !important;
-        -webkit-print-color-adjust: exact !important;
-      }
-      
-      .observaciones {
-        background: #fff8e1 !important;
-        -webkit-print-color-adjust: exact !important;
-      }
-      
-      .resumen-riesgo {
-        background: #013264 !important;
-        -webkit-print-color-adjust: exact !important;
-      }
-      
-      .resumen-puntaje {
-        color: #ffc107 !important;
-        -webkit-print-color-adjust: exact !important;
-      }
-    }
-    
     /* ===== UTILIDADES ===== */
-    .text-center { text-align: center !important; }
-    .text-right { text-align: right !important; }
-    .mt-1 { margin-top: 8px !important; }
-    .mt-2 { margin-top: 16px !important; }
+    .mt-1 { margin-top: 5px !important; }
+    .mt-2 { margin-top: 5px !important; }
     .mt-3 { margin-top: 24px !important; }
     .mb-1 { margin-bottom: 8px !important; }
     .mb-2 { margin-bottom: 16px !important; }
     .mb-3 { margin-bottom: 24px !important; }
+    .pt-1 { padding-top: 8px !important; }
+    .pb-1 { padding-bottom: 8px !important; }
+    
+    /* ===== PARA EVITAR QUE LAS PREGUNTAS SE CORTEN ===== */
+    .force-together {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    
+    /* Si una pregunta es muy larga, permitir que se divida internamente */
+    .allow-internal-break {
+      page-break-inside: auto;
+      break-inside: auto;
+    }
+    
+    /* Estilo para el número de página (si html-pdf lo soporta) */
+    .page-number {
+      position: fixed;
+      bottom: 10px;
+      right: 20px;
+      font-size: 9pt;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -318,71 +332,75 @@
     </div>
 
     <!-- DATOS PACIENTE -->
-    <div class='paciente-info'>
+    <div class='paciente-info no-break'>
       <h3>Datos del paciente</h3>
-      <div class='info-grid'>
-        <div class='info-item'>
-          <span class='info-label'>Nombre:</span>
-          {{personSurvey.fullName}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Número de identidad:</span>
-          {{personSurvey.ci}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Edad:</span>
-          {{personSurvey.age}} años
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Fecha de nacimiento:</span>
-          {{personSurvey.dateOfBirth}}
-        </div>
+      <table class='info-table'>
+        <tr>
+          <td class='info-label'>Nombre:</td>
+          <td class='info-value'>{{personSurvey.fullName}}</td>
+        </tr>
+        <tr>
+          <td class='info-label'>Número de identidad:</td>
+          <td class='info-value'>{{personSurvey.ci}}</td>
+        </tr>
+        <tr>
+          <td class='info-label'>Edad:</td>
+          <td class='info-value'>{{personSurvey.age}} años</td>
+        </tr>
+        <tr>
+          <td class='info-label'>Fecha de nacimiento:</td>
+          <td class='info-value'>{{personSurvey.dateOfBirth}}</td>
+        </tr>
         {{#if medic.fullName}}
-        <div class='info-item'>
-          <span class='info-label'>Médico:</span>
-          {{medic.fullName}}
-        </div>
-        <div class='info-item'>
-          <span class='info-label'>Especialidad:</span>
-          {{medic.medicalSpecialty}}
-        </div>
+        <tr>
+          <td class='info-label'>Médico:</td>
+          <td class='info-value'>{{medic.fullName}}</td>
+        </tr>
+        <tr>
+          <td class='info-label'>Especialidad:</td>
+          <td class='info-value'>{{medic.medicalSpecialty}}</td>
+        </tr>
         {{/if}}
-      </div>
+      </table>
     </div>
 
-    <!-- PREGUNTAS Y RESPUESTAS -->
+    <!-- PREGUNTAS Y RESPUESTAS - CON MEJOR CONTROL DE PAGINADO -->
     <div class='seccion-preguntas'>
-      {{#each answeredQuestions}}
-      <div class='pregunta-item'>
-        <div class='pregunta-header'>
-          <span class='pregunta-number'>{{this.questionOrder}}</span>
-          <span class='pregunta-texto-header'>Pregunta {{this.questionOrder}}</span>
-        </div>
-        <div class='pregunta-body'>
-          <div class='pregunta-texto'>
-            {{this.question}}
-          </div>
-          
-          <div class='respuesta-container'>
-            <span class='respuesta-label'>Respuesta:</span>
-            <div class='respuesta'>
-              {{this.answer}}
+      <div class='preguntas-grupo'>
+        {{#each answeredQuestions}}
+        <div class='pregunta-completa force-together'>
+          <div class='pregunta-item'>
+            <div class='pregunta-header'>
+              <span class='pregunta-number'>{{this.questionOrder}}</span>
+              <span>Pregunta {{this.questionOrder}}</span>
+            </div>
+            <div class='pregunta-body'>
+              <div class='pregunta-texto'>
+                {{this.question}}
+              </div>
+              
+              <div class='mt-1'>
+                <span class='respuesta-label'>Respuesta:</span>
+                <div class='respuesta'>
+                  {{this.answer}}
+                </div>
+              </div>
+              
+              {{#if this.educationalTip}}
+              <div class='observaciones mt-2'>
+                <span class='bold'>Consejo educacional:</span>
+                {{this.educationalTip}}
+              </div>
+              {{/if}}
             </div>
           </div>
-          
-          {{#if this.educationalTip}}
-          <div class='observaciones'>
-            <span class='strong'>Consejo educacional:</span>
-            {{this.educationalTip}}
-          </div>
-          {{/if}}
         </div>
+        {{/each}}
       </div>
-      {{/each}}
     </div>
 
-    <!-- RESUMEN DE RIESGO -->
-    <div class='resumen-riesgo'>
+    <!-- RESUMEN DE RIESGO - ASEGURAR QUE NO SE DIVIDA -->
+    <div class='resumen-riesgo no-break'>
       <h3>PUNTAJE TOTAL OBTENIDO</h3>
       <div class='resumen-puntaje'>
         {{personSurvey.totalScore}}
@@ -390,24 +408,24 @@
       <div class='resumen-estimacion'>
         {{personSurvey.estimatedRisk}}
       </div>
-      <div class='resumen-descripcion'>
+      <div class='resumen-descripcion mt-2'>
         Riesgo de desarrollar diabetes: 
-        <span class='strong'>{{personSurvey.estimatedRiskPercent}}%</span>.
+        <span class='bold'>{{personSurvey.estimatedRiskPercent}}%</span>.
         {{personSurvey.estimatedRiskDescription}}
       </div>
     </div>
 
     <!-- FIRMA -->
     {{#if medic.fullName}}
-    <div class='firma'>
+    <div class='firma no-break'>
       <div class='linea-firma'></div>
       <p class='doctor'>Dr. {{medic.fullName}}</p>
       <p>{{medic.medicalSpecialty}}</p>
     </div>
     {{/if}}
 
-    <!-- FOOTER -->
-    <div class='footer'>
+    <!-- FOOTER PERSONALIZADO -->
+    <div class='custom-footer no-break'>
       <p>Documento generado el {{dates.generationDate}} - Confidencial</p>
       {{#if dates.canRepeatDate}}
       <p>Próximo test recomendado posterior al día: {{dates.canRepeatDate}}</p>
