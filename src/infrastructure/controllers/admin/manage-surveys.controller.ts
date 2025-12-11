@@ -93,7 +93,7 @@ export class AdminSurveysController {
     private readonly manageRiskCRulesProxyUC: UseCaseProxy<ManageSurveyRiskCalculationUseCases>,
     @InjectUseCase(MoveSurveyRiskCalculationUseCases)
     private readonly moveRiskCRulesProxyUC: UseCaseProxy<MoveSurveyRiskCalculationUseCases>,
-  ) { }
+  ) {}
 
   // Manage surveys --------------------------------------------------------
   @Post()
@@ -101,7 +101,7 @@ export class AdminSurveysController {
   @ApiBody({ type: CreateSurveyDto })
   @ApiOperation({
     description: '',
-    summary: 'Allows admins, to create new surveys',
+    summary: 'Allows admins, to create new test',
     operationId: 'createSurvey',
   })
   async createSurvey(

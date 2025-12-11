@@ -35,13 +35,26 @@ async function bootstrap() {
       crossOriginResourcePolicy: false,
     }),
   );
-
+  const origin = envCfgServ.getListOfAuthorizedAddresses();
   const corsOptions: CorsOptions = {
-    origin: `${envCfgServ.getListOfAuthorizedAddresses()}`,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,WEBSOCKET',
+    origin,
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,
-    credentials: true,
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'X-Requested-With',
+      'X-API-Version',
+      'X-Client-ID',
+      'Cache-Control',
+      'If-Modified-Since',
+      'version',
+      'app',
+    ],
+    maxAge: 86400,
   };
   app.enableCors(corsOptions);
 
@@ -53,7 +66,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggerInterceptor(logger, cls));
 
   // base routing
-  app.setGlobalPrefix('');
+  app.setGlobalPrefix('api');
 
   // configure some security options
   app.use((req, res, next) => {
@@ -183,9 +196,14 @@ async function bootstrap() {
   console.log(
     `[APP-START] ${appName} started in "${nodeEnv}" env, on port "${port}", version ${appVersion}`,
   );
-
+  const apiUrl = envCfgServ.getBaseUrlWeb();
+  const apiFullUrl = apiUrl.includes('localhost')
+    ? `http://${apiUrl}/api`
+    : `https://${apiUrl}/api`;
   app.listen(port, '0.0.0.0', () => {
-    console.log(`API running on port ${port} - accessible from network`);
+    console.log(
+      `🚀 API running on port ${port} - accessible from network on: ${apiFullUrl}`,
+    );
   });
 }
 

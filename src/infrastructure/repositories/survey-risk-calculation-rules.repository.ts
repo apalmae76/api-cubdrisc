@@ -28,15 +28,16 @@ import { DatabaseSurveyRepository } from './survey.repository';
 @Injectable()
 export class DatabaseSurveyRiskCalculationRulesRepository
   extends BaseRepository
-  implements ISurveyRiskCalculationRulesRepository {
+  implements ISurveyRiskCalculationRulesRepository
+{
   private readonly cacheKey = 'Repository:SurveyRiskCalculationRules:';
   private readonly cacheTime = 15 * 60; // 15 mins
   constructor(
     @InjectRepository(SurveyRiskCalculationRules)
     private readonly surveyRCRulesEntity: Repository<SurveyRiskCalculationRules>,
-    private readonly surveyRepo: DatabaseSurveyRepository,
     @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
+    private readonly surveyRepo: DatabaseSurveyRepository,
   ) {
     super(surveyRCRulesEntity, logger);
   }

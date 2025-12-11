@@ -24,3 +24,9 @@ export class ListToUpdOrderModel {
   id: number;
   order: number;
 }
+
+export class AnswerCountByQuestions {
+  cAnswer: number;
+  minValue: number;
+  maxValue: number;
+}

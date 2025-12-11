@@ -53,16 +53,17 @@ export enum EUserMetaAttributes {
 @Injectable()
 export class DatabaseUserRepository
   extends BaseRepository
-  implements IUserRepository {
+  implements IUserRepository
+{
   private readonly cacheKey = 'Repository:User:';
   private readonly cacheTime = 15 * 60; // 15 mins
   constructor(
     @InjectRepository(User)
     private readonly userEntity: Repository<User>,
-    private readonly personRepo: DatabasePersonRepository,
-    private readonly medSpecRepo: DatabaseMedicalSpecialtyRepository,
     @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
+    private readonly personRepo: DatabasePersonRepository,
+    private readonly medSpecRepo: DatabaseMedicalSpecialtyRepository,
   ) {
     super(userEntity, logger);
   }
@@ -248,8 +249,9 @@ export class DatabaseUserRepository
 
     if (userId.condition === null || parseInt(userId.value) === 0) {
       if (queryDto.filter && queryDto.filter.length) {
-        queryDto.filter = `${queryDto.filter.slice(0, -1)},{"atr":"id","op":"${EQueryOperators.GREATER
-          }","value":"${SYSTEM_USER_ID}"}]`;
+        queryDto.filter = `${queryDto.filter.slice(0, -1)},{"atr":"id","op":"${
+          EQueryOperators.GREATER
+        }","value":"${SYSTEM_USER_ID}"}]`;
       } else {
         queryDto.filter = `[{"atr":"id","op":"${EQueryOperators.GREATER}","value":"${SYSTEM_USER_ID}"}]`;
       }

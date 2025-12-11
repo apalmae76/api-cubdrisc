@@ -28,15 +28,16 @@ import { DatabaseSurveyQuestionsRepository } from './survey-questions.repository
 @Injectable()
 export class DatabaseSurveyQuestionsPossibleAnswersRepository
   extends BaseRepository
-  implements ISurveyQuestionsPossibleAnswersRepository {
+  implements ISurveyQuestionsPossibleAnswersRepository
+{
   private readonly cacheKey = 'Repository:SurveyQuestionsPossibleAnswers:';
   private readonly cacheTime = 15 * 60; // 15 mins
   constructor(
     @InjectRepository(SurveyQuestionsPossibleAnswers)
     private readonly surveyQPAEntity: Repository<SurveyQuestionsPossibleAnswers>,
-    private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
     @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
+    private readonly surveyQuestionRepo: DatabaseSurveyQuestionsRepository,
   ) {
     super(surveyQPAEntity, logger);
   }

@@ -262,6 +262,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
         personSurvey,
         answeredQuestions,
       );
+      /*
       const medics = [
         // TODO see how to make this information dynamic
         {
@@ -277,6 +278,7 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
           contact: 'ferdifelix98@gmail.com',
         },
       ];
+      */
       const emailOptions: EmailJobData = {
         mailOptions: {
           subject: 'Resultados de su evaluación de riesgo',
@@ -285,14 +287,14 @@ export class FinishPersonSurveyUseCases extends UseCaseBase {
           context: {
             personFullName: personSurvey.fullName,
             testName: personSurvey.surveyName,
-            medics,
             contactPhone: '78327275',
             contactAddress: 'Calle Zapata y D, Vedado, La Habana, 10400, Cuba',
           },
           attachments: [
             {
               filename: `test_medico_${personSurvey.ci}.pdf`,
-              content: pdfBuffer,
+              content: pdfBuffer.toString('base64'),
+              encoding: 'base64',
               contentType: 'application/pdf',
             },
           ],

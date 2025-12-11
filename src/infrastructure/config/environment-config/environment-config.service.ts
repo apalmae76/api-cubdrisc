@@ -8,12 +8,13 @@ import { IJWTConfig } from '../../../domain/config/jwt.interface';
 @Injectable()
 // IAppBaseEnvConfig,
 export class EnvironmentConfigService
-  implements IDatabaseConfig, IJWTConfig, IRedisConfig, IMailConfig {
-  constructor(private configService: ConfigService) { }
+  implements IDatabaseConfig, IJWTConfig, IRedisConfig, IMailConfig
+{
+  constructor(private configService: ConfigService) {}
 
   // Aplication data --------------------------------------------
   getAppVersion(): string {
-    return '0.1.20251202';
+    return '0.1.20251211';
   }
   getAppName(): string {
     return 'CUBDRISC api';
@@ -91,8 +92,13 @@ export class EnvironmentConfigService
     return this.configService.get<number>('PORT');
   }
 
-  getListOfAuthorizedAddresses(): string {
-    return this.configService.get<string>('LIST_OF_AUTHORIZED_ADDRESSES');
+  getListOfAuthorizedAddresses(): string[] {
+    const allowedOrigins = this.configService.get<string>(
+      'LIST_OF_AUTHORIZED_ADDRESSES',
+    );
+    return allowedOrigins
+      ? allowedOrigins.split(',')
+      : ['http://localhost:3000'];
   }
 
   getLogLevel(): string {

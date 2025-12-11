@@ -30,7 +30,9 @@ export class CreateSurveyRiskCalculationDto {
     example: '',
     required: false,
   })
-  @Transform(({ value }) => value?.trim() ?? '')
+  @Transform(({ value }) =>
+    (value?.trim() ?? '') === '' ? '' : value.trim().replace(/\s+/g, ' '),
+  )
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @Length(2, 50, { message: i18nValidationMessage('validation.LENGTH') })
@@ -40,7 +42,9 @@ export class CreateSurveyRiskCalculationDto {
     example: '',
     required: true,
   })
-  @Transform(({ value }) => value?.trim() ?? '')
+  @Transform(({ value }) =>
+    (value?.trim() ?? '') === '' ? '' : value.trim().replace(/\s+/g, ' '),
+  )
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @MinLength(4, { message: i18nValidationMessage('validation.MIN_LENGTH') })
@@ -88,7 +92,7 @@ export class UpdateSurveyRiskCalculationDto {
     required: false,
   })
   @Transform(({ value }) =>
-    value !== undefined ? (value?.trim() ?? '') : value,
+    value !== undefined ? value.trim().replace(/\s+/g, ' ') : value,
   )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
@@ -101,7 +105,7 @@ export class UpdateSurveyRiskCalculationDto {
     required: true,
   })
   @Transform(({ value }) =>
-    value !== undefined ? (value?.trim() ?? '') : value,
+    value !== undefined ? value.trim().replace(/\s+/g, ' ') : value,
   )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })

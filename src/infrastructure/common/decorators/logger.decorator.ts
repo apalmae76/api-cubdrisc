@@ -118,10 +118,10 @@ export function UseCaseLogger<T extends UseCaseBase>() {
       });
       try {
         const result = await originalMethod.apply(this, args);
-        const executionTime = Date.now() - startTime;
-        logger.debug(`Ended, duration: {executionTime}ms`, {
+        const duration = Date.now() - startTime;
+        logger.debug(`Ended, duration: ${duration}ms`, {
           context,
-          executionTime,
+          duration,
         });
         return result;
       } catch (er: unknown) {

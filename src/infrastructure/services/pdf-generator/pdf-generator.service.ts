@@ -193,7 +193,7 @@ export class PdfGeneratorService {
     personSurvey: PersonSurveyFullModel,
     answeredQuestions: AnswerModel[],
     patient: PatientPanelModel | null = null,
-  ): Promise<string> {
+  ): Promise<Buffer<ArrayBufferLike>> {
     const context = `${this.context}generarPdfTestMedico`;
     try {
       // Preparar datos para el template
@@ -238,7 +238,7 @@ export class PdfGeneratorService {
       );
 
       // Convertir a base64
-      return pdfBuffer.toString('base64');
+      return pdfBuffer;
     } catch (error) {
       this.logger.error(`Error generando PDF médico: ${error.message}`, {
         context,
@@ -259,10 +259,10 @@ export class PdfGeneratorService {
       age: personSurvey.age || 'No especificado',
       dateOfBirth: personSurvey.dateOfBirth
         ? new Date(personSurvey.dateOfBirth).toLocaleDateString('es-ES', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
         : 'No especificado',
       totalScore: personSurvey.totalScore || 0,
       estimatedRisk: personSurvey.estimatedRisk || 'No determinado',
@@ -307,13 +307,13 @@ export class PdfGeneratorService {
       }),
       canRepeatDate: personSurvey.updatedAt
         ? new Date(addYears(personSurvey.updatedAt, 1)).toLocaleDateString(
-          'es-ES',
-          {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          },
-        )
+            'es-ES',
+            {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            },
+          )
         : '',
     };
   }

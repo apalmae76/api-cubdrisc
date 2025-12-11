@@ -151,11 +151,11 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
       personSurvey,
     };
     if (personDb) {
-      response.person = null;
+      response.person = dataDto;
       response.personUpd = this.getForUpdate(personDb, dataDto);
     } else {
       response.person = dataDto;
-      response.personUpd = null;
+      response.personUpd = undefined;
     }
     return response;
   }
@@ -164,7 +164,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     data: CreatePersonSurvey,
   ): Promise<PersonSurveyPresenter> {
     const personSurvey = await this.dataSource.transaction(async (em) => {
-      if (data.person !== null) {
+      if (data.personUpd === undefined && data.person !== null) {
         const person = await this.personRepo.create(data.person, em);
         data.personSurvey.personId = person.id;
       } else if (data.personUpd !== null) {
@@ -327,7 +327,7 @@ export class ManagePersonSurveyUseCases extends UseCaseBase {
     if (
       dataDto.dateOfBirth &&
       formatDateTimeToIsoString(dataDto.dateOfBirth) !==
-      formatDateTimeToIsoString(personDb.dateOfBirth)
+        formatDateTimeToIsoString(personDb.dateOfBirth)
     ) {
       personUpd.dateOfBirth = dataDto.dateOfBirth;
     }

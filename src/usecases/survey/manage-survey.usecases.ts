@@ -218,7 +218,9 @@ export class ManageSurveyUseCases extends UseCaseBase {
     }
     const errors: string[] = [];
 
-    const questionsCount = await this.surveyQuestionRepo.getCount(surveyId);
+    const questionsAnsCount =
+      await this.surveyQuestionRepo.getAnswerCountByQuestions(surveyId);
+    const questionsCount = questionsAnsCount.length;
     if (questionsCount < 1) {
       errors.push(
         `validation.survey.CANT_ACTIVATE_MIN_QUESTIONS|{"id":"${surveyId}"}`,
@@ -228,20 +230,17 @@ export class ManageSurveyUseCases extends UseCaseBase {
     let questionsPAMinValue = 0;
     let questionsPAMaxValue = 0;
     if (questionsCount > 0) {
-      const questionsPAStatus =
-        await this.surveyQuestionPARepo.getCount(surveyId);
-      const isAnyWithMin =
-        questionsPAStatus.length > 0
-          ? questionsPAStatus.filter((status) => status.count < 2).length > 0
-          : true;
-      if (isAnyWithMin) {
+      const isAnyQuestionWithLessThanTwoAsnwers = questionsAnsCount.find(
+        (qAns) => qAns.cAnswer < 2,
+      );
+      if (isAnyQuestionWithLessThanTwoAsnwers) {
         errors.push(
           `validation.survey.CANT_ACTIVATE_MIN_QUESTIONS_ANSWER|{"id":"${surveyId}"}`,
         );
       }
-      for (const status of questionsPAStatus) {
-        questionsPAMinValue = questionsPAMinValue + status.minValue;
-        questionsPAMaxValue = questionsPAMaxValue + status.maxValue;
+      for (const qAns of questionsAnsCount) {
+        questionsPAMinValue = questionsPAMinValue + qAns.minValue;
+        questionsPAMaxValue = questionsPAMaxValue + qAns.maxValue;
       }
       // add 3 points of max imc
       questionsPAMaxValue = questionsPAMaxValue + 3;

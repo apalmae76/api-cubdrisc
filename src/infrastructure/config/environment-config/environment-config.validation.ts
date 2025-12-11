@@ -8,7 +8,6 @@ export type IEnv = {
   API_URL_CALLBACK: string;
 
   BASE_URL_WEB: string;
-  BASE_URL_PANEL: string;
 
   // LOG_LEVEL values: trace, debug, info, warn, error
   LOG_LEVEL: 'trace' | 'debug' | 'info' | 'warn' | 'error';
@@ -61,7 +60,6 @@ export const validationSchema = Joi.object({
     .valid('test', 'local', 'development', 'staging', 'production')
     .default('development'),
   BASE_URL_WEB: Joi.string().domain().required(),
-  BASE_URL_PANEL: Joi.string().domain().required(),
   LIST_OF_AUTHORIZED_ADDRESSES: Joi.string().required(),
   LOG_LEVEL: Joi.string()
     .valid('trace', 'debug', 'info', 'warn', 'error')

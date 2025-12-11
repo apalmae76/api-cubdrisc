@@ -24,7 +24,8 @@ import { BaseRepository } from './base.repository';
 @Injectable()
 export class DatabasePersonRepository
   extends BaseRepository
-  implements IPersonRepository {
+  implements IPersonRepository
+{
   private readonly cacheKey = 'Repository:Person:';
   private readonly cacheTime = 15 * 60; // 15 mins
   constructor(
@@ -132,8 +133,9 @@ export class DatabasePersonRepository
 
     if (userId.condition === null || parseInt(userId.value) === 0) {
       if (queryDto.filter && queryDto.filter.length) {
-        queryDto.filter = `${queryDto.filter.slice(0, -1)},{"atr":"id","op":"${EQueryOperators.GREATER
-          }","value":"${SYSTEM_USER_ID}"}]`;
+        queryDto.filter = `${queryDto.filter.slice(0, -1)},{"atr":"id","op":"${
+          EQueryOperators.GREATER
+        }","value":"${SYSTEM_USER_ID}"}]`;
       } else {
         queryDto.filter = `[{"atr":"id","op":"${EQueryOperators.GREATER}","value":"${SYSTEM_USER_ID}"}]`;
       }

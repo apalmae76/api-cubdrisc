@@ -33,7 +33,9 @@ export class CreateSurveyQuestionAnswerDto {
     example: '',
     required: true,
   })
-  @Transform(({ value }) => value?.trim() ?? '')
+  @Transform(({ value }) =>
+    (value?.trim() ?? '') === '' ? '' : value.trim().replace(/\s+/g, ' '),
+  )
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @MinLength(2, { message: i18nValidationMessage('validation.MIN_LENGTH') })
@@ -70,7 +72,7 @@ export class UpdateSurveyQuestionAnswerDto {
     required: false,
   })
   @Transform(({ value }) =>
-    value !== undefined ? (value?.trim() ?? '') : value,
+    value !== undefined ? value.trim().replace(/\s+/g, ' ') : value,
   )
   @IsOptional()
   @IsDefined({ message: i18nValidationMessage('validation.IS_DEFINED') })

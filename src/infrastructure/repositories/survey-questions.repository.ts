@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  AnswerCountByQuestions,
   ListToUpdOrderModel,
   SurveyQuestionCreateModel,
   SurveyQuestionModel,
@@ -24,18 +25,20 @@ import { REDIS_SERVICE_KEY } from '../services/redis/redis.module';
 import { ApiRedisService } from '../services/redis/redis.service';
 import { BaseRepository } from './base.repository';
 import { DatabaseSurveyRepository } from './survey.repository';
+import { SurveyQuestionsPossibleAnswers } from '../entities/survey-questions-possible-answers.entity';
 @Injectable()
 export class DatabaseSurveyQuestionsRepository
   extends BaseRepository
-  implements ISurveyQuestionsRepository {
+  implements ISurveyQuestionsRepository
+{
   private readonly cacheKey = 'Repository:SurveyQuestions:';
   private readonly cacheTime = 15 * 60; // 15 mins
   constructor(
     @InjectRepository(SurveyQuestions)
     private readonly surveyQuestionEntity: Repository<SurveyQuestions>,
-    private readonly surveyRepo: DatabaseSurveyRepository,
     @Inject(REDIS_SERVICE_KEY) private readonly redisService: ApiRedisService,
     @Inject(API_LOGGER_KEY) protected readonly logger: IApiLogger,
+    private readonly surveyRepo: DatabaseSurveyRepository,
   ) {
     super(surveyQuestionEntity, logger);
   }
@@ -332,6 +335,36 @@ export class DatabaseSurveyQuestionsRepository
     await this.surveyRepo.ensureIsDraftOrFail(surveyId);
     const question = await this.getByIdOrFail(surveyId, id);
     return question;
+  }
+
+  async getAnswerCountByQuestions(
+    surveyId: number,
+  ): Promise<AnswerCountByQuestions[]> {
+    const answers = await this.surveyQuestionEntity
+      .createQueryBuilder('sq')
+      .select([
+        'sq.survey_id as "surveyId"',
+        'count(sqa.id) as "cAnswers"',
+        'min(sqa.value) as "minValue"',
+        'max(sqa.value) as "maxValue"',
+      ])
+      .leftJoin(
+        SurveyQuestionsPossibleAnswers,
+        'sqa',
+        'sqa.survey_id = sq.survey_id and sqa.survey_question_id = sq.id',
+      )
+      .where('sq.survey_id = :surveyId', { surveyId })
+      .groupBy('sq.survey_id, sq.id, sq.order')
+      .orderBy('sq.order')
+      .getRawMany();
+    return answers.map((qAnswer) => {
+      const qAnswerCount: AnswerCountByQuestions = {
+        cAnswer: Number(qAnswer.cAnswers),
+        minValue: Number(qAnswer.minValue),
+        maxValue: Number(qAnswer.maxValue),
+      };
+      return qAnswerCount;
+    });
   }
 
   async getToMove(

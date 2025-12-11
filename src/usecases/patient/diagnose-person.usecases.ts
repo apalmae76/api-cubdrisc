@@ -2,7 +2,7 @@ import {
   BadRequestException,
   NotFoundException,
   StreamableFile,
-  UnprocessableEntityException
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { JobOptions, Queue } from 'bull';
 import { EmailJobData } from 'src/domain/adapters/email-job-data';
@@ -344,20 +344,20 @@ export class DiagnosePersonUseCases extends UseCaseBase {
     personSurvey.estimatedRiskDescription = estimatedRiskRule.description;
     personSurvey.estimatedRiskPercent = estimatedRiskRule.percent;
 
-    const base64Pdf = await this.pdfGenerator.generarPdfTestMedico(
+    const buffer = await this.pdfGenerator.generarPdfTestMedico(
       personSurvey,
       answeredQuestions,
       patient,
     );
 
-    if (!base64Pdf) {
+    if (!buffer) {
       throw new UnprocessableEntityException({
         message: [`messages.common.SOMETHING_WRONG_RETRY`],
       });
     }
 
     // 6. Convertir a Buffer y crear StreamableFile
-    const buffer = Buffer.from(base64Pdf, 'base64');
+    // const buffer = Buffer.from(base64Pdf, 'base64');
     const fileName = `resultado-test-${personSurvey.ci || personSurveyId}.pdf`;
 
     const streamableFile = new StreamableFile(buffer, {

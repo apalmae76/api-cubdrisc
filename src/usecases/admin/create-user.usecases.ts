@@ -40,7 +40,7 @@ export class CreateUserUseCases extends UseCaseBase {
       const opPayload: OperatorsActionCreateModel = {
         operatorId: adminUser.id,
         actionId: EOperatorsActions.USER_CREATE,
-        reason: `Crear nuevo usuario: ${result}`,
+        reason: `Crear nuevo usuario: ${result.email}`,
         details: result,
       };
       await this.operActionRepo.create(opPayload, em);

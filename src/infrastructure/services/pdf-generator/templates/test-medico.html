@@ -5,10 +5,10 @@
   <title>Test médico - {{test.name}}</title>
   <style>
     /* 
-    ESTILOS MEJORADOS PARA CONTROL DE PAGINADO
+    IMPROVED STYLES FOR PAGE BREAK CONTROL
     */
     
-    /* ===== RESET Y CONFIGURACIÓN BÁSICA ===== */
+    /* ===== RESET AND BASIC CONFIGURATION ===== */
     * {
       box-sizing: border-box;
     }
@@ -30,13 +30,13 @@
       text-align: center !important; 
     }
     
-    /* ===== CONTROL DE PAGINADO ===== */
+    /* ===== PAGE BREAK CONTROL ===== */
     .page-container {
       max-width: 100%;
       position: relative;
     }
     
-    /* Evitar que se dividan estos elementos entre páginas */
+    /* Prevent these elements from breaking across pages */
     .no-break {
       page-break-inside: avoid;
       break-inside: avoid;
@@ -80,7 +80,7 @@
       margin-top: 5px;
     }
     
-    /* ===== INFO PACIENTE ===== */
+    /* ===== PATIENT INFO ===== */
     .paciente-info {
       background-color: #f0f7ff;
       border: 1px solid #cce5ff;
@@ -105,7 +105,7 @@
     .info-label {
       font-weight: bold;
       color: #444444;
-      white-space: nowrap;
+      width: 190px;
       padding: 4px 0;
       vertical-align: top;
     }
@@ -115,12 +115,12 @@
       vertical-align: top;
     }
     
-    /* ===== PREGUNTAS Y RESPUESTAS - MEJORADO ===== */
+    /* ===== QUESTIONS AND ANSWERS - IMPROVED ===== */
     .seccion-preguntas {
       margin-bottom: 25px;
     }
     
-    /* Contenedor para grupos de preguntas que deben permanecer juntas */
+    /* Container for question groups that should stay together */
     .preguntas-grupo {
       margin-bottom: 15px;
     }
@@ -132,7 +132,7 @@
       overflow: hidden;
     }
     
-    /* Asegurar que cada pregunta completa quede en una página */
+    /* Ensure each complete question stays on one page */
     .pregunta-completa {
       page-break-inside: avoid;
       break-inside: avoid;
@@ -202,7 +202,7 @@
       font-style: italic;
     }
     
-    /* ===== RESUMEN DE RIESGO ===== */
+    /* ===== RISK SUMMARY ===== */
     .resumen-riesgo {
       margin-top: 35px;
       text-align: center;
@@ -244,7 +244,7 @@
       margin-top: 8px;
     }
     
-    /* ===== FIRMA ===== */
+    /* ===== SIGNATURE ===== */
     .firma {
       margin-top: 50px;
       text-align: center;
@@ -272,7 +272,7 @@
       margin-top: 5px;
     }
     
-    /* ===== FOOTER PERSONALIZADO ===== */
+    /* ===== CUSTOM FOOTER ===== */
     .custom-footer {
       margin-top: 35px;
       text-align: center;
@@ -288,7 +288,7 @@
       margin: 4px 0;
     }
     
-    /* ===== UTILIDADES ===== */
+    /* ===== UTILITIES ===== */
     .mt-1 { margin-top: 5px !important; }
     .mt-2 { margin-top: 5px !important; }
     .mt-3 { margin-top: 24px !important; }
@@ -298,25 +298,33 @@
     .pt-1 { padding-top: 8px !important; }
     .pb-1 { padding-bottom: 8px !important; }
     
-    /* ===== PARA EVITAR QUE LAS PREGUNTAS SE CORTEN ===== */
+    /* ===== TO PREVENT QUESTIONS FROM BREAKING ===== */
     .force-together {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
     
-    /* Si una pregunta es muy larga, permitir que se divida internamente */
+    /* If a question is too long, allow internal breaking */
     .allow-internal-break {
       page-break-inside: auto;
       break-inside: auto;
     }
     
-    /* Estilo para el número de página (si html-pdf lo soporta) */
+    /* Page number style (if html-pdf supports it) */
     .page-number {
       position: fixed;
       bottom: 10px;
       right: 20px;
       font-size: 9pt;
       color: #666;
+    }
+    
+    /* NEW CLASS FOR FORCED PAGE BREAK */
+    .force-page-break {
+      page-break-before: always !important;
+      break-before: page !important;
+      margin-top: 0 !important;
+      padding-top: 0 !important;
     }
   </style>
 </head>
@@ -331,7 +339,7 @@
       </div>
     </div>
 
-    <!-- DATOS PACIENTE -->
+    <!-- PATIENT DATA -->
     <div class='paciente-info no-break'>
       <h3>Datos del paciente</h3>
       <table class='info-table'>
@@ -364,7 +372,26 @@
       </table>
     </div>
 
-    <!-- PREGUNTAS Y RESPUESTAS - CON MEJOR CONTROL DE PAGINADO -->
+    <!-- RISK SUMMARY - ENSURE IT DOES NOT BREAK -->
+    <div class='resumen-riesgo no-break'>
+      <h3>PUNTAJE TOTAL OBTENIDO</h3>
+      <div class='resumen-puntaje'>
+        {{personSurvey.totalScore}}
+      </div>
+      <div class='resumen-estimacion'>
+        {{personSurvey.estimatedRisk}}
+      </div>
+      <div class='resumen-descripcion mt-2'>
+        Riesgo de desarrollar diabetes: 
+        <span class='bold'>{{personSurvey.estimatedRiskPercent}}%</span>.
+        {{personSurvey.estimatedRiskDescription}}
+      </div>
+    </div>
+
+    <!-- FORCE PAGE BREAK HERE - Questions will always start on a new page -->
+    <div class='page-break-before force-page-break'></div>
+
+    <!-- QUESTIONS AND ANSWERS - WITH IMPROVED PAGE BREAK CONTROL -->
     <div class='seccion-preguntas'>
       <div class='preguntas-grupo'>
         {{#each answeredQuestions}}
@@ -399,23 +426,7 @@
       </div>
     </div>
 
-    <!-- RESUMEN DE RIESGO - ASEGURAR QUE NO SE DIVIDA -->
-    <div class='resumen-riesgo no-break'>
-      <h3>PUNTAJE TOTAL OBTENIDO</h3>
-      <div class='resumen-puntaje'>
-        {{personSurvey.totalScore}}
-      </div>
-      <div class='resumen-estimacion'>
-        {{personSurvey.estimatedRisk}}
-      </div>
-      <div class='resumen-descripcion mt-2'>
-        Riesgo de desarrollar diabetes: 
-        <span class='bold'>{{personSurvey.estimatedRiskPercent}}%</span>.
-        {{personSurvey.estimatedRiskDescription}}
-      </div>
-    </div>
-
-    <!-- FIRMA -->
+    <!-- SIGNATURE -->
     {{#if medic.fullName}}
     <div class='firma no-break'>
       <div class='linea-firma'></div>
@@ -424,7 +435,7 @@
     </div>
     {{/if}}
 
-    <!-- FOOTER PERSONALIZADO -->
+    <!-- CUSTOM FOOTER -->
     <div class='custom-footer no-break'>
       <p>Documento generado el {{dates.generationDate}} - Confidencial</p>
       {{#if dates.canRepeatDate}}

@@ -64,7 +64,7 @@ export class ManagePersonSurveyController {
     @InjectUseCase(FinishPersonSurveyUseCases)
     private readonly finishPersonSurveyProxyUC: UseCaseProxy<FinishPersonSurveyUseCases>,
     @InjectQueue('email') private readonly emailSyncQueue: Queue<EmailJobData>,
-  ) { }
+  ) {}
 
   // Get active survey base data ---------------------------------------------------------------------
   @Get('survey')
@@ -138,7 +138,6 @@ export class ManagePersonSurveyController {
     @Param() { surveyId }: ValidSurveyIdDto,
     @Param() { gender }: ValidGenderDto,
   ): Promise<GetPublicSurveyQuestionsPresenter> {
-    console.log('Aqui ----------------------------->>>>>>>>>>>>>>>>>>>>');
     return await this.managePSAnswerProxyUC
       .getInstance()
       .getSurveyQuestions(surveyId, gender);
